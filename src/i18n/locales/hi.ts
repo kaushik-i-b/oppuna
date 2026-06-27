@@ -1,0 +1,58 @@
+import type { DeepPartial } from '@/i18n/types';
+import type { Translation } from '@/i18n/locales/en';
+
+/** Hindi translations. Missing keys fall back to English automatically. */
+export const hi: DeepPartial<Translation> = {
+  common: {
+    save: 'सहेजें',
+    cancel: 'रद्द करें',
+    delete: 'हटाएँ',
+    edit: 'संपादित करें',
+    done: 'पूर्ण',
+    close: 'बंद करें',
+    back: 'वापस',
+    continue: 'जारी रखें',
+    confirm: 'पुष्टि करें',
+    search: 'खोजें',
+    loading: 'लोड हो रहा है…',
+    retry: 'पुनः प्रयास करें',
+    optional: 'वैकल्पिक',
+    empty: 'अभी यहाँ कुछ नहीं है',
+  },
+  tabs: {
+    home: 'होम',
+    chat: 'बातचीत',
+    mood: 'मनोदशा',
+    journal: 'डायरी',
+    settings: 'सेटिंग्स',
+  },
+  home: {
+    greetingMorning: 'सुप्रभात',
+    greetingAfternoon: 'नमस्कार',
+    greetingEvening: 'शुभ संध्या',
+    howAreYou: 'आज आप कैसा महसूस कर रहे हैं?',
+    quickActions: 'त्वरित क्रियाएँ',
+    talk: 'बात करें',
+    breathe: 'साँस लें',
+    ground: 'ग्राउंडिंग',
+    sleep: 'नींद सहायता',
+    selfCare: 'स्व-देखभाल योजना',
+    insights: 'अंतर्दृष्टि',
+    logMood: 'मनोदशा दर्ज करें',
+  },
+  settings: {
+    title: 'सेटिंग्स',
+    appearance: 'रूप',
+    theme: 'थीम',
+    language: 'भाषा',
+    privacy: 'गोपनीयता विवरण',
+    disclaimer: 'चिकित्सा अस्वीकरण',
+    exportData: 'मेरा डेटा निर्यात करें',
+    deleteData: 'सारा डेटा हटाएँ',
+    appLock: 'ऐप लॉक',
+    about: 'Oppuna के बारे में',
+    themeLight: 'हल्का',
+    themeDark: 'गहरा',
+    themeSystem: 'सिस्टम',
+  },
+};

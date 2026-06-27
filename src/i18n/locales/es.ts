@@ -1,0 +1,58 @@
+import type { DeepPartial } from '@/i18n/types';
+import type { Translation } from '@/i18n/locales/en';
+
+/** Spanish translations. Missing keys fall back to English automatically. */
+export const es: DeepPartial<Translation> = {
+  common: {
+    save: 'Guardar',
+    cancel: 'Cancelar',
+    delete: 'Eliminar',
+    edit: 'Editar',
+    done: 'Listo',
+    close: 'Cerrar',
+    back: 'Atrás',
+    continue: 'Continuar',
+    confirm: 'Confirmar',
+    search: 'Buscar',
+    loading: 'Cargando…',
+    retry: 'Reintentar',
+    optional: 'Opcional',
+    empty: 'Aún no hay nada aquí',
+  },
+  tabs: {
+    home: 'Inicio',
+    chat: 'Charla',
+    mood: 'Ánimo',
+    journal: 'Diario',
+    settings: 'Ajustes',
+  },
+  home: {
+    greetingMorning: 'Buenos días',
+    greetingAfternoon: 'Buenas tardes',
+    greetingEvening: 'Buenas noches',
+    howAreYou: '¿Cómo te sientes hoy?',
+    quickActions: 'Acciones rápidas',
+    talk: 'Conversar',
+    breathe: 'Respirar',
+    ground: 'Conexión',
+    sleep: 'Apoyo para dormir',
+    selfCare: 'Plan de autocuidado',
+    insights: 'Resumen',
+    logMood: 'Registrar ánimo',
+  },
+  settings: {
+    title: 'Ajustes',
+    appearance: 'Apariencia',
+    theme: 'Tema',
+    language: 'Idioma',
+    privacy: 'Declaración de privacidad',
+    disclaimer: 'Aviso médico',
+    exportData: 'Exportar mis datos',
+    deleteData: 'Eliminar todos los datos',
+    appLock: 'Bloqueo de la app',
+    about: 'Acerca de Oppuna',
+    themeLight: 'Claro',
+    themeDark: 'Oscuro',
+    themeSystem: 'Sistema',
+  },
+};

@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "Oppuna",
+    "slug": "oppuna",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "oppuna",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0E7C66"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.oppuna.app",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Oppuna uses the microphone only to record private voice notes that stay on your device. Nothing is ever uploaded.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.oppuna.app",
+      "userInterfaceStyle": "automatic",
+      "adaptiveIcon": {
+        "backgroundColor": "#0E7C66",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": ["android.permission.RECORD_AUDIO", "android.permission.VIBRATE"],
+      "blockedPermissions": ["android.permission.INTERNET"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-localization",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0E7C66",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Oppuna records private voice notes that never leave your device."
+        }
+      ]
+    ],
+    "extra": {
+      "offlineOnly": true
+    }
+  }
+}
