@@ -1,14 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Button, Card, Chip, Screen, SectionHeader, Text, TextField } from '@/components';
+import { Button, Card, Chip, MoodPicker, Screen, SectionHeader, Text, TextField } from '@/components';
 import { useToast } from '@/components/feedback/ToastProvider';
 import { MOOD_BY_KEY, MOOD_TAGS } from '@/constants/moods';
 import { moodRepository } from '@/database';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useTranslation } from '@/hooks/useTranslation';
-import { MoodPicker } from '@/components';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { MoodKey, MoodTag } from '@/types';
