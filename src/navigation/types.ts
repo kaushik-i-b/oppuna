@@ -31,6 +31,7 @@ export type RootStackParamList = {
   DataExport: undefined;
   DeleteData: undefined;
   Disclaimer: { fromSettings?: boolean } | undefined;
+  Terms: undefined;
   About: undefined;
 
   // Safety

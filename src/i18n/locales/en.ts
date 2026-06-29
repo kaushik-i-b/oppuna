@@ -89,6 +89,7 @@ export const en = {
     language: 'Language',
     privacy: 'Privacy statement',
     disclaimer: 'Medical disclaimer',
+    terms: 'Terms of use',
     exportData: 'Export my data',
     deleteData: 'Delete all data',
     appLock: 'App lock',

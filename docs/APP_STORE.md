@@ -1,17 +1,17 @@
 # App Store Listing Draft
 
 ## App name
-Oppuna — Offline Wellness
+Oppuna — Private Wellness Journal
 
 ## Subtitle / short tagline
-Private mental wellness support, offline on your phone.
+Offline journal, mood tracker & reflection companion.
 
 ## Promotional text (170 chars)
-A calm, private space for your mind — chat, journal, track moods, and breathe. Works fully offline. No login, no cloud, no tracking. Your data never leaves your phone.
+A calm, private space to journal, track moods, and breathe. Works fully offline. No account, no cloud, no ads, no tracking. Your data never leaves your phone.
 
 ## Description
 
-Oppuna is a private mental wellness companion that works completely offline. There is no account, no cloud, and no tracking — everything you share stays on your device, even in airplane mode.
+Oppuna is a private wellness companion — an offline journal, mood tracker, and personal reflection assistant. There is no account, no cloud, and no tracking — everything you write stays on your device, even in airplane mode.
 
 Oppuna is a gentle, everyday space to slow down and take care of your mind:
 
@@ -37,7 +37,7 @@ Privacy by design:
 • Export your data as a file or delete everything in one tap
 • Light, dark, and system themes; multiple languages
 
-Important: Oppuna is not a doctor, therapist, crisis service, or medical device. It does not diagnose, treat, cure, prevent, or replace professional care. If you are in crisis or danger, Oppuna will guide you to contact local emergency services and someone you trust.
+Important: Oppuna is a wellness and journaling companion. It is not a substitute for professional medical, psychological, or emergency services. It does not diagnose, treat, cure, or prevent any condition. If you are in crisis or danger, Oppuna will guide you to contact local emergency services and someone you trust.
 
 ## Keywords
 wellness, mental health, offline, journal, mood tracker, breathing, mindfulness, private, anxiety, calm, self-care, grounding, sleep

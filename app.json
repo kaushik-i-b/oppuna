@@ -17,6 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.oppuna.app",
+      "buildNumber": "1",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "Oppuna uses the microphone only to record private voice notes that stay on your device. Nothing is ever uploaded.",
         "ITSAppUsesNonExemptEncryption": false
@@ -24,6 +25,7 @@
     },
     "android": {
       "package": "com.oppuna.app",
+      "versionCode": 1,
       "userInterfaceStyle": "automatic",
       "adaptiveIcon": {
         "backgroundColor": "#0E7C66",

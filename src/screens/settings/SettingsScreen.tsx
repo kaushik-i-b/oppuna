@@ -97,6 +97,11 @@ export function SettingsScreen(): React.ReactElement {
             onPress={() => navigation.navigate('Disclaimer', { fromSettings: true })}
           />
           <ListItem
+            leadingEmoji="📄"
+            title={t('settings.terms')}
+            onPress={() => navigation.navigate('Terms')}
+          />
+          <ListItem
             leadingEmoji="📤"
             title={t('settings.exportData')}
             onPress={() => navigation.navigate('DataExport')}

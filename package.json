@@ -9,7 +9,10 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "jest"
+    "test": "jest",
+    "build:preview": "eas build --profile preview --platform android",
+    "build:production": "eas build --profile production --platform android",
+    "submit:production": "eas submit --profile production --platform android"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
