@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { DEFAULT_CRISIS_REGION, type CrisisRegionCode } from '@/constants/crisis';
 import type { LanguageCode } from '@/i18n';
 import type { ThemeMode } from '@/theme/types';
 
@@ -11,6 +12,7 @@ interface SettingsState {
   onboardingComplete: boolean;
   disclaimerAccepted: boolean;
   appLockEnabled: boolean;
+  crisisRegion: CrisisRegionCode;
   hydrated: boolean;
 
   setThemeMode: (mode: ThemeMode) => void;
@@ -18,6 +20,7 @@ interface SettingsState {
   completeOnboarding: () => void;
   acceptDisclaimer: () => void;
   setAppLockEnabled: (enabled: boolean) => void;
+  setCrisisRegion: (region: CrisisRegionCode) => void;
   resetPreferences: () => void;
   setHydrated: (value: boolean) => void;
 }
@@ -28,6 +31,7 @@ const DEFAULTS = {
   onboardingComplete: false,
   disclaimerAccepted: false,
   appLockEnabled: false,
+  crisisRegion: DEFAULT_CRISIS_REGION,
 };
 
 export const useSettingsStore = create<SettingsState>()(
@@ -41,6 +45,7 @@ export const useSettingsStore = create<SettingsState>()(
       completeOnboarding: () => set({ onboardingComplete: true }),
       acceptDisclaimer: () => set({ disclaimerAccepted: true }),
       setAppLockEnabled: (appLockEnabled) => set({ appLockEnabled }),
+      setCrisisRegion: (crisisRegion) => set({ crisisRegion }),
       resetPreferences: () => set({ ...DEFAULTS }),
       setHydrated: (hydrated) => set({ hydrated }),
     }),
@@ -53,6 +58,7 @@ export const useSettingsStore = create<SettingsState>()(
         onboardingComplete: state.onboardingComplete,
         disclaimerAccepted: state.disclaimerAccepted,
         appLockEnabled: state.appLockEnabled,
+        crisisRegion: state.crisisRegion,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);

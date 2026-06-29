@@ -7,6 +7,7 @@ import { APP } from '@/constants/app';
 import { LANGUAGES } from '@/i18n';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useTranslation } from '@/hooks/useTranslation';
+import { authenticate, getAppLockCapability } from '@/services/appLock';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { ThemeMode } from '@/theme/types';
@@ -27,8 +28,46 @@ export function SettingsScreen(): React.ReactElement {
   const setThemeMode = useSettingsStore((s) => s.setThemeMode);
   const appLockEnabled = useSettingsStore((s) => s.appLockEnabled);
   const setAppLockEnabled = useSettingsStore((s) => s.setAppLockEnabled);
+  const [appLockBusy, setAppLockBusy] = React.useState(false);
 
   const currentLanguage = LANGUAGES.find((l) => l.code === language)?.native ?? 'English';
+
+  const handleAppLockToggle = async (value: boolean): Promise<void> => {
+    if (appLockBusy) return;
+    setAppLockBusy(true);
+    try {
+      if (value) {
+        const capability = await getAppLockCapability();
+        if (!capability.available) {
+          toast.show(t('settings.appLockUnavailable'), 'error');
+          return;
+        }
+        const ok = await authenticate({
+          promptMessage: t('lock.setupPrompt'),
+          cancelLabel: t('common.cancel'),
+        });
+        if (!ok) {
+          toast.show(t('settings.appLockNotVerified'), 'info');
+          return;
+        }
+        setAppLockEnabled(true);
+        toast.show(t('settings.appLockEnabled'), 'success');
+      } else {
+        const ok = await authenticate({
+          promptMessage: t('lock.disablePrompt'),
+          cancelLabel: t('common.cancel'),
+        });
+        if (!ok) {
+          toast.show(t('settings.appLockNotVerified'), 'info');
+          return;
+        }
+        setAppLockEnabled(false);
+        toast.show(t('settings.appLockDisabled'), 'info');
+      }
+    } finally {
+      setAppLockBusy(false);
+    }
+  };
 
   return (
     <Screen title={t('settings.title')} scroll>
@@ -63,17 +102,14 @@ export function SettingsScreen(): React.ReactElement {
               <View style={{ flex: 1 }}>
                 <Text variant="bodyStrong">{t('settings.appLock')}</Text>
                 <Text variant="caption" color="textMuted">
-                  Lock placeholder — device biometrics arrive in a future update.
+                  {t('settings.appLockDescription')}
                 </Text>
               </View>
               <Switch
                 value={appLockEnabled}
+                disabled={appLockBusy}
                 onValueChange={(value) => {
-                  setAppLockEnabled(value);
-                  toast.show(
-                    value ? 'App lock enabled (preview).' : 'App lock disabled.',
-                    'info',
-                  );
+                  void handleAppLockToggle(value);
                 }}
                 trackColor={{ true: theme.colors.primary, false: theme.colors.border }}
                 thumbColor={theme.colors.surface}
