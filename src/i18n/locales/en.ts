@@ -93,10 +93,25 @@ export const en = {
     exportData: 'Export my data',
     deleteData: 'Delete all data',
     appLock: 'App lock',
+    appLockDescription: 'Require your fingerprint, face, or device PIN to open Oppuna.',
+    appLockEnabled: 'App lock enabled.',
+    appLockDisabled: 'App lock disabled.',
+    appLockUnavailable:
+      'Set up a fingerprint, face unlock, or device PIN in your phone settings to use app lock.',
+    appLockNotVerified: 'App lock unchanged — verification was cancelled.',
     about: 'About Oppuna',
     themeLight: 'Light',
     themeDark: 'Dark',
     themeSystem: 'System',
+  },
+  lock: {
+    title: 'Oppuna is locked',
+    subtitle: 'Verify it’s you to open your private space.',
+    prompt: 'Unlock Oppuna',
+    setupPrompt: 'Confirm it’s you to turn on app lock',
+    disablePrompt: 'Confirm it’s you to turn off app lock',
+    unlock: 'Unlock',
+    unlocking: 'Verifying…',
   },
   safety: {
     title: 'You deserve support right now',
@@ -106,6 +121,12 @@ export const en = {
     trusted: 'Please reach out to someone you trust nearby.',
     breathe: 'Take a slow breath',
     backToSafety: 'I’m safe for now',
+    callEmergency: 'Call emergency services',
+    chooseRegion: 'Choose your region for local helplines',
+    helplinesFor: 'Helplines for',
+    moreRegions: 'Other regions',
+    disclaimer:
+      'These numbers are provided for convenience and may change. If one doesn’t connect, contact your local emergency services.',
   },
   disclaimerScreen: {
     title: 'A few important things',

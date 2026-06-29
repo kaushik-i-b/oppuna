@@ -3,6 +3,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AppBootstrap } from '@/app/AppBootstrap';
+import { AppLockGate } from '@/app/AppLockGate';
 import { ErrorBoundary } from '@/components/feedback/ErrorBoundary';
 import { ToastProvider } from '@/components/feedback/ToastProvider';
 import { ThemeProvider } from '@/theme/ThemeProvider';
@@ -16,7 +17,9 @@ export default function App(): React.ReactElement {
           <ThemeProvider>
             <ToastProvider>
               <AppBootstrap>
-                <RootNavigator />
+                <AppLockGate>
+                  <RootNavigator />
+                </AppLockGate>
               </AppBootstrap>
             </ToastProvider>
           </ThemeProvider>
