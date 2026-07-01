@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Oppuna — Privacy Policy</title>
+    <meta
+      name="description"
+      content="Oppuna's privacy policy. A fully offline, privacy-first wellness companion. Nothing you write, record, or track ever leaves your device."
+    />
+    <meta name="theme-color" content="#0E7C66" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        --brand: #0e7c66;
+        --brand-dark: #0a5f4e;
+        --bg: #f4f7f5;
+        --surface: #ffffff;
+        --text: #16201c;
+        --text-muted: #4c5a54;
+        --border: #dde5e0;
+        --shadow: rgba(14, 42, 34, 0.12);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --brand: #4fd1b0;
+          --brand-dark: #2fae8e;
+          --bg: #0f1714;
+          --surface: #1a2722;
+          --text: #ecf3ef;
+          --text-muted: #a7b5ae;
+          --border: #2a3833;
+          --shadow: rgba(0, 0, 0, 0.5);
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+      }
+      .hero {
+        background: linear-gradient(160deg, #0e7c66 0%, #0a5f4e 100%);
+        color: #ffffff;
+        padding: 64px 24px 72px;
+        text-align: center;
+      }
+      .logo {
+        width: 88px;
+        height: 88px;
+        margin: 0 auto 20px;
+        display: block;
+      }
+      .hero h1 {
+        margin: 0 0 8px;
+        font-size: clamp(28px, 5vw, 40px);
+        font-weight: 800;
+        letter-spacing: 0.5px;
+      }
+      .hero p {
+        margin: 0 auto;
+        max-width: 560px;
+        font-size: clamp(15px, 2.5vw, 18px);
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .badge {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 6px 16px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+      main {
+        max-width: 760px;
+        margin: -40px auto 0;
+        padding: 0 20px 80px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: clamp(24px, 5vw, 48px);
+        box-shadow: 0 12px 32px var(--shadow);
+      }
+      .updated {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin: 0 0 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+      }
+      .lead {
+        font-size: clamp(17px, 3vw, 20px);
+        font-weight: 600;
+        margin: 0 0 8px;
+      }
+      h2 {
+        margin: 40px 0 12px;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--brand);
+      }
+      h2:first-of-type {
+        margin-top: 24px;
+      }
+      p {
+        margin: 0 0 16px;
+        color: var(--text);
+      }
+      ul {
+        margin: 0 0 16px;
+        padding-left: 22px;
+      }
+      li {
+        margin-bottom: 8px;
+      }
+      strong {
+        color: var(--text);
+      }
+      a {
+        color: var(--brand);
+        font-weight: 600;
+      }
+      .highlight {
+        background: linear-gradient(
+          90deg,
+          rgba(14, 124, 102, 0.1),
+          rgba(14, 124, 102, 0)
+        );
+        border-left: 4px solid var(--brand);
+        padding: 16px 20px;
+        border-radius: 0 12px 12px 0;
+        margin: 0 0 24px;
+      }
+      @media (prefers-color-scheme: dark) {
+        .highlight {
+          background: linear-gradient(
+            90deg,
+            rgba(79, 209, 176, 0.12),
+            rgba(79, 209, 176, 0)
+          );
+        }
+      }
+      .callout {
+        margin-top: 40px;
+        padding: 20px 24px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        font-size: 15px;
+        color: var(--text-muted);
+      }
+      footer {
+        text-align: center;
+        padding: 32px 20px 56px;
+        color: var(--text-muted);
+        font-size: 14px;
+      }
+      footer .leaf {
+        width: 22px;
+        height: 22px;
+        vertical-align: middle;
+        margin-right: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <svg
+        class="logo"
+        viewBox="0 0 100 100"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        role="img"
+        aria-label="Oppuna, a Magnolia champaca leaf"
+      >
+        <path
+          d="M50 5 C 30 26, 20 52, 27 78 C 31 90, 42 95, 50 95 C 58 95, 69 90, 73 78 C 80 52, 70 26, 50 5 Z"
+          fill="#ffffff"
+        />
+        <g stroke="#0e7c66" stroke-width="2.4" stroke-linecap="round" opacity="0.9">
+          <path d="M50 16 L50 88" />
+          <path d="M50 34 C 42 36, 37 40, 34 47" />
+          <path d="M50 34 C 58 36, 63 40, 66 47" />
+          <path d="M50 50 C 43 52, 38 56, 36 63" />
+          <path d="M50 50 C 57 52, 62 56, 64 63" />
+          <path d="M50 66 C 45 68, 42 71, 41 76" />
+          <path d="M50 66 C 55 68, 58 71, 59 76" />
+        </g>
+        <g fill="#0e7c66">
+          <path d="M50 4 C 46 9, 46 14, 50 18 C 54 14, 54 9, 50 4 Z" />
+          <path d="M44 8 C 43 13, 45 17, 49 19 C 48 14, 47 10, 44 8 Z" opacity="0.75" />
+          <path d="M56 8 C 57 13, 55 17, 51 19 C 52 14, 53 10, 56 8 Z" opacity="0.75" />
+        </g>
+      </svg>
+      <h1>Oppuna Privacy Policy</h1>
+      <p>Private mental wellness support, offline on your phone.</p>
+      <span class="badge">100% offline &middot; no accounts &middot; no tracking</span>
+    </header>
+
+    <main>
+      <article class="card">
+        <p class="updated">Last updated: 2026</p>
+        <p class="lead">
+          Oppuna is built around a single promise: your private thoughts stay
+          private, on your device.
+        </p>
+
+        <div class="highlight">
+          <strong>Nothing leaves your phone.</strong> Oppuna has no account
+          system, no servers, and no analytics. We — the developers — never
+          receive, see, or store any of your information.
+        </div>
+
+        <h2>What we collect</h2>
+        <p>
+          Nothing. There is no sign-up, no cloud, and no telemetry. The app
+          cannot send your data anywhere, so there is nothing for us to collect.
+        </p>
+
+        <h2>What is stored, and where</h2>
+        <p>
+          Everything you create in Oppuna is stored only in the app's local
+          storage on your device:
+        </p>
+        <ul>
+          <li>Conversations with the offline companion</li>
+          <li>Mood check-ins (mood, intensity, notes, tags)</li>
+          <li>Journal entries</li>
+          <li>Breathing session history</li>
+          <li>Voice notes you record (audio files stay in the app's private storage)</li>
+          <li>App preferences (theme, language)</li>
+          <li>
+            Safety event metadata (only the category and time — never the message
+            that triggered it)
+          </li>
+        </ul>
+        <p>
+          This data is never uploaded, synced, backed up to a cloud, or shared
+          with any third party by the app.
+        </p>
+
+        <h2>No network access</h2>
+        <p>
+          Oppuna works fully in airplane mode. The app includes a built-in
+          <strong>network guard</strong> that blocks any attempt to make an
+          outbound internet request. There are no advertising SDKs, no trackers,
+          and no telemetry.
+        </p>
+
+        <h2>Microphone</h2>
+        <p>
+          If you choose to record a voice note, the app uses your microphone.
+          Recordings are saved locally on your device and are never transmitted
+          anywhere. You can delete them at any time.
+        </p>
+
+        <h2>Your control over your data</h2>
+        <ul>
+          <li>
+            <strong>Export:</strong> Create a JSON copy of all your data. The file
+            is written to your device; sharing it afterward is your choice and is
+            handled by your operating system.
+          </li>
+          <li>
+            <strong>Delete:</strong> Permanently erase all your data —
+            conversations, moods, journals, breathing history, and voice notes —
+            from Settings → Delete all data. This cannot be undone.
+          </li>
+        </ul>
+
+        <h2>Not a medical service</h2>
+        <p>
+          Oppuna is not a doctor, therapist, crisis service, or medical device. It
+          does not diagnose, treat, cure, prevent, or replace professional care.
+          It provides supportive wellness guidance only. If you are in danger or
+          need medical help, contact your local emergency services immediately and
+          reach out to someone you trust.
+        </p>
+
+        <h2>Children</h2>
+        <p>
+          Oppuna is intended for general wellbeing and is not directed at
+          children. Because no data ever leaves the device, the app does not
+          collect personal information from anyone.
+        </p>
+
+        <h2>Changes</h2>
+        <p>
+          Because Oppuna stores nothing remotely, any future change to this
+          statement will simply ship with an app update and appear here and in the
+          app under Settings → Privacy statement.
+        </p>
+
+        <div class="callout">
+          Questions about your privacy? Because Oppuna has no backend, the best
+          way to reach the developer is through the app's store listing.
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <svg
+        class="leaf"
+        viewBox="0 0 100 100"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M50 5 C 30 26, 20 52, 27 78 C 31 90, 42 95, 50 95 C 58 95, 69 90, 73 78 C 80 52, 70 26, 50 5 Z"
+          fill="#0e7c66"
+        />
+      </svg>
+      Oppuna &middot; A private, offline journal, mood, and reflection companion.
+    </footer>
+  </body>
+</html>
