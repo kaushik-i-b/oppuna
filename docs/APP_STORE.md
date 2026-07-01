@@ -1,43 +1,89 @@
 # App Store Listing Draft
 
 ## App name
-Oppuna — Private Wellness Journal
+Oppuna — Private Wellness, Offline
 
 ## Subtitle / short tagline
-Offline journal, mood tracker & reflection companion.
+Private mental wellness support, fully offline on your phone.
 
 ## Promotional text (170 chars)
 A calm, private space to journal, track moods, and breathe. Works fully offline. No account, no cloud, no ads, no tracking. Your data never leaves your phone.
 
-## Description
+## One-liner
+Oppuna — private mental wellness support, fully offline on your phone.
 
-Oppuna is a private wellness companion — an offline journal, mood tracker, and personal reflection assistant. There is no account, no cloud, and no tracking — everything you write stays on your device, even in airplane mode.
+## Short description (~50 words)
+Oppuna is a private, offline wellness companion for journaling, mood tracking, breathing, and reflection. Everything stays on your device — no account, no cloud, no tracking, no internet. Chat with an on-device companion, log moods, keep a private journal, and calm down with guided breathing, all in airplane mode.
 
-Oppuna is a gentle, everyday space to slow down and take care of your mind:
+## Full description (< 4000 characters)
 
-• Offline companion — talk things through with a calm, on-device guide that validates how you feel, reflects gently, and suggests one small, kind next step. It never pretends to be human and never replaces professional care.
+Oppuna — Private Wellness, Offline
 
-• Mood tracker — log how you feel with intensity, notes, and tags, then see weekly patterns in a simple local chart.
+Your mind deserves a private space. Oppuna is a fully offline mental wellness companion that lives entirely on your device. No account. No cloud. No internet connection required — ever. Everything you write, record, and track stays with you and only you.
 
-• Journal — daily reflections, gratitude, thought records, and trigger notes, with search and private editing.
+---
 
-• Breathing — 4-4-6, box breathing, and a 5-minute calm session with a soothing animated guide.
+A companion that never phones home
 
-• Grounding — a guided 5-4-3-2-1 senses exercise to come back to the present.
+Oppuna's on-device wellness engine understands your mood, recognises when you need grounding, and responds with calm, evidence-based prompts — all without a single byte leaving your phone. It works in airplane mode, on a remote mountain, or anywhere your signal doesn't reach.
 
-• Sleep support — a wind-down checklist and a spoken wind-down using your device's voice.
+---
 
-• Voice mode — record private voice notes and hear calming guidance read aloud, all offline.
+Features
 
-• Self-care plan & insights — gentle suggestions and a clear view of your week.
+Offline AI companion
+Chat with a gentle, rule-based wellness engine that detects mood, intent, and distress, and replies with CBT-style, mindfulness, and grounding techniques — processed entirely on your device.
 
-Privacy by design:
-• Works fully offline — no internet ever required
-• No login, no cloud sync, no analytics, no tracking
-• Export your data as a file or delete everything in one tap
-• Light, dark, and system themes; multiple languages
+Crisis safety
+Oppuna recognises signs of severe distress and stops normal coaching to show dedicated crisis support resources. Your safety is never routed through a server.
 
-Important: Oppuna is a wellness and journaling companion. It is not a substitute for professional medical, psychological, or emergency services. It does not diagnose, treat, cure, or prevent any condition. If you are in crisis or danger, Oppuna will guide you to contact local emergency services and someone you trust.
+Mood tracker
+Log your mood, rate its intensity, add notes and tags, and review your emotional patterns in a weekly insights chart.
+
+Journal
+Daily journaling, gratitude lists, thought records, trigger reflections, and private notes — all searchable, editable, and deletable. Yours alone.
+
+Breathing exercises
+4-4-6 breathing, box breathing, and a 5-minute calm session with a smooth animated breathing circle and a completion screen.
+
+Grounding
+A guided 5-4-3-2-1 senses exercise to bring you back to the present moment.
+
+Sleep support
+A wind-down checklist, gentle reminders, and a spoken wind-down narrated by your device's text-to-speech.
+
+Voice notes
+Record private voice notes. Audio files stay in the app's secure, local storage — never uploaded, never shared.
+
+Self-care plan & insights
+Build a personal self-care routine and review your wellness trends over time.
+
+App lock
+Protect the app with your device's biometrics or PIN.
+
+Multilingual
+Available in English, Spanish, and Hindi, with an architecture ready for more languages.
+
+Dark, light, and system themes
+A clean, calming design that adapts to your preferences.
+
+Export & delete
+Export all your data as a JSON file, or permanently erase everything from Settings. Your data, your control.
+
+---
+
+Privacy by architecture, not policy
+
+Oppuna includes a built-in network guard that blocks every outbound internet request at the code level — in production, no path to the internet exists. There are no advertising SDKs, no analytics, no trackers, and no telemetry.
+
+---
+
+Important
+Oppuna is not a doctor, therapist, crisis service, or medical device. It does not diagnose, treat, cure, prevent, or replace professional care. If you are in danger or need immediate help, contact your local emergency services right away.
+
+---
+
+Peace of mind. On your terms. Offline.
 
 ## Keywords
 wellness, mental health, offline, journal, mood tracker, breathing, mindfulness, private, anxiety, calm, self-care, grounding, sleep
