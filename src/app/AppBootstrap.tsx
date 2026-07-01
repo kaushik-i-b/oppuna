@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 
+import { BrandSplash } from '@/app/BrandSplash';
 import { initDatabase } from '@/database';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -56,11 +57,7 @@ export function AppBootstrap({ children }: { children: React.ReactNode }): React
   }
 
   if (status !== 'ready' || !hydrated) {
-    return (
-      <View style={[styles.center, { backgroundColor: theme.colors.background }]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-      </View>
-    );
+    return <BrandSplash />;
   }
 
   return <>{children}</>;

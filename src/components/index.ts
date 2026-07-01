@@ -7,6 +7,7 @@ export { EmptyState } from '@/components/ui/EmptyState';
 export { Header } from '@/components/ui/Header';
 export { ListItem } from '@/components/ui/ListItem';
 export { Loading } from '@/components/ui/Loading';
+export { Logo } from '@/components/ui/Logo';
 export { Screen } from '@/components/ui/Screen';
 export { SectionHeader } from '@/components/ui/SectionHeader';
 export { Text } from '@/components/ui/Typography';
