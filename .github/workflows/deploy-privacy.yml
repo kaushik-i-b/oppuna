@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - cursor/splash-and-magnolia-logo-a084
     paths:
       - "site/**"
       - ".github/workflows/deploy-privacy.yml"
