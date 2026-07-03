@@ -1,4 +1,5 @@
 import {
+  generateStreamWithTimeout,
   generateWithTimeout,
   getLocalLLMClient,
   isLLMAvailable,
@@ -66,5 +67,15 @@ describe('generateWithTimeout', () => {
   it('rejects when generation exceeds the timeout', async () => {
     const client = new MockLocalLLMClient({ available: true, latencyMs: 200 });
     await expect(generateWithTimeout(client, PROMPT, 20)).rejects.toThrow(/timed out/);
+  });
+});
+
+describe('generateStreamWithTimeout', () => {
+  it('streams tokens and resolves with the full completion', async () => {
+    const client = new MockLocalLLMClient({ available: true, reply: 'stream me' });
+    const tokens: string[] = [];
+    const completion = await generateStreamWithTimeout(client, PROMPT, 1000, (t) => tokens.push(t));
+    expect(tokens.join('')).toBe(completion.text);
+    expect(completion.finishReason).toBe('stop');
   });
 });

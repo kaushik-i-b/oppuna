@@ -13,7 +13,7 @@
  */
 
 import { logger } from '@/utils/logger';
-import type { AIChatResponse, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
+import type { AIChatResponse, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
 import {
@@ -24,7 +24,7 @@ import {
   suggestionsFor,
 } from '@/ai/fallbackEngine';
 import { buildPrompt } from '@/ai/promptBuilder';
-import { generateWithTimeout, getLocalLLMClient, isLLMAvailable } from '@/ai/llmClient';
+import { generateStreamWithTimeout, generateWithTimeout, getLocalLLMClient, isLLMAvailable } from '@/ai/llmClient';
 import { validateResponse } from '@/ai/responseValidator';
 
 /** Attempts at composing a non-repetitive rule-based reply before giving up. */
@@ -44,6 +44,8 @@ export interface GenerateAIResponseDeps {
   client?: LocalLLMClient;
   /** Injectable random source for deterministic tests. */
   rng?: Rng;
+  /** Optional streaming callback — emits tokens as the local LLM generates. */
+  onToken?: LLMTokenCallback;
 }
 
 export async function generateAIResponse(
@@ -84,7 +86,9 @@ export async function generateAIResponse(
   if (llmAvailable) {
     try {
       const prompt = buildPrompt({ userText: text, memory, intentHint: intent, moodHint: mood });
-      const completion = await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);
+      const completion = deps.onToken
+        ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
+        : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);
       const candidate = completion.text.trim();
       const verdict = validateResponse(candidate, { recentReplies });
 

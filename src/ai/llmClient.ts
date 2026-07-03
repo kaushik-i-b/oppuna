@@ -1,15 +1,17 @@
 /**
- * Local LLM client — interface, registry, and a mock implementation.
+ * Local LLM client — interface, registry, mock, and llama.rn integration.
  *
- * No model is bundled yet. The app ships with a mock client that reports
- * itself unavailable, so the orchestrator always falls back to the rule
- * engine. A future native on-device model (llama.cpp / MLC / ONNX) only needs
- * to implement `LocalLLMClient` and be registered via `setLocalLLMClient`.
+ * On native platforms the default client is `LlamaRnLocalLLMClient`, which
+ * loads a GGUF model from local app storage. When no model is present it
+ * reports unavailable and the orchestrator falls back to the rule engine.
  *
  * Nothing in this file may perform network I/O.
  */
 
+import { Platform } from 'react-native';
+
 import { logger } from '@/utils/logger';
+import { LlamaRnLocalLLMClient } from '@/ai/localLLMClient';
 import type {
   LLMCompletion,
   LLMGenerateOptions,
@@ -116,6 +118,15 @@ export class MockLocalLLMClient implements LocalLLMClient {
 
 let activeClient: LocalLLMClient = new MockLocalLLMClient({ available: false });
 
+/** Register the platform default client (llama.rn on native, mock elsewhere). */
+export function configureDefaultLocalLLMClient(): void {
+  if (Platform.OS === 'web') {
+    setLocalLLMClient(new MockLocalLLMClient({ available: false }));
+    return;
+  }
+  setLocalLLMClient(new LlamaRnLocalLLMClient());
+}
+
 /** Register a client (a future native model, or a configured mock in tests). */
 export function setLocalLLMClient(client: LocalLLMClient): void {
   activeClient = client;
@@ -148,6 +159,27 @@ export async function generateWithTimeout(
   });
   try {
     return await Promise.race([client.generate(prompt, { timeoutMs }), timeout]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
+}
+
+/** Streaming generation with a hard timeout. */
+export async function generateStreamWithTimeout(
+  client: LocalLLMClient,
+  prompt: LLMPrompt,
+  timeoutMs: number,
+  onToken: LLMTokenCallback,
+): Promise<LLMCompletion> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new LLMGenerationError(`LLM timed out after ${timeoutMs}ms`)), timeoutMs);
+  });
+  try {
+    return await Promise.race([
+      client.generateStream(prompt, onToken, { timeoutMs }),
+      timeout,
+    ]);
   } finally {
     if (timer !== undefined) clearTimeout(timer);
   }

@@ -4,7 +4,8 @@
  * - `generateAIResponse` is the orchestrated entry point for chat.
  * - `fallbackEngine` holds the deterministic rule-based engine.
  * - `safetyEngine` runs strict crisis detection before anything else.
- * - `llmClient` defines the (not yet integrated) on-device LLM contract.
+ * - `llmClient` / `localLLMClient` — on-device LLM via llama.rn
+ * - `modelManager` — GGUF discovery and lifecycle in local storage
  */
 
 export * from '@/ai/types';
@@ -41,9 +42,20 @@ export {
   MockLocalLLMClient,
   LLMUnavailableError,
   LLMGenerationError,
+  configureDefaultLocalLLMClient,
   setLocalLLMClient,
   getLocalLLMClient,
   isLLMAvailable,
   generateWithTimeout,
+  generateStreamWithTimeout,
 } from '@/ai/llmClient';
 export type { MockLocalLLMClientOptions } from '@/ai/llmClient';
+export { LlamaRnLocalLLMClient } from '@/ai/localLLMClient';
+export {
+  initializeModelManager,
+  getModelState,
+  getModelPath,
+  getModelsDirectory,
+  isModelReady,
+  subscribeToModelState,
+} from '@/ai/modelManager';
