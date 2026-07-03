@@ -13,7 +13,7 @@
  */
 
 import { logger } from '@/utils/logger';
-import type { AIChatResponse, Rng, ValidationViolation } from '@/ai/types';
+import type { AIChatResponse, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
 import {
@@ -26,7 +26,6 @@ import {
 import { buildPrompt } from '@/ai/promptBuilder';
 import { generateWithTimeout, getLocalLLMClient, isLLMAvailable } from '@/ai/llmClient';
 import { validateResponse } from '@/ai/responseValidator';
-import type { LocalLLMClient } from '@/ai/types';
 
 /** Attempts at composing a non-repetitive rule-based reply before giving up. */
 const MAX_COMPOSE_ATTEMPTS = 3;
