@@ -51,10 +51,11 @@ describe('detectMood', () => {
 });
 
 describe('buildReply', () => {
-  it('composes validate → reflect → ask → action deterministically', () => {
+  it('composes a natural-length reply deterministically', () => {
     const reply = buildReply('anxiety', firstChoice);
-    expect(reply.startsWith('I’m sorry you’re feeling anxious.')).toBe(true);
-    expect(reply).toContain('place your feet on the floor');
+    expect(reply.startsWith('Anxiety can hit hard — glad you said something.')).toBe(true);
+    expect(reply.length).toBeGreaterThan(0);
+    expect(reply.split('?').length - 1).toBeLessThanOrEqual(2);
   });
 
   it('never returns an empty string for any intent', () => {

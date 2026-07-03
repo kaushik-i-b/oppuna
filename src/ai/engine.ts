@@ -120,7 +120,7 @@ export async function generateAIResponse(
   for (let attempt = 0; attempt < MAX_COMPOSE_ATTEMPTS; attempt += 1) {
     let candidate: string;
     try {
-      candidate = composeReply(intent, memory, rng);
+      candidate = composeReply(intent, memory, rng, text);
     } catch (error) {
       logger.error('Rule engine composition failed', { error: String(error) });
       break;

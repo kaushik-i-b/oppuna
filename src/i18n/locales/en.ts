@@ -40,7 +40,7 @@ export const en = {
     title: 'Companion',
     placeholder: 'Share what’s on your mind…',
     intro:
-      'This is a private, offline space. I’m not a person or a therapist — just a calm companion. How are you feeling right now?',
+      'Hey — this stays on your phone, completely private. What’s on your mind?',
     cleared: 'Conversation cleared',
     clear: 'Clear conversation',
   },

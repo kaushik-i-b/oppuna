@@ -198,7 +198,7 @@ export const MINDFULNESS_TEMPLATES: string[] = [
 ];
 
 /* ------------------------------------------------------------------ *
- * Response composition: validate → reflect → ask → micro-action
+ * Response composition — varied length, conversational tone
  * ------------------------------------------------------------------ */
 
 interface Template {
@@ -209,141 +209,166 @@ interface Template {
   suggestions: string[];
 }
 
+/** How many template parts to stitch together for each intent. */
+type ResponseShape = 'brief' | 'chat' | 'ground';
+
+const RESPONSE_SHAPE: Record<Intent, ResponseShape> = {
+  greeting: 'brief',
+  thanks: 'brief',
+  goodbye: 'brief',
+  positive: 'brief',
+  gratitude: 'brief',
+  help: 'chat',
+  unknown: 'chat',
+  anxiety: 'ground',
+  sadness: 'ground',
+  anger: 'ground',
+  loneliness: 'ground',
+  stress: 'ground',
+  sleep: 'ground',
+  self_esteem: 'ground',
+  relationship: 'ground',
+  motivation: 'ground',
+  journaling: 'chat',
+  breathing: 'chat',
+  grounding: 'chat',
+};
+
 const TEMPLATES: Record<Intent, Template> = {
   greeting: {
-    validate: ['Hi, I’m really glad you’re here.', 'Hello — it’s good to have a moment with you.'],
-    reflect: ['This is a calm, private space, just for you.', 'Whatever you’re carrying, you can set some of it down here.'],
-    question: ['How are you feeling right now?', 'What’s on your mind today?'],
-    action: ['We can talk, track a mood, or try a short breathing exercise — whatever feels right.'],
+    validate: ['Hey — glad you’re here.', 'Hi. Good to see you.', 'Hello.'],
+    reflect: ['This is your space — quiet, private, no rush.', 'Whatever’s on your mind, you can put it here.'],
+    question: ['How’re you doing right now?', 'What’s going on?'],
+    action: ['We can just talk, log a mood, or try a quick breath — your call.'],
     suggestions: ['I feel anxious', 'I feel low', 'I’m okay', 'Help me relax'],
   },
   anxiety: {
-    validate: ['I’m sorry you’re feeling anxious.', 'That sounds really uncomfortable.', 'Anxiety can feel like a lot all at once.'],
-    reflect: ['It makes sense that your mind is racing right now.', 'Your body might be bracing, even if there’s no danger here.'],
-    question: ['What feels biggest in this moment?', 'Where do you notice the worry in your body?'],
-    action: ['Let’s slow down for one minute — can you place your feet on the floor and take three gentle breaths?'],
+    validate: ['Anxiety can hit hard — glad you said something.', 'Sounds really uncomfortable.', 'Yeah, that anxious feeling is a lot.'],
+    reflect: ['When your mind races, everything feels ten times bigger.', 'Your body might be on high alert even when nothing’s actually wrong.'],
+    question: ['What’s taking up the most space in your head?', 'Where do you feel it in your body?'],
+    action: ['Want to try three slow breaths? Feet on the floor, in for 4, out for 6.'],
     suggestions: ['Start breathing', 'Try grounding', 'I want to write it out'],
   },
   sadness: {
-    validate: ['I’m sorry you’re feeling this way.', 'That sounds heavy to carry.', 'It’s okay to feel sad — it’s a real, human thing.'],
-    reflect: ['You don’t have to push it away or explain it perfectly.', 'Sadness often asks to simply be noticed.'],
-    question: ['Would it help to name what’s underneath it?', 'What has today been like for you?'],
-    action: ['Let’s be gentle for a minute — maybe a slow breath, or a few words in your journal.'],
+    validate: ['That sounds really heavy.', 'I’m sorry it’s been like this.', 'Sadness is hard — you don’t have to hide it here.'],
+    reflect: ['You don’t need the perfect words or a neat explanation.', 'Sometimes sadness just needs to be felt, not fixed.'],
+    question: ['What’s underneath it, if you can name it?', 'How has today actually been?'],
+    action: ['Maybe one slow breath, or a few lines in your journal — whatever feels gentler.'],
     suggestions: ['Write in journal', 'Breathe with me', 'I feel alone'],
   },
   anger: {
-    validate: ['It’s okay to feel angry — it’s telling you something matters.', 'That sounds genuinely frustrating.'],
-    reflect: ['Anger often sits on top of hurt or feeling unheard.', 'Your feelings are valid, even the sharp ones.'],
+    validate: ['Anger usually means something mattered — that’s valid.', 'Sounds genuinely frustrating.'],
+    reflect: ['A lot of anger sits on top of hurt or feeling dismissed.', 'You’re allowed to feel this, even the sharp parts.'],
     question: ['What feels most unfair right now?', 'What did you need that you didn’t get?'],
-    action: ['Before anything else, let’s release a little tension — a slow breath out, longer than the breath in.'],
+    action: ['Before anything else — one long breath out, longer than the breath in.'],
     suggestions: ['Breathe it out', 'Write a thought record', 'Talk it through'],
   },
   loneliness: {
-    validate: ['I’m sorry you’re feeling alone.', 'Loneliness can ache, even in a crowd.'],
-    reflect: ['Reaching out here took something — that matters.', 'You’re not as invisible as the loneliness makes it feel.'],
-    question: ['Is there one person you felt close to recently?', 'What kind of connection are you missing most?'],
-    action: ['Maybe a small step — a short message to someone, or a few kind words to yourself in the journal.'],
+    validate: ['Loneliness hurts, even when you’re around people.', 'I’m sorry you’re feeling so alone.'],
+    reflect: ['You reaching out here took something — that counts.', 'You’re not as invisible as the loneliness makes it feel.'],
+    question: ['Is there someone you felt close to recently?', 'What kind of connection are you missing most?'],
+    action: ['A small step might help — a short message to someone, or a few kind words to yourself in the journal.'],
     suggestions: ['Write it down', 'A self-care idea', 'Breathe with me'],
   },
   stress: {
-    validate: ['That sounds like a lot to hold at once.', 'Feeling overwhelmed is a sign you’ve been carrying so much.'],
-    reflect: ['When everything feels urgent, the mind struggles to rest.', 'You don’t have to do it all this minute.'],
-    question: ['What is the one thing weighing on you most?', 'If only one thing got done today, what would help most?'],
-    action: ['Let’s create a little space first — three slow breaths, then we can untangle one small piece.'],
+    validate: ['That’s a lot to carry.', 'Feeling overwhelmed usually means you’ve been holding too much for too long.'],
+    reflect: ['When everything feels urgent, your mind can’t get a break.', 'You don’t have to solve it all this minute.'],
+    question: ['What’s weighing on you most?', 'If only one thing got done today, what would actually help?'],
+    action: ['Let’s make a little room first — three slow breaths, then we can untangle one small piece.'],
     suggestions: ['Start breathing', 'Make a self-care plan', 'Brain-dump in journal'],
   },
   sleep: {
-    validate: ['Not being able to rest is exhausting in itself.', 'I’m sorry sleep has been hard.'],
-    reflect: ['A tired mind tends to grip thoughts tighter at night.', 'Your body is allowed to wind down slowly.'],
-    question: ['What tends to keep you awake — thoughts, or restlessness?', 'How has your wind-down routine felt lately?'],
-    action: ['Let’s try a calming breath for sleep — in for 4, hold for 7, out for 8.'],
+    validate: ['Not being able to rest is exhausting on its own.', 'Rough nights are the worst.'],
+    reflect: ['A tired mind tends to grip thoughts tighter after dark.', 'Your body’s allowed to wind down slowly — no rush.'],
+    question: ['What keeps you up — racing thoughts, or restlessness?', 'How’s your wind-down been lately?'],
+    action: ['A 4-7-8 breath can help — in for 4, hold 7, out for 8.'],
     suggestions: ['Open sleep support', 'Breathe for sleep', 'Write before bed'],
   },
   gratitude: {
-    validate: ['That’s a lovely thing to notice.', 'It’s beautiful that you paused to feel grateful.'],
-    reflect: ['Noticing the good, even briefly, is a quiet strength.', 'Gratitude can gently widen a hard day.'],
-    question: ['What made that moment stand out for you?', 'Who or what are you most thankful for right now?'],
-    action: ['Maybe capture it in your gratitude journal so you can return to it later.'],
+    validate: ['That’s a lovely thing to notice.', 'Nice that you paused to feel that.'],
+    reflect: ['Noticing good stuff, even briefly, is a quiet kind of strength.', 'Gratitude can soften a hard day, just a little.'],
+    question: ['What made that moment stand out?', 'Who or what are you most thankful for right now?'],
+    action: ['Maybe jot it in your gratitude journal so future-you can find it again.'],
     suggestions: ['Open gratitude journal', 'Track my mood', 'Keep chatting'],
   },
   self_esteem: {
-    validate: ['I’m really sorry you’re being so hard on yourself.', 'That inner voice sounds painful right now.'],
-    reflect: ['The harshest thoughts are usually the least fair.', 'You are not the worst thing your mind says about you.'],
-    question: ['Would you speak to a friend the way you’re speaking to yourself?', 'What is one thing that’s true and kinder?'],
-    action: ['Let’s gently challenge that thought together — a short thought record can help.'],
+    validate: ['That inner voice sounds really harsh right now.', 'I’m sorry you’re being so hard on yourself.'],
+    reflect: ['The meanest thoughts are usually the least true.', 'You are not the worst thing your mind says about you.'],
+    question: ['Would you talk to a friend this way?', 'What’s one thing that’s true and a little kinder?'],
+    action: ['A short thought record might help gently challenge what your mind is saying.'],
     suggestions: ['Try a thought record', 'Be kinder to myself', 'Breathe with me'],
   },
   relationship: {
-    validate: ['Relationship struggles can hurt deeply.', 'That sounds painful and tiring.'],
+    validate: ['Relationship stuff can cut deep.', 'That sounds painful and tiring.'],
     reflect: ['It’s hard when someone close feels far away.', 'Your feelings about this are completely valid.'],
-    question: ['What do you wish the other person understood?', 'What do you need most from this relationship right now?'],
-    action: ['Maybe write down what you’re feeling first — it can bring some clarity before any conversation.'],
+    question: ['What do you wish they understood?', 'What do you need most from this right now?'],
+    action: ['Writing it down first can bring some clarity before any conversation.'],
     suggestions: ['Write it out', 'Calm down first', 'Track my mood'],
   },
   motivation: {
-    validate: ['Feeling stuck is genuinely draining.', 'It’s okay — low energy isn’t laziness.'],
-    reflect: ['When the tank is empty, even small tasks feel huge.', 'Rest is part of moving forward, not the opposite of it.'],
-    question: ['What is the smallest possible next step?', 'What would feel like enough today?'],
-    action: ['Let’s pick one tiny action — small enough to feel almost easy — and start there.'],
+    validate: ['Feeling stuck is genuinely draining.', 'Low energy isn’t laziness — it’s a signal.'],
+    reflect: ['When the tank’s empty, even small tasks feel huge.', 'Rest is part of moving forward, not the opposite of it.'],
+    question: ['What’s the smallest possible next step?', 'What would feel like enough today?'],
+    action: ['Pick one tiny action — small enough to feel almost easy — and start there.'],
     suggestions: ['Make a self-care plan', 'Just breathe', 'Write a little'],
   },
   journaling: {
-    validate: ['Writing things down can really help.', 'That’s a kind thing to do for yourself.'],
+    validate: ['Writing things down can really help.', 'Good instinct — getting it out of your head.'],
     reflect: ['Putting feelings into words gives them a little more room.', 'Your journal is private and just for you.'],
-    question: ['Would you like a prompt to start with?', 'What would you like to get out of your head?'],
-    action: ['Here’s a gentle prompt to begin: what felt heavy today, and what felt a little lighter?'],
+    question: ['Want a prompt to start with?', 'What do you want to get out of your head?'],
+    action: ['Try this: what felt heavy today, and what felt a little lighter?'],
     suggestions: ['Open journal', 'Give me a prompt', 'Track my mood'],
   },
   breathing: {
-    validate: ['Choosing to breathe on purpose is a good move.', 'That’s a caring thing to offer yourself.'],
-    reflect: ['The breath is always with you, and it can steady the rest.', 'Slowing the exhale tells the body it’s safe to relax.'],
-    question: ['Want to try it together now?', 'Which feels better — calming down or focusing?'],
+    validate: ['Good call — breathing on purpose actually helps.', 'That’s a caring thing to offer yourself.'],
+    reflect: ['Your breath is always with you, and it can steady the rest.', 'A longer exhale tells your body it’s safe to relax.'],
+    question: ['Want to try it together now?', 'Calming down, or just focusing?'],
     action: ['Let’s do a simple 4-4-6: in for 4, hold for 4, out for 6.'],
     suggestions: ['Start breathing', 'Box breathing', 'A 5-minute calm'],
   },
   grounding: {
-    validate: ['Feeling detached can be unsettling.', 'I’m glad you reached for something steadying.'],
+    validate: ['Feeling detached can be unsettling.', 'Glad you reached for something steadying.'],
     reflect: ['Grounding gently brings you back to the present.', 'Your senses can be an anchor right now.'],
-    question: ['Can you feel your feet on the floor?', 'What is one thing you can see clearly right now?'],
-    action: ['Let’s try it: name five things you can see, then four you can hear.'],
+    question: ['Can you feel your feet on the floor?', 'What’s one thing you can see clearly right now?'],
+    action: ['Try naming five things you see, then four you hear.'],
     suggestions: ['Open grounding', 'Breathe with me', 'Keep talking'],
   },
   thanks: {
-    validate: ['You’re very welcome.', 'I’m really glad it helped.'],
-    reflect: ['You did the meaningful part by showing up for yourself.', 'Small steps like this add up.'],
-    question: ['Would you like to keep going, or rest here for now?', 'Is there anything else on your mind?'],
-    action: ['Whenever you need a calm moment, I’ll be right here, offline and private.'],
+    validate: ['You’re welcome.', 'Glad it helped.'],
+    reflect: ['You did the real work by showing up for yourself.', 'Small steps add up.'],
+    question: ['Want to keep going, or rest here?', 'Anything else on your mind?'],
+    action: ['I’ll be here whenever you need a calm moment.'],
     suggestions: ['Track my mood', 'Write in journal', 'I’m done for now'],
   },
   goodbye: {
-    validate: ['Take good care of yourself.', 'I’m glad we had this moment.'],
-    reflect: ['You can return any time — everything here stays private on your device.', 'Be gentle with yourself today.'],
-    question: ['Is there one kind thing you can do for yourself before you go?', 'What’s one small comfort you can reach for?'],
-    action: ['Rest well. I’ll be here, offline, whenever you need.'],
+    validate: ['Take care of yourself.', 'Glad we talked.'],
+    reflect: ['Come back any time — everything stays private on your device.', 'Be gentle with yourself today.'],
+    question: ['One kind thing you can do for yourself before you go?', 'A small comfort you can reach for?'],
+    action: ['Rest well. I’ll be here when you need me.'],
     suggestions: ['One more breath', 'Quick journal', 'See you'],
   },
   positive: {
-    validate: ['I’m really happy to hear that.', 'That’s wonderful.'],
-    reflect: ['It’s worth pausing to let the good settle in.', 'These brighter moments matter just as much.'],
+    validate: ['That’s great to hear.', 'Love that.'],
+    reflect: ['Worth pausing to let the good settle in.', 'These brighter moments matter just as much.'],
     question: ['What helped you feel this way?', 'How can you carry a little of this forward?'],
-    action: ['Maybe note it in your journal so future-you can revisit it on a harder day.'],
+    action: ['Maybe note it in your journal for a harder day.'],
     suggestions: ['Save to journal', 'Track my mood', 'Keep chatting'],
   },
   help: {
-    validate: ['Happy to explain.', 'Good question.'],
+    validate: ['Sure — happy to explain.', 'Good question.'],
     reflect: [
-      'I’m a private, offline wellness companion — not a person, and not a therapist.',
-      'I live entirely on your device and never send your words anywhere.',
+      'Think of me as a calm pocket on your phone — private, offline, here when you need to vent or wind down.',
+      'Everything stays on your device. I’m not a therapist, but I can listen and point you toward breathing, journaling, or mood tracking.',
     ],
-    question: ['Would you like to talk, track a mood, or try a calming exercise?', 'Where would you like to start?'],
-    action: ['You can chat here, journal, track moods, breathe, or open self-care any time.'],
+    question: ['Want to talk, log a mood, or try something calming?', 'Where would you like to start?'],
+    action: ['Chat, journal, moods, breathing, self-care — all right here.'],
     suggestions: ['I feel anxious', 'Track my mood', 'Try breathing'],
   },
   unknown: {
-    validate: ['Thank you for sharing that.', 'I hear you.', 'I’m here with you.'],
-    reflect: ['I may not fully grasp every detail, but your feelings matter here.', 'You don’t have to find the perfect words.'],
-    question: ['Can you tell me a little more about how that feels?', 'What would feel most supportive right now?'],
-    action: ['If it helps, we could slow down with a breath, or put a few words in your journal.'],
+    validate: ['Thanks for sharing that.', 'I hear you.', 'I’m here.'],
+    reflect: ['I might not catch every detail, but what you’re feeling matters.', 'You don’t need the perfect words.'],
+    question: ['Can you say a bit more about how that feels?', 'What would feel most supportive right now?'],
+    action: ['We could slow down with a breath, or put a few words in your journal.'],
     suggestions: ['I feel anxious', 'I feel low', 'Try breathing', 'Write it out'],
   },
 };
@@ -354,11 +379,70 @@ const TEMPLATES: Record<Intent, Template> = {
  * like a broken record.
  */
 const REPEAT_OPENERS: string[] = [
-  'I can tell this is still sitting with you.',
-  'This keeps coming back, and that’s okay — it clearly matters.',
-  'We’ve touched on this before, and it still deserves care.',
-  'It sounds like this hasn’t eased yet, and I’m still here with you.',
+  'This is still sitting with you, huh?',
+  'Sounds like it hasn’t eased yet — that’s okay.',
+  'We’ve been here before, and it still matters.',
+  'Still on your mind — I’m here.',
 ];
+
+/** Pull a short phrase from the user message to echo back lightly. */
+function extractEchoPhrase(text: string): string | null {
+  const trimmed = text.trim();
+  if (trimmed.length < 10) return null;
+
+  const patterns = [
+    /\babout\s+(.{3,45}?)(?:[.!?,]|$)/i,
+    /\bbecause\s+(.{3,50}?)(?:[.!?,]|$)/i,
+    /\bwith\s+(.{3,40}?)(?:[.!?,]|$)/i,
+  ];
+  for (const pattern of patterns) {
+    const match = trimmed.match(pattern);
+    if (match?.[1]) {
+      const phrase = match[1].trim().replace(/\s+/g, ' ');
+      if (phrase.split(' ').length <= 8) return phrase;
+    }
+  }
+  return null;
+}
+
+function maybePersonalize(reflect: string, userText: string | undefined, rng: Rng): string {
+  if (!userText) return reflect;
+  const echo = extractEchoPhrase(userText);
+  if (!echo || rng() > 0.5) return reflect;
+
+  const hooks = [
+    `Yeah, the ${echo} part sounds like it’s really getting to you.`,
+    `I can see how ${echo} would weigh on you.`,
+    `Something about ${echo} — I hear that.`,
+  ];
+  return `${pick(hooks, rng)} ${reflect}`;
+}
+
+function selectParts(
+  shape: ResponseShape,
+  opener: string,
+  reflect: string,
+  question: string,
+  action: string,
+  rng: Rng,
+): string[] {
+  switch (shape) {
+    case 'brief': {
+      const second = rng() < 0.55 ? reflect : question;
+      return [opener, second];
+    }
+    case 'chat': {
+      return rng() < 0.5 ? [opener, reflect, question] : [opener, reflect, action];
+    }
+    case 'ground': {
+      const roll = rng();
+      if (roll < 0.3) return [opener, reflect, question];
+      if (roll < 0.55) return [opener, reflect, action];
+      if (roll < 0.8) return [opener, question, action];
+      return [opener, reflect];
+    }
+  }
+}
 
 function pick<T>(items: readonly T[], rng: Rng): T {
   // Non-empty arrays are guaranteed by construction above.
@@ -385,25 +469,49 @@ function pickVaried(items: readonly string[], memory: ConversationMemory | undef
   return chosen;
 }
 
-/**
- * Legacy pure composition (kept byte-for-byte compatible with the original
- * engine for existing callers and tests).
- */
-export function buildReply(intent: Intent, rng: Rng = Math.random): string {
-  const template = TEMPLATES[intent];
-  const parts = [
-    pick(template.validate, rng),
-    pick(template.reflect, rng),
-    pick(template.question, rng),
-    pick(template.action, rng),
-  ];
-  return parts.join(' ');
-}
-
 /** Intents where a repeat-opener would feel wrong even if repeated. */
 const NO_REPEAT_OPENER: ReadonlySet<Intent> = new Set([
   'greeting', 'thanks', 'goodbye', 'help', 'positive', 'gratitude', 'unknown',
 ]);
+
+/**
+ * Core composition — picks a natural-length reply instead of always stitching
+ * four template lines together.
+ */
+function composeReplyInternal(
+  intent: Intent,
+  memory: ConversationMemory | undefined,
+  rng: Rng,
+  userText?: string,
+): string {
+  const template = TEMPLATES[intent];
+  const shape = RESPONSE_SHAPE[intent];
+
+  const useRepeatOpener =
+    memory !== undefined && !NO_REPEAT_OPENER.has(intent) && memory.intentStreak(intent) >= 2;
+
+  const opener = useRepeatOpener
+    ? pickVaried(REPEAT_OPENERS, memory, rng)
+    : pickVaried(template.validate, memory, rng);
+
+  const reflect = maybePersonalize(
+    pickVaried(template.reflect, memory, rng),
+    userText,
+    rng,
+  );
+  const question = pickVaried(template.question, memory, rng);
+  const action = pickVaried(template.action, memory, rng);
+
+  const parts = selectParts(shape, opener, reflect, question, action, rng);
+  return parts.join(' ');
+}
+
+/**
+ * Legacy pure composition (kept for existing callers and tests).
+ */
+export function buildReply(intent: Intent, rng: Rng = Math.random): string {
+  return composeReplyInternal(intent, undefined, rng);
+}
 
 /**
  * Memory-aware composition: avoids recently used lines and, when the user has
@@ -414,23 +522,9 @@ export function composeReply(
   intent: Intent,
   memory: ConversationMemory | undefined,
   rng: Rng = Math.random,
+  userText?: string,
 ): string {
-  const template = TEMPLATES[intent];
-
-  const useRepeatOpener =
-    memory !== undefined && !NO_REPEAT_OPENER.has(intent) && memory.intentStreak(intent) >= 2;
-
-  const opener = useRepeatOpener
-    ? pickVaried(REPEAT_OPENERS, memory, rng)
-    : pickVaried(template.validate, memory, rng);
-
-  const parts = [
-    opener,
-    pickVaried(template.reflect, memory, rng),
-    pickVaried(template.question, memory, rng),
-    pickVaried(template.action, memory, rng),
-  ];
-  return parts.join(' ');
+  return composeReplyInternal(intent, memory, rng, userText);
 }
 
 export function suggestionsFor(intent: Intent): string[] {
@@ -439,8 +533,8 @@ export function suggestionsFor(intent: Intent): string[] {
 
 /** Safe fallback used if anything unexpected happens during composition. */
 export const SAFE_FALLBACK =
-  'I’m here with you. I didn’t quite follow that, but your feelings matter. ' +
-  'Would you like to take a slow breath together, or tell me a little more?';
+  'I’m here. I didn’t quite follow, but what you’re feeling still matters. ' +
+  'Want to take a slow breath, or tell me a bit more?';
 
 export interface GenerateOptions {
   rng?: Rng;
@@ -475,7 +569,9 @@ export function generateResponse(text: string, options: GenerateOptions = {}): E
   try {
     const intent = detectIntent(trimmed);
     const mood = detectMood(trimmed);
-    const reply = options.memory ? composeReply(intent, options.memory, rng) : buildReply(intent, rng);
+    const reply = options.memory
+      ? composeReply(intent, options.memory, rng, trimmed)
+      : buildReply(intent, rng);
     return {
       reply,
       intent,
