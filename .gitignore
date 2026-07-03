@@ -15,6 +15,10 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 
+# generated native projects (recreated by `expo prebuild`)
+/android/
+/ios/
+
 # metro
 .metro-health-check*
 
