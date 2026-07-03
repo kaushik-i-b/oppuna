@@ -6,7 +6,7 @@ import { useToast } from '@/components/feedback/ToastProvider';
 import { chatRepository, safetyRepository } from '@/database';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useTranslation } from '@/hooks/useTranslation';
-import { generateResponse } from '@/services/offlineAI';
+import { generateAIResponse, resetConversationMemory } from '@/ai';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
@@ -64,7 +64,7 @@ export function ChatScreen(): React.ReactElement {
         setMessages((prev) => [...prev, userMessage]);
         scrollToEnd();
 
-        const response = generateResponse(trimmed);
+        const response = await generateAIResponse({ sessionId, text: trimmed });
 
         if (response.crisis) {
           await safetyRepository.record(response.crisis);
@@ -104,6 +104,7 @@ export function ChatScreen(): React.ReactElement {
     if (!sessionId) return;
     try {
       await chatRepository.clearSession(sessionId);
+      resetConversationMemory(sessionId);
       setMessages([]);
       setSuggestions([]);
       toast.show(t('chat.cleared'), 'success');
