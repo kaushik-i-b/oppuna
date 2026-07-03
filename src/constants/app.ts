@@ -32,3 +32,17 @@ export const PRIVACY_STATEMENT =
 export const SECURE_KEYS = {
   appLockEnabled: 'oppuna.appLock.enabled',
 } as const;
+
+/**
+ * On-device LLM configuration. Place a GGUF file at
+ * `{documentDirectory}models/{storageFilename}` to enable the local model.
+ * Production builds may also bundle the model under `assets/models/`.
+ */
+export const LLM_CONFIG = {
+  storageDir: 'models',
+  storageFilename: 'oppuna-model.gguf',
+  contextSize: 2048,
+  maxThreads: 4,
+  /** GPU layers on iOS (Metal). Set to 0 for CPU-only on Android if needed. */
+  gpuLayers: 99,
+} as const;

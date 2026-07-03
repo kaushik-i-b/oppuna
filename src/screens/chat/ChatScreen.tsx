@@ -1,21 +1,39 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button, ChatBubble, Chip, ConfirmDialog, Screen, Text, TextField } from '@/components';
 import { useToast } from '@/components/feedback/ToastProvider';
 import { chatRepository, safetyRepository } from '@/database';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
+import { useModelStatus } from '@/hooks/useModelStatus';
 import { useTranslation } from '@/hooks/useTranslation';
 import { generateAIResponse, resetConversationMemory } from '@/ai';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
+import type { ModelStatus } from '@/ai/types';
+import type { TranslationKey } from '@/i18n';
+
+function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => string): string | null {
+  switch (status) {
+    case 'checking':
+    case 'loading':
+      return t('chat.modelLoading');
+    case 'unavailable':
+      return t('chat.modelUnavailable');
+    case 'error':
+      return t('chat.modelError');
+    default:
+      return null;
+  }
+}
 
 export function ChatScreen(): React.ReactElement {
   const theme = useTheme();
   const { t } = useTranslation();
   const toast = useToast();
   const navigation = useAppNavigation();
+  const modelState = useModelStatus();
 
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -24,6 +42,11 @@ export function ChatScreen(): React.ReactElement {
   const [sending, setSending] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const listRef = useRef<FlatList<ChatMessage>>(null);
+  const streamingIdRef = useRef<string | null>(null);
+
+  const statusLabel = modelStatusLabel(modelState.status, t);
+  const showStatusSpinner =
+    modelState.status === 'checking' || modelState.status === 'loading';
 
   useEffect(() => {
     let active = true;
@@ -64,9 +87,49 @@ export function ChatScreen(): React.ReactElement {
         setMessages((prev) => [...prev, userMessage]);
         scrollToEnd();
 
-        const response = await generateAIResponse({ sessionId, text: trimmed });
+        const streamId =
+          modelState.status === 'ready' ? `stream-${Date.now()}` : null;
+        streamingIdRef.current = streamId;
+
+        if (streamId) {
+          const placeholder: ChatMessage = {
+            id: streamId,
+            sessionId,
+            role: 'assistant',
+            content: '',
+            intent: null,
+            mood: null,
+            createdAt: Date.now(),
+          };
+          setMessages((prev) => [...prev, placeholder]);
+          scrollToEnd();
+        }
+
+        const response = await generateAIResponse(
+          { sessionId, text: trimmed },
+          streamId
+            ? {
+                onToken: (token) => {
+                  const activeId = streamingIdRef.current;
+                  if (!activeId) return;
+                  setMessages((prev) =>
+                    prev.map((message) =>
+                      message.id === activeId
+                        ? { ...message, content: message.content + token }
+                        : message,
+                    ),
+                  );
+                },
+              }
+            : undefined,
+        );
+
+        streamingIdRef.current = null;
 
         if (response.crisis) {
+          if (streamId) {
+            setMessages((prev) => prev.filter((message) => message.id !== streamId));
+          }
           await safetyRepository.record(response.crisis);
           await chatRepository.addMessage({
             sessionId,
@@ -77,6 +140,10 @@ export function ChatScreen(): React.ReactElement {
           });
           navigation.navigate('Crisis', { category: response.crisis });
           return;
+        }
+
+        if (streamId) {
+          setMessages((prev) => prev.filter((message) => message.id !== streamId));
         }
 
         const assistantMessage = await chatRepository.addMessage({
@@ -96,7 +163,7 @@ export function ChatScreen(): React.ReactElement {
         setSending(false);
       }
     },
-    [sessionId, sending, navigation, scrollToEnd, toast],
+    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status],
   );
 
   const handleClear = useCallback(async () => {
@@ -139,6 +206,33 @@ export function ChatScreen(): React.ReactElement {
         </View>
       }
     >
+      {statusLabel ? (
+        <View
+          style={[
+            styles.modelStatus,
+            {
+              paddingHorizontal: theme.spacing.lg,
+              paddingVertical: theme.spacing.sm,
+              backgroundColor: theme.colors.surfaceAlt,
+              borderBottomColor: theme.colors.border,
+            },
+          ]}
+          accessibilityRole="text"
+          accessibilityLabel={statusLabel}
+        >
+          {showStatusSpinner ? (
+            <ActivityIndicator size="small" color={theme.colors.primary} style={{ marginRight: 8 }} />
+          ) : null}
+          <Text
+            variant="caption"
+            color={modelState.status === 'error' ? 'danger' : 'textMuted'}
+            style={{ flex: 1 }}
+          >
+            {statusLabel}
+          </Text>
+        </View>
+      ) : null}
+
       <FlatList
         ref={listRef}
         data={messages}
@@ -209,6 +303,11 @@ export function ChatScreen(): React.ReactElement {
 }
 
 const styles = StyleSheet.create({
+  modelStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+  },
   suggestions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
   inputBar: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, borderTopWidth: 1 },
 });

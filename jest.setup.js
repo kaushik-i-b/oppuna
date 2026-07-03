@@ -11,3 +11,15 @@ jest.mock('expo-haptics', () => ({
   NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
   ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
 }));
+
+jest.mock('expo-file-system/legacy', () => ({
+  documentDirectory: 'file:///mock-documents/',
+  getInfoAsync: jest.fn(async () => ({ exists: false })),
+  makeDirectoryAsync: jest.fn(async () => undefined),
+  readDirectoryAsync: jest.fn(async () => []),
+  copyAsync: jest.fn(async () => undefined),
+}));
+
+jest.mock('llama.rn', () => ({
+  initLlama: jest.fn(),
+}));

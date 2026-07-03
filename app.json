@@ -46,9 +46,19 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
+    "newArchEnabled": true,
     "plugins": [
       "expo-localization",
       "expo-secure-store",
+      [
+        "llama.rn",
+        {
+          "enableEntitlements": true,
+          "entitlementsProfile": "production",
+          "forceCxx20": true,
+          "enableOpenCL": true
+        }
+      ],
       [
         "expo-splash-screen",
         {

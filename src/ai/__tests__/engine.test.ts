@@ -110,6 +110,21 @@ describe('generateAIResponse — LLM path', () => {
     expect(response.meta.source).toBe('rule-engine');
     expect(response.reply.length).toBeGreaterThan(0);
   });
+
+  it('streams tokens through onToken when the LLM path is used', async () => {
+    const client = new MockLocalLLMClient({
+      available: true,
+      reply: 'One calm breath at a time.',
+    });
+    const tokens: string[] = [];
+    const response = await generateAIResponse(
+      { sessionId: freshSession(), text: 'I feel anxious' },
+      { client, onToken: (token) => tokens.push(token) },
+    );
+    expect(response.meta.source).toBe('local-llm');
+    expect(tokens.length).toBeGreaterThan(0);
+    expect(tokens.join('')).toBe(response.reply);
+  });
 });
 
 describe('generateAIResponse — last resort', () => {

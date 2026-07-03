@@ -43,6 +43,10 @@ export const en = {
       'Hey — this stays on your phone, completely private. What’s on your mind?',
     cleared: 'Conversation cleared',
     clear: 'Clear conversation',
+    modelLoading: 'Loading on-device assistant…',
+    modelReady: 'On-device assistant ready',
+    modelUnavailable: 'Guided responses — place a model in local storage to enable on-device AI',
+    modelError: 'On-device assistant unavailable — using guided responses',
   },
   mood: {
     title: 'How are you?',

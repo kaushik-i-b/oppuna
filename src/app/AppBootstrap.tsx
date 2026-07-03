@@ -3,6 +3,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 
 import { BrandSplash } from '@/app/BrandSplash';
+import { configureDefaultLocalLLMClient, getLocalLLMClient } from '@/ai/llmClient';
+import { initializeModelManager } from '@/ai/modelManager';
 import { initDatabase } from '@/database';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -20,7 +22,17 @@ export function AppBootstrap({ children }: { children: React.ReactNode }): React
   const bootstrap = useCallback(async () => {
     try {
       setStatus('loading');
+      configureDefaultLocalLLMClient();
       await initDatabase();
+      await initializeModelManager();
+      const client = getLocalLLMClient();
+      if (client.warmUp) {
+        await client.warmUp().catch((error: unknown) => {
+          logger.warn('On-device model warm-up failed; guided responses will be used', {
+            error: String(error),
+          });
+        });
+      }
       setStatus('ready');
     } catch (error) {
       logger.error('Bootstrap failed', { error: String(error) });

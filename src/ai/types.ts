@@ -118,7 +118,40 @@ export interface AIChatResponse extends EngineResponse {
 }
 
 /* ------------------------------------------------------------------ *
- * Local LLM contracts (interface only — no model is bundled yet)
+ * Model lifecycle
+ * ------------------------------------------------------------------ */
+
+/** Lifecycle state of the on-device GGUF model. */
+export type ModelStatus =
+  | 'idle'
+  | 'checking'
+  | 'loading'
+  | 'ready'
+  | 'unavailable'
+  | 'error';
+
+export interface ModelState {
+  status: ModelStatus;
+  /** Resolved local file URI for the GGUF model, when present. */
+  modelPath: string | null;
+  /** Human-readable model identifier derived from the filename. */
+  modelId: string | null;
+  /** Last error message when status is `error`. */
+  error: string | null;
+  /** Timestamp when the model context became ready. */
+  loadedAt: number | null;
+}
+
+/** Tunable generation parameters shared by the prompt builder and LLM client. */
+export interface GenerationConfig {
+  maxTokens: number;
+  temperature: number;
+  topP: number;
+  stopSequences?: string[];
+}
+
+/* ------------------------------------------------------------------ *
+ * Local LLM contracts
  * ------------------------------------------------------------------ */
 
 export interface LLMGenerationParams {
