@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oppuna — Investor Pitch Deck</title>
+  <link rel="icon" href="../../site/favicon.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --primary: #0E7C66;
+      --primary-light: #D6ECE5;
+      --primary-dark: #0A5C4D;
+      --accent: #6C63B5;
+      --bg: #F4F7F5;
+      --surface: #FFFFFF;
+      --text: #16201C;
+      --text-muted: #4C5A54;
+      --text-faint: #8A968F;
+      --border: #DDE5E0;
+      --danger: #C0392B;
+      --success: #2E8B57;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .deck { height: 100vh; position: relative; }
+
+    .slide {
+      display: none;
+      height: 100vh;
+      padding: 48px 64px 80px;
+      flex-direction: column;
+      justify-content: center;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .slide.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-cover {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, #1A9A7E 100%);
+      color: white;
+      text-align: center;
+      align-items: center;
+    }
+
+    .slide-cover .logo {
+      width: 88px;
+      height: 88px;
+      margin-bottom: 28px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .slide-cover h1 {
+      font-size: 4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .slide-cover .tagline {
+      font-size: 1.5rem;
+      opacity: 0.92;
+      font-weight: 400;
+      margin-bottom: 32px;
+    }
+
+    .slide-cover .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.8;
+      max-width: 640px;
+      line-height: 1.6;
+    }
+
+    .slide-cover .meta {
+      margin-top: 48px;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+
+    h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .slide-number {
+      position: fixed;
+      bottom: 24px;
+      right: 32px;
+      font-size: 0.85rem;
+      color: var(--text-faint);
+      z-index: 100;
+    }
+
+    .nav-hint {
+      position: fixed;
+      bottom: 24px;
+      left: 32px;
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      z-index: 100;
+    }
+
+    .progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--primary);
+      transition: width 0.3s ease;
+      z-index: 100;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      margin-top: 8px;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .check { color: var(--success); font-weight: 700; }
+    .cross { color: var(--danger); font-weight: 700; }
+    .partial { color: var(--text-faint); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(14, 124, 102, 0.06);
+    }
+
+    .card h4 {
+      font-size: 1rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .card p, .card li {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .card ul { padding-left: 18px; margin-top: 8px; }
+
+    .stat {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .stat .number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat .label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .quote {
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      padding: 20px 24px;
+      border-radius: 0 12px 12px 0;
+      font-size: 1.15rem;
+      font-style: italic;
+      color: var(--primary-dark);
+      margin: 24px 0;
+    }
+
+    .pipeline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 24px 0;
+      flex-wrap: wrap;
+    }
+
+    .pipeline-step {
+      background: var(--surface);
+      border: 2px solid var(--primary);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      flex: 1;
+      min-width: 140px;
+      text-align: center;
+    }
+
+    .pipeline-arrow {
+      color: var(--primary);
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .arch-diagram {
+      background: var(--surface);
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 32px;
+      margin: 20px auto;
+      max-width: 520px;
+      text-align: center;
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: var(--text-muted);
+    }
+
+    .arch-diagram .box {
+      display: inline-block;
+      background: var(--primary-light);
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      padding: 6px 14px;
+      margin: 4px;
+      color: var(--primary-dark);
+      font-weight: 600;
+    }
+
+    .arch-diagram .guard {
+      color: var(--danger);
+      font-weight: 700;
+      margin-top: 12px;
+      display: block;
+    }
+
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .pillar {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 20px 14px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .pillar .icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .pillar h4 { font-size: 0.95rem; color: var(--primary); margin-bottom: 6px; }
+    .pillar p { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
+
+    .timeline { margin-top: 20px; }
+
+    .timeline-item {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 16px;
+      align-items: flex-start;
+    }
+
+    .timeline-date {
+      min-width: 110px;
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+
+    .timeline-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      flex: 1;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .placeholder {
+      background: #FFF8E6;
+      border: 2px dashed #E0B450;
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      color: #8A6D1A;
+      margin-top: 20px;
+    }
+
+    .slide-closing {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      color: white;
+      text-align: center;
+      align-items: center;
+    }
+
+    .slide-closing h2 { color: white; font-size: 3rem; }
+    .slide-closing .tagline { font-size: 1.4rem; opacity: 0.9; margin: 16px 0 32px; }
+    .slide-closing .points { font-size: 1.1rem; line-height: 2; opacity: 0.85; }
+    .slide-closing .disclaimer { margin-top: 40px; font-size: 0.8rem; opacity: 0.6; }
+
+    .highlight-row td:first-child { font-weight: 600; color: var(--primary-dark); }
+
+    @media (max-width: 900px) {
+      .slide { padding: 32px 24px 72px; }
+      h2 { font-size: 1.6rem; }
+      .grid-2, .grid-3, .pillars { grid-template-columns: 1fr; }
+      .slide-cover h1 { font-size: 2.5rem; }
+    }
+
+    @media print {
+      .slide { display: flex !important; page-break-after: always; height: auto; min-height: 100vh; }
+      .nav-hint, .progress, .slide-number { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+  <div class="deck" id="deck">
+
+    <!-- Slide 1: Cover -->
+    <section class="slide slide-cover active" data-slide="1">
+      <img class="logo" src="../../site/favicon.svg" alt="Oppuna logo" />
+      <h1>Oppuna</h1>
+      <p class="tagline">Peace of mind. On your terms. Offline.</p>
+      <p class="subtitle">Private mental wellness companion — journal, mood tracking, breathing, and on-device AI support. No account. No cloud. No internet required.</p>
+      <p class="meta">v1.0.0 · Production-ready MVP · React Native + Expo + TypeScript</p>
+    </section>
+
+    <!-- Slide 2: Problem -->
+    <section class="slide" data-slide="2">
+      <h2>The Problem</h2>
+      <h3>Mental wellness apps ask for your most private thoughts — then send them to the cloud.</h3>
+      <div class="grid-2">
+        <div class="card">
+          <h4>Privacy erosion</h4>
+          <p>Journal entries, mood logs, and AI chats stored on remote servers — subject to breaches and subpoenas.</p>
+        </div>
+        <div class="card">
+          <h4>Connectivity dependency</h4>
+          <p>Most wellness apps fail offline or degrade without signal, excluding rural and travel contexts.</p>
+        </div>
+        <div class="card">
+          <h4>Trust deficit</h4>
+          <p>Users with heightened privacy needs — journalists, activists, abuse survivors — are underserved.</p>
+        </div>
+        <div class="card">
+          <h4>Oversharing by design</h4>
+          <p>Accounts, analytics, and ad SDKs are baked into incumbent business models.</p>
+        </div>
+      </div>
+      <p class="quote">Users want support — not surveillance.</p>
+    </section>
+
+    <!-- Slide 3: Market -->
+    <section class="slide" data-slide="3">
+      <h2>Market Opportunity</h2>
+      <h3>A large, growing market with a widening privacy gap</h3>
+      <div class="grid-3">
+        <div class="card stat">
+          <div class="number">~$7B</div>
+          <div class="label">Global mental health apps (2025)</div>
+        </div>
+        <div class="card stat">
+          <div class="number">&gt;$10B</div>
+          <div class="label">Projected by 2030</div>
+        </div>
+        <div class="card stat">
+          <div class="number">1.4B</div>
+          <div class="label">India population — rising smartphone penetration</div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top: 20px;">
+        <div class="card">
+          <h4>Regulatory tailwinds</h4>
+          <p>GDPR, India's DPDP Act, and HIPAA concerns push demand for local-first solutions.</p>
+        </div>
+        <div class="card">
+          <h4>Our wedge</h4>
+          <p>Mental wellness + privacy-by-architecture + offline-first — a segment incumbents cannot serve without rebuilding their stack.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 4: Solution -->
+    <section class="slide" data-slide="4">
+      <h2>The Solution</h2>
+      <h3>Oppuna — a complete wellness companion that never phones home</h3>
+      <div class="arch-diagram">
+        <div><span class="box">Journal</span> <span class="box">Mood</span> <span class="box">Chat</span></div>
+        <div style="margin: 12px 0;">↓</div>
+        <div><span class="box">SQLite (local)</span></div>
+        <div style="margin: 12px 0;">↓</div>
+        <div><span class="box">On-device AI engine</span></div>
+        <span class="guard">🚫 Network guard active — no internet path exists</span>
+      </div>
+      <div class="grid-3">
+        <div class="card stat"><div class="number">18</div><div class="label">Feature screens</div></div>
+        <div class="card stat"><div class="number">0</div><div class="label">Data leaves device</div></div>
+        <div class="card stat"><div class="number">✈️</div><div class="label">Works in airplane mode</div></div>
+      </div>
+    </section>
+
+    <!-- Slide 5: Product -->
+    <section class="slide" data-slide="5">
+      <h2>Product Overview</h2>
+      <h3>One app. Five pillars of everyday wellness.</h3>
+      <div class="pillars">
+        <div class="pillar">
+          <div class="icon">📔</div>
+          <h4>Reflect</h4>
+          <p>Journal (5 types), mood tracker, weekly insights</p>
+        </div>
+        <div class="pillar">
+          <div class="icon">💬</div>
+          <h4>Support</h4>
+          <p>On-device AI with CBT, mindfulness, grounding</p>
+        </div>
+        <div class="pillar">
+          <div class="icon">🌬️</div>
+          <h4>Calm</h4>
+          <p>Breathing exercises, 5-4-3-2-1 grounding</p>
+        </div>
+        <div class="pillar">
+          <div class="icon">🌙</div>
+          <h4>Rest</h4>
+          <p>Sleep wind-down, reminders, spoken TTS</p>
+        </div>
+        <div class="pillar">
+          <div class="icon">🔒</div>
+          <h4>Protect</h4>
+          <p>Crisis detection, app lock, export & delete</p>
+        </div>
+      </div>
+      <p style="margin-top: 24px; color: var(--text-muted); font-size: 0.95rem;">
+        <strong>Languages:</strong> English · Spanish · Hindi &nbsp;|&nbsp; <strong>Themes:</strong> Dark · Light · System
+      </p>
+    </section>
+
+    <!-- Slide 6: AI -->
+    <section class="slide" data-slide="6">
+      <h2>AI Companion &amp; Safety</h2>
+      <h3>Supportive AI that stays on your phone — safety always first</h3>
+      <div class="pipeline">
+        <div class="pipeline-step">1. Safety engine<br><small>Crisis detection</small></div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-step">2. Local LLM<br><small>llama.rn</small></div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-step">3. Rule engine<br><small>CBT templates</small></div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-step">4. Safe fallback<br><small>Validated output</small></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h4>Response validator blocks</h4>
+          <ul>
+            <li>Medical diagnoses &amp; medication advice</li>
+            <li>Therapy-role claims</li>
+            <li>Unsafe or repetitive content</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Crisis flow (6 regions)</h4>
+          <p>Stops coaching → shows offline helplines. India default: KIRAN, Tele-MANAS, AASRA, iCall, Vandrevala.</p>
+        </div>
+      </div>
+      <p style="margin-top: 16px; font-size: 0.85rem; color: var(--text-faint);">Not a medical device — supportive wellness guidance only.</p>
+    </section>
+
+    <!-- Slide 7: Privacy -->
+    <section class="slide" data-slide="7">
+      <h2>Privacy by Architecture</h2>
+      <h3>We don't ask you to trust our policy. We removed the attack surface.</h3>
+      <table>
+        <tr><th>Control</th><th>Implementation</th></tr>
+        <tr><td>Network guard</td><td><code>fetch</code> and <code>XMLHttpRequest</code> wrapped; all remote hosts rejected in production</td></tr>
+        <tr><td>Android hardening</td><td><code>INTERNET</code> permission blocked in manifest</td></tr>
+        <tr><td>Zero telemetry</td><td>No analytics SDKs, ad networks, or crash reporters</td></tr>
+        <tr><td>Local storage</td><td>SQLite with 7 tables, versioned migrations, WAL mode</td></tr>
+        <tr><td>User sovereignty</td><td>Full JSON export; permanent wipe of all data + voice files</td></tr>
+        <tr class="highlight-row"><td>App Store privacy label</td><td><strong>"None"</strong> for all data collection categories</td></tr>
+      </table>
+    </section>
+
+    <!-- Slide 8: Competition -->
+    <section class="slide" data-slide="8">
+      <h2>Competitive Landscape</h2>
+      <h3>Our moat: competitors must abandon cloud-centric models to match us</h3>
+      <table>
+        <tr>
+          <th>Capability</th>
+          <th>Oppuna</th>
+          <th>Wysa / Replika</th>
+          <th>Headspace / Calm</th>
+          <th>Day One</th>
+        </tr>
+        <tr><td>Fully offline</td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td><td class="partial">⚠️</td></tr>
+        <tr><td>No account</td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td>AI companion</td><td class="check">✅ On-device</td><td>Cloud AI</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td>Mood tracking</td><td class="check">✅</td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td>Journal</td><td class="check">✅</td><td class="partial">⚠️</td><td class="cross">❌</td><td class="check">✅</td></tr>
+        <tr><td>Crisis detection (local)</td><td class="check">✅</td><td class="partial">⚠️</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td>Data never leaves device</td><td class="check">✅ Enforced</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td>Pricing</td><td>Free</td><td>$70+/yr</td><td>$70+/yr</td><td>Freemium</td></tr>
+      </table>
+    </section>
+
+    <!-- Slide 9: Business Model -->
+    <section class="slide" data-slide="9">
+      <h2>Business Model</h2>
+      <h3>Monetization aligned with privacy — not against it</h3>
+      <p style="color: var(--text-muted); margin-bottom: 16px;"><strong>Today:</strong> Free, no ads, no IAP. Built to earn trust first.</p>
+      <table>
+        <tr><th>Model</th><th>Description</th><th>Fit</th></tr>
+        <tr><td>Freemium</td><td>Free rule engine; premium on-device LLM model pack</td><td>LLM infra already wired</td></tr>
+        <tr><td>One-time purchase</td><td>$4.99–$9.99 paid app</td><td>Privacy apps succeed upfront</td></tr>
+        <tr><td>B2B / white-label</td><td>Employers, schools, NGOs</td><td>No cloud = simpler procurement</td></tr>
+        <tr><td>Regional partnerships</td><td>India wellness programs (Tele-MANAS)</td><td>Hindi + offline helplines ready</td></tr>
+        <tr><td>Tip jar</td><td>Voluntary support, no account</td><td>Aligns with ethos</td></tr>
+      </table>
+      <p class="quote" style="margin-top: 20px; font-size: 1rem;">Low marginal cost (no server infra) → high gross margin at scale.</p>
+    </section>
+
+    <!-- Slide 10: GTM -->
+    <section class="slide" data-slide="10">
+      <h2>Go-to-Market</h2>
+      <h3>Launch where privacy pain is highest</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">Phase 1 — Now</div>
+          <div class="timeline-content"><strong>App Store launch.</strong> Google Play AAB ready. ASO: wellness, offline, journal, mood tracker, private. Privacy policy live.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Phase 2</div>
+          <div class="timeline-content"><strong>Community.</strong> Privacy advocates, digital rights, mental health creators. India: Hindi content, regional influencers.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Phase 3</div>
+          <div class="timeline-content"><strong>Partnerships.</strong> NGOs, EAPs, university counseling. Privacy-focused device pre-installs.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Phase 4</div>
+          <div class="timeline-content"><strong>Enterprise.</strong> White-label for organizations that cannot use cloud wellness tools.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 11: Roadmap -->
+    <section class="slide" data-slide="11">
+      <h2>Product Roadmap</h2>
+      <h3>Technical foundation is production-grade today</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">Shipped v1.0</div>
+          <div class="timeline-content">18 screens, offline AI, crisis safety, mood/journal/breathing, app lock, export/delete, en/es/hi</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Q3 2026</div>
+          <div class="timeline-content">Bundle on-device LLM model (llama.rn integration complete)</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Q4 2026</div>
+          <div class="timeline-content">On-device speech-to-text; SQLCipher encrypted storage</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2027</div>
+          <div class="timeline-content">More languages; B2B white-label SDK for NGOs and schools</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 12: Traction -->
+    <section class="slide" data-slide="12">
+      <h2>Traction &amp; Metrics</h2>
+      <h3>Pre-launch — product quality signals in place</h3>
+      <div class="placeholder">
+        <p><strong>Founder to complete</strong></p>
+        <p style="margin-top: 8px;">Downloads · DAU/MAU · Retention · App Store rating · Countries</p>
+        <p style="margin-top: 8px; font-size: 0.85rem;">No analytics by design — metrics will come from app store dashboards post-launch.</p>
+      </div>
+      <div class="grid-3" style="margin-top: 24px;">
+        <div class="card stat"><div class="number">9</div><div class="label">Test suites</div></div>
+        <div class="card stat"><div class="number">~68</div><div class="label">Unit tests</div></div>
+        <div class="card stat"><div class="number">1.0.0</div><div class="label">Production-ready</div></div>
+      </div>
+    </section>
+
+    <!-- Slide 13: Team -->
+    <section class="slide" data-slide="13">
+      <h2>Team</h2>
+      <h3>Built by a privacy-first engineer</h3>
+      <div class="placeholder">
+        <p><strong>[Founder Name] — [Role]</strong></p>
+        <p style="margin-top: 12px;">Background · Why this problem · Relevant experience</p>
+        <p style="margin-top: 16px; font-size: 0.9rem;">
+          GitHub: <a href="https://github.com/kaushik-i-b" style="color: var(--primary);">kaushik-i-b</a> ·
+          Repo: <a href="https://github.com/kaushik-i-b/oppuna" style="color: var(--primary);">oppuna</a>
+        </p>
+      </div>
+      <div class="grid-3" style="margin-top: 24px;">
+        <div class="card"><h4>Clinical advisor</h4><p>Wellness content &amp; crisis flow review</p></div>
+        <div class="card"><h4>Privacy advisor</h4><p>Security architecture &amp; compliance</p></div>
+        <div class="card"><h4>GTM advisor</h4><p>India market &amp; partnerships</p></div>
+      </div>
+    </section>
+
+    <!-- Slide 14: The Ask -->
+    <section class="slide" data-slide="14">
+      <h2>The Ask</h2>
+      <h3>Raising $[X] [Pre-seed / Seed]</h3>
+      <table>
+        <tr><th>Allocation</th><th>%</th><th>Purpose</th></tr>
+        <tr><td>Product &amp; engineering</td><td>50%</td><td>On-device LLM, STT, encryption, iOS launch</td></tr>
+        <tr><td>Go-to-market</td><td>25%</td><td>ASO, community, India launch, partnerships</td></tr>
+        <tr><td>Clinical &amp; safety</td><td>15%</td><td>Crisis audits, wellness content, compliance</td></tr>
+        <tr><td>Operations</td><td>10%</td><td>Legal, app store, infrastructure</td></tr>
+      </table>
+      <h3 style="margin-top: 24px; font-size: 1rem;">18-month milestones</h3>
+      <div class="grid-2">
+        <div class="card"><p>100K+ downloads across Android + iOS</p></div>
+        <div class="card"><p>Shipped on-device LLM with engagement lift</p></div>
+        <div class="card"><p>2+ B2B/NGO pilot partnerships</p></div>
+        <div class="card"><p>4.5+ App Store rating with retention data</p></div>
+      </div>
+    </section>
+
+    <!-- Slide 15: Why Now -->
+    <section class="slide" data-slide="15">
+      <h2>Why Now</h2>
+      <h3>Five converging forces</h3>
+      <div class="grid-2">
+        <div class="card"><h4>1. Cloud AI backlash</h4><p>Users wary of sending intimate thoughts to remote LLMs.</p></div>
+        <div class="card"><h4>2. On-device AI inflection</h4><p>llama.cpp + mobile NPUs make local LLMs viable on mid-range phones.</p></div>
+        <div class="card"><h4>3. Regulatory pressure</h4><p>DPDP (India), GDPR, state privacy laws favor local-first.</p></div>
+        <div class="card"><h4>4. India mental health moment</h4><p>Government helplines and Tele-MANAS create ecosystem tailwinds.</p></div>
+      </div>
+      <p class="quote" style="margin-top: 20px;">5. The product is built — v1.0 is production-ready today, not a slide-deck startup.</p>
+    </section>
+
+    <!-- Slide 16: Closing -->
+    <section class="slide slide-closing" data-slide="16">
+      <img class="logo" src="../../site/favicon.svg" alt="Oppuna" style="width: 72px; height: 72px; border-radius: 16px; margin-bottom: 20px;" />
+      <h2>Oppuna</h2>
+      <p class="tagline">Peace of mind. On your terms. Offline.</p>
+      <div class="points">
+        🌿 No account · No cloud · No tracking<br>
+        🔒 Privacy by architecture<br>
+        🫶 Gentle, everyday support
+      </div>
+      <p class="disclaimer">Oppuna is not a doctor, therapist, crisis service, or medical device.<br>It provides supportive wellness guidance only.</p>
+    </section>
+
+  </div>
+
+  <div class="nav-hint">← → or Space to navigate · F for fullscreen</div>
+  <div class="slide-number" id="slideNumber">1 / 16</div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const progress = document.getElementById('progress');
+    const slideNumber = document.getElementById('slideNumber');
+    let current = 0;
+
+    function showSlide(n) {
+      slides[current].classList.remove('active');
+      current = (n + slides.length) % slides.length;
+      slides[current].classList.add('active');
+      progress.style.width = ((current + 1) / slides.length * 100) + '%';
+      slideNumber.textContent = (current + 1) + ' / ' + slides.length;
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        showSlide(current + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        showSlide(current - 1);
+      } else if (e.key === 'Home') {
+        showSlide(0);
+      } else if (e.key === 'End') {
+        showSlide(slides.length - 1);
+      } else if (e.key === 'f' || e.key === 'F') {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        } else {
+          document.exitFullscreen();
+        }
+      }
+    });
+
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) showSlide(current + (diff > 0 ? 1 : -1));
+    });
+
+    progress.style.width = (1 / slides.length * 100) + '%';
+  </script>
+</body>
+</html>
