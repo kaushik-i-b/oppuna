@@ -4,6 +4,13 @@
 >
 > Slide-by-slide copy for Google Slides, Keynote, or PowerPoint. Open `docs/pitch-deck.html` in a browser for a ready-to-present version.
 
+## Hosted links
+
+| Link | Notes |
+|------|-------|
+| [quick-firefly-y84j.pagedrop.io](https://quick-firefly-y84j.pagedrop.io) | Live hosted deck (free, ~3 days) |
+| [kaushik-i-b.github.io/oppuna/pitch-deck.html](https://kaushik-i-b.github.io/oppuna/pitch-deck.html) | Permanent URL once GitHub Pages is enabled (see `site/README.md`) |
+
 ---
 
 ## Slide 1 — Title
