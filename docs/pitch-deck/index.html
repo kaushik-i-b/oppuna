@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Oppuna — Investor Pitch Deck</title>
+    <meta name="description" content="Oppuna investor pitch deck — private, offline mental wellness." />
+    <style>
+      :root {
+        --brand: #0e7c66;
+        --brand-light: #4fd1b0;
+        --brand-dark: #0a5f4e;
+        --bg: #0f1714;
+        --surface: #1a2722;
+        --text: #ecf3ef;
+        --muted: #a7b5ae;
+        --accent: #ffd166;
+        --danger: #ef476f;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+      .deck { height: 100vh; position: relative; }
+      .slide {
+        position: absolute; inset: 0; padding: 48px 64px 80px;
+        display: none; flex-direction: column; justify-content: center;
+        opacity: 0; transition: opacity 0.35s ease;
+        background: radial-gradient(ellipse at 20% 0%, rgba(14,124,102,0.18), transparent 55%), var(--bg);
+      }
+      .slide.active { display: flex; opacity: 1; }
+      .slide-num { position: absolute; top: 24px; right: 32px; font-size: 13px; color: var(--muted); font-weight: 600; }
+      .logo-row { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+      .logo { width: 48px; height: 48px; }
+      .brand-label { font-size: 14px; font-weight: 700; color: var(--brand-light); letter-spacing: 2px; text-transform: uppercase; }
+      h1 { font-size: clamp(36px, 5vw, 56px); font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
+      h2 { font-size: clamp(24px, 3.5vw, 36px); font-weight: 700; color: var(--brand-light); margin-bottom: 20px; }
+      h3 { font-size: 20px; font-weight: 700; margin: 20px 0 10px; color: var(--brand-light); }
+      p, li { font-size: clamp(16px, 2vw, 20px); line-height: 1.55; color: var(--text); }
+      .subtitle { font-size: clamp(18px, 2.5vw, 26px); color: var(--muted); max-width: 820px; margin-bottom: 24px; }
+      .tagline { font-size: clamp(20px, 3vw, 28px); font-weight: 600; color: var(--brand-light); max-width: 900px; }
+      .quote { font-size: clamp(22px, 3vw, 32px); font-weight: 600; font-style: italic; border-left: 4px solid var(--brand); padding-left: 24px; max-width: 900px; line-height: 1.4; }
+      .badge { display: inline-block; padding: 8px 18px; border-radius: 999px; background: rgba(79,209,176,0.15); border: 1px solid rgba(79,209,176,0.35); font-size: 14px; font-weight: 600; color: var(--brand-light); margin-top: 16px; }
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; max-width: 1100px; }
+      .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1100px; }
+      .card { background: var(--surface); border: 1px solid rgba(79,209,176,0.15); border-radius: 16px; padding: 24px; }
+      .card h3 { margin-top: 0; font-size: 17px; }
+      .card p, .card li { font-size: 15px; color: var(--muted); }
+      .stat { font-size: 42px; font-weight: 800; color: var(--brand-light); line-height: 1; }
+      .stat-label { font-size: 14px; color: var(--muted); margin-top: 6px; }
+      table { width: 100%; max-width: 1000px; border-collapse: collapse; font-size: 15px; margin-top: 12px; }
+      th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      th { color: var(--brand-light); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+      td { color: var(--muted); }
+      .yes { color: var(--brand-light); font-weight: 700; }
+      .no { color: #666; }
+      pre { background: var(--surface); border: 1px solid rgba(79,209,176,0.15); border-radius: 12px; padding: 20px 24px; font-size: 14px; line-height: 1.6; color: var(--brand-light); overflow-x: auto; max-width: 900px; font-family: "SF Mono", Monaco, Consolas, monospace; }
+      ul { padding-left: 24px; margin: 8px 0; }
+      li { margin-bottom: 8px; color: var(--muted); }
+      li strong { color: var(--text); }
+      .nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; background: rgba(15,23,20,0.92); border-top: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(12px); z-index: 100; }
+      .nav button { background: var(--brand); color: #fff; border: none; border-radius: 10px; padding: 10px 22px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .nav button:hover { background: var(--brand-dark); }
+      .nav button:disabled { opacity: 0.35; cursor: default; }
+      .progress { flex: 1; margin: 0 24px; height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+      .progress-bar { height: 100%; background: var(--brand-light); transition: width 0.3s; border-radius: 2px; }
+      .counter { font-size: 14px; color: var(--muted); min-width: 60px; text-align: center; }
+      .highlight { color: var(--accent); font-weight: 700; }
+      .vision { font-size: clamp(28px, 4vw, 44px); font-weight: 700; line-height: 1.35; max-width: 900px; }
+      @media (max-width: 768px) {
+        .slide { padding: 32px 24px 72px; }
+        .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        table { font-size: 12px; }
+        th, td { padding: 8px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="deck" id="deck">
+
+      <!-- 1 Title -->
+      <section class="slide active" data-slide="1">
+        <span class="slide-num">01 / 15</span>
+        <div class="logo-row">
+          <svg class="logo" viewBox="0 0 100 100" fill="none"><path d="M50 5 C 30 26, 20 52, 27 78 C 31 90, 42 95, 50 95 C 58 95, 69 90, 73 78 C 80 52, 70 26, 50 5 Z" fill="#4fd1b0"/></svg>
+          <span class="brand-label">Oppuna</span>
+        </div>
+        <h1>Private mental wellness,<br/>fully offline.</h1>
+        <p class="subtitle">The wellness companion that never phones home — by architecture, not policy.</p>
+        <span class="badge">v1.0.0 · Production Android · Store-ready</span>
+      </section>
+
+      <!-- 2 Problem -->
+      <section class="slide" data-slide="2">
+        <span class="slide-num">02 / 15</span>
+        <h2>The Problem</h2>
+        <p class="tagline">Mental health demand is exploding. Trust in digital wellness is collapsing.</p>
+        <div class="grid-2" style="margin-top:28px">
+          <div class="card"><div class="stat">37%</div><div class="stat-label">of iOS mental health apps sent identifiers to Facebook (Mozilla 2024)</div></div>
+          <div class="card"><div class="stat">$8.6B</div><div class="stat-label">global mental health apps market in 2026, growing ~15–19% CAGR</div></div>
+          <div class="card"><div class="stat">~$300K</div><div class="stat-label">annual HIPAA-grade infrastructure overhead squeezing margins</div></div>
+          <div class="card"><div class="stat">0</div><div class="stat-label">production apps offering full offline AI wellness at consumer quality — until now</div></div>
+        </div>
+      </section>
+
+      <!-- 3 Solution -->
+      <section class="slide" data-slide="3">
+        <span class="slide-num">03 / 15</span>
+        <h2>The Solution</h2>
+        <p class="quote">Oppuna is a fully offline, on-device mental wellness app — chat, journal, mood tracking, breathing, and crisis safety — with zero accounts, zero cloud, and zero data collection.</p>
+        <ul style="margin-top:28px; max-width:800px">
+          <li><strong>100% offline</strong> — works in airplane mode, forever</li>
+          <li><strong>On-device AI</strong> — rule-based engine + optional local LLM (llama.rn)</li>
+          <li><strong>Crisis safety</strong> — detects distress, routes to dedicated support</li>
+          <li><strong>Complete toolkit</strong> — mood, journal, breathing, grounding, sleep, voice notes</li>
+        </ul>
+      </section>
+
+      <!-- 4 Product -->
+      <section class="slide" data-slide="4">
+        <span class="slide-num">04 / 15</span>
+        <h2>Product</h2>
+        <div class="grid-3">
+          <div class="card"><h3>Offline AI Chat</h3><p>CBT-style, mindfulness, and grounding responses. Local LLM with streaming when model is available.</p></div>
+          <div class="card"><h3>Mood & Journal</h3><p>Track mood intensity, tags, weekly insights. Daily, gratitude, thought records, trigger reflections.</p></div>
+          <div class="card"><h3>Breathing & Grounding</h3><p>4-4-6, box breathing, 5-min calm. Guided 5-4-3-2-1 senses exercise.</p></div>
+          <div class="card"><h3>Sleep & Voice</h3><p>Wind-down checklist, TTS narration. Private voice notes stored locally.</p></div>
+          <div class="card"><h3>Insights & Self-care</h3><p>Personal wellness trends. Build your own self-care routine.</p></div>
+          <div class="card"><h3>Security</h3><p>Biometric app lock. Export JSON or delete all data. EN · ES · HI.</p></div>
+        </div>
+      </section>
+
+      <!-- 5 AI Pipeline -->
+      <section class="slide" data-slide="5">
+        <span class="slide-num">05 / 15</span>
+        <h2>On-Device AI Pipeline</h2>
+        <pre>User message
+    ↓
+① Safety engine (crisis detection — always first)
+    ↓
+② Local LLM (llama.rn) — streaming, validated
+    ↓
+③ Rule-based fallback + conversation memory
+    ↓
+④ Safe fallback text</pre>
+        <p style="margin-top:20px; max-width:800px; font-size:17px; color:var(--muted)">Response validator rejects harmful or repetitive replies. Network guard blocks every outbound request in production. No API keys. No server bills.</p>
+      </section>
+
+      <!-- 6 Privacy Moat -->
+      <section class="slide" data-slide="6">
+        <span class="slide-num">06 / 15</span>
+        <h2>Privacy Moat</h2>
+        <table>
+          <tr><th>Typical wellness app</th><th>Oppuna</th></tr>
+          <tr><td>Account + cloud sync</td><td class="yes">No account</td></tr>
+          <tr><td>Analytics SDKs</td><td class="yes">None</td></tr>
+          <tr><td>Remote AI API calls</td><td class="yes">Blocked at code level</td></tr>
+          <tr><td>Android INTERNET permission</td><td class="yes">Explicitly blocked</td></tr>
+          <tr><td>Crisis data on servers</td><td class="yes">Metadata only, local SQLite</td></tr>
+        </table>
+        <p style="margin-top:20px; font-size:17px"><span class="highlight">Privacy by architecture, not policy.</span> Investors can diligence the network guard and blocked permissions.</p>
+      </section>
+
+      <!-- 7 Why Now -->
+      <section class="slide" data-slide="7">
+        <span class="slide-num">07 / 15</span>
+        <h2>Why Now</h2>
+        <div class="grid-3">
+          <div class="card"><h3>Market tailwind</h3><p>$8.6B → $35B+ by 2034. AI personalization is the #1 cited growth driver.</p></div>
+          <div class="card"><h3>Tech inflection</h3><p>On-device LLMs viable on phones (llama.rn, ExecuTorch). 2025 research validates offline mental health AI.</p></div>
+          <div class="card"><h3>Regulatory pressure</h3><p>GDPR/HIPAA enforcement rising. App Store privacy labels favor zero-collection apps.</p></div>
+        </div>
+      </section>
+
+      <!-- 8 Market -->
+      <section class="slide" data-slide="8">
+        <span class="slide-num">08 / 15</span>
+        <h2>Market Opportunity</h2>
+        <div class="grid-3">
+          <div class="card"><div class="stat">$8.6B</div><div class="stat-label">TAM — Global mental health apps (2026)</div></div>
+          <div class="card"><div class="stat">$2–3B</div><div class="stat-label">SAM — Privacy-conscious wellness (US, EU, India)</div></div>
+          <div class="card"><div class="stat">500K</div><div class="stat-label">SOM — Year 3 paid user target</div></div>
+        </div>
+        <p style="margin-top:24px; max-width:900px; font-size:17px; color:var(--muted)">Beachhead: privacy professionals, rural/low-connectivity users, therapist-recommended journaling, employer wellness pilots with zero data liability.</p>
+      </section>
+
+      <!-- 9 Business Model -->
+      <section class="slide" data-slide="9">
+        <span class="slide-num">09 / 15</span>
+        <h2>Business Model</h2>
+        <p style="margin-bottom:20px; color:var(--muted)">Revenue never depends on data monetization. That's the brand.</p>
+        <table>
+          <tr><th>Stream</th><th>Description</th><th>Timeline</th></tr>
+          <tr><td>Freemium / one-time</td><td>Core free; premium models & insights</td><td>Launch</td></tr>
+          <tr><td>Oppuna Pro</td><td>Subscription for bundled LLM, STT, encrypted backup</td><td>Year 1</td></tr>
+          <tr><td>B2B / Employer</td><td>Seat license — zero data leaves employee devices</td><td>Year 2</td></tr>
+          <tr><td>Clinical modules</td><td>PHQ-9/GAD-7 screening for community health workers</td><td>Year 2–3</td></tr>
+        </table>
+      </section>
+
+      <!-- 10 Competition -->
+      <section class="slide" data-slide="10">
+        <span class="slide-num">10 / 15</span>
+        <h2>Competitive Landscape</h2>
+        <table>
+          <tr><th></th><th>Oppuna</th><th>Calm</th><th>Wysa</th><th>BetterHelp</th></tr>
+          <tr><td>Fully offline</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+          <tr><td>Zero data collection</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+          <tr><td>On-device AI chat</td><td class="yes">✓</td><td class="no">✗</td><td class="no">Cloud</td><td class="no">Human</td></tr>
+          <tr><td>No account</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+        </table>
+        <p style="margin-top:16px; font-size:17px">Oppuna owns the <span class="highlight">offline + private + AI companion</span> quadrant.</p>
+      </section>
+
+      <!-- 11 Traction -->
+      <section class="slide" data-slide="11">
+        <span class="slide-num">11 / 15</span>
+        <h2>Traction — Built & Shipped</h2>
+        <div class="grid-2">
+          <ul>
+            <li>✅ v1.0.0 production APK & AAB</li>
+            <li>✅ 18 feature-complete screens</li>
+            <li>✅ Layered AI (safety → LLM → fallback)</li>
+            <li>✅ llama.rn on-device LLM integration</li>
+            <li>✅ Crisis safety flow</li>
+          </ul>
+          <ul>
+            <li>✅ Biometric app lock</li>
+            <li>✅ Multilingual (EN, ES, HI)</li>
+            <li>✅ Unit tests (AI, crisis, DB)</li>
+            <li>✅ Privacy site + Play listing ready</li>
+            <li>🔧 iOS configured, pending submit</li>
+          </ul>
+        </div>
+        <p style="margin-top:20px; font-size:20px; font-weight:600; color:var(--brand-light)">This is not a prototype. It's a launch-ready product.</p>
+      </section>
+
+      <!-- 12 GTM -->
+      <section class="slide" data-slide="12">
+        <span class="slide-num">12 / 15</span>
+        <h2>Go-to-Market</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Phase 1 — Community launch</h3>
+            <ul>
+              <li>Product Hunt, HN, r/privacy, r/mentalhealth</li>
+              <li>Therapist referral program</li>
+              <li>ASO: offline, private, journal, mood</li>
+            </ul>
+            <p style="margin-top:12px; font-style:italic">"The wellness app that can't spy on you — by design."</p>
+          </div>
+          <div class="card">
+            <h3>Phase 2–3 — Scale</h3>
+            <ul>
+              <li>iOS App Store launch</li>
+              <li>India & LATAM (Hindi, Spanish)</li>
+              <li>Employer wellness pilots</li>
+              <li>Clinical screening modules</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13 Financials -->
+      <section class="slide" data-slide="13">
+        <span class="slide-num">13 / 15</span>
+        <h2>Path to $5M ARR (Illustrative)</h2>
+        <table>
+          <tr><th></th><th>Year 1</th><th>Year 2</th><th>Year 3</th></tr>
+          <tr><td>Downloads</td><td>100K</td><td>500K</td><td>1.5M</td></tr>
+          <tr><td>Paid conversion</td><td>5%</td><td>7%</td><td>8%</td></tr>
+          <tr><td>ARPU (annual)</td><td>$24</td><td>$30</td><td>$36</td></tr>
+          <tr><td><strong>Revenue</strong></td><td><strong>$120K</strong></td><td><strong>$1.05M</strong></td><td><strong>$4.3M</strong></td></tr>
+        </table>
+        <p style="margin-top:16px; font-size:16px; color:var(--muted)">Near-zero marginal cost per user — no cloud AI, no storage, no breach liability.</p>
+      </section>
+
+      <!-- 14 The Ask -->
+      <section class="slide" data-slide="14">
+        <span class="slide-num">14 / 15</span>
+        <h2>The Ask</h2>
+        <p class="tagline">Raising <span class="highlight">$[X]M Seed</span></p>
+        <div class="grid-2" style="margin-top:24px">
+          <div class="card"><h3>45% Product</h3><p>iOS launch, on-device STT, encrypted storage, LLM optimization</p></div>
+          <div class="card"><h3>30% GTM</h3><p>ASO, community launch, therapist referral, content</p></div>
+          <div class="card"><h3>15% Clinical & compliance</h3><p>Crisis protocol review, privacy audit, age-rating</p></div>
+          <div class="card"><h3>10% Operations</h3><p>Legal, accounting, 18-month runway</p></div>
+        </div>
+      </section>
+
+      <!-- 15 Vision -->
+      <section class="slide" data-slide="15">
+        <span class="slide-num">15 / 15</span>
+        <p class="vision">A world where getting mental wellness support doesn't mean giving up your privacy.</p>
+        <p style="margin-top:32px; font-size:22px; color:var(--brand-light); font-weight:600">Peace of mind. On your terms. Offline.</p>
+        <p style="margin-top:16px; color:var(--muted)">Oppuna · com.oppuna.app · v1.0.0</p>
+      </section>
+
+    </div>
+
+    <nav class="nav">
+      <button id="prev" disabled>← Prev</button>
+      <div class="progress"><div class="progress-bar" id="progress"></div></div>
+      <span class="counter" id="counter">1 / 15</span>
+      <button id="next">Next →</button>
+    </nav>
+
+    <script>
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      let current = 0;
+      const prev = document.getElementById('prev');
+      const next = document.getElementById('next');
+      const counter = document.getElementById('counter');
+      const progress = document.getElementById('progress');
+
+      function show(i) {
+        slides[current].classList.remove('active');
+        current = Math.max(0, Math.min(i, total - 1));
+        slides[current].classList.add('active');
+        counter.textContent = `${current + 1} / ${total}`;
+        progress.style.width = `${((current + 1) / total) * 100}%`;
+        prev.disabled = current === 0;
+        next.disabled = current === total - 1;
+      }
+
+      prev.addEventListener('click', () => show(current - 1));
+      next.addEventListener('click', () => show(current + 1));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); show(current + 1); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); }
+      });
+      show(0);
+    </script>
+  </body>
+</html>
