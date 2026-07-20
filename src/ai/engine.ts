@@ -13,7 +13,16 @@
  */
 
 import { logger } from '@/utils/logger';
-import type { AIChatResponse, AIMessage, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
+import { LLM_CONFIG } from '@/constants/app';
+import type {
+  AIMessage,
+  AIChatResponse,
+  LLMTokenCallback,
+  LocalLLMClient,
+  Rng,
+  ValidationViolation,
+} from '@/ai/types';
+import { getAgent } from '@/ai/agents/registry';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
 import {
@@ -21,19 +30,21 @@ import {
   detectIntent,
   detectMood,
   SAFE_FALLBACK,
-  suggestionsFor,
 } from '@/ai/fallbackEngine';
-import { getLocalLLMClient } from '@/ai/llmClient';
-import { MentalHealthAgentRejectedError, MentalHealthLlamaAgent } from '@/ai/mentalHealthAgent';
+import { generateStreamWithTimeout, generateWithTimeout, getLocalLLMClient, isLLMAvailable } from '@/ai/llmClient';
 import { validateResponse } from '@/ai/responseValidator';
 
 /** Attempts at composing a non-repetitive rule-based reply before giving up. */
 const MAX_COMPOSE_ATTEMPTS = 3;
+/** Hard cap on on-device LLM generation time so the chat never hangs. */
+const LLM_TIMEOUT_MS = LLM_CONFIG.responseTimeoutMs;
 export interface GenerateAIResponseInput {
   /** Chat session id — scopes conversation memory. */
   sessionId: string;
   /** Raw user message. */
   text: string;
+  /** Optional agent id — defaults to the mental health companion. */
+  agentId?: string;
   /** Recent local chat history before the current user message, oldest first. */
   recentMessages?: AIMessage[];
 }
@@ -53,6 +64,7 @@ export async function generateAIResponse(
 ): Promise<AIChatResponse> {
   const rng = deps.rng ?? Math.random;
   const client = deps.client ?? getLocalLLMClient();
+  const agent = getAgent(input.agentId);
   const text = input.text.trim();
   const memory = getConversationMemory(input.sessionId);
   const rejectedViolations: ValidationViolation[] = [];
@@ -68,6 +80,7 @@ export async function generateAIResponse(
       suggestions: [],
       meta: {
         source: 'safety',
+        agentId: agent.id,
         llmAvailable: false,
         rejectedCandidates: 0,
         safety: { crisis: safety.crisis, rejectedViolations: [] },
@@ -81,51 +94,50 @@ export async function generateAIResponse(
   const recentReplies = memory.recentReplies();
 
   // 2. Local Llama mental health agent path (when a GGUF model is on-device).
-  const mentalHealthAgent = new MentalHealthLlamaAgent(client);
-  const llmAvailable = await mentalHealthAgent.isAvailable();
+  const llmAvailable = await isLLMAvailable(client);
   let rejectedCandidates = 0;
   if (llmAvailable) {
     try {
-      const agentResponse = await mentalHealthAgent.respond({
+      const prompt = agent.buildPrompt({
         userText: text,
         memory,
         recentMessages: input.recentMessages,
         intentHint: intent,
         moodHint: mood,
-        recentReplies,
-        onToken: deps.onToken,
       });
+      const completion = deps.onToken
+        ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
+        : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);
+      const candidate = completion.text.trim();
+      const verdict = validateResponse(candidate, { recentReplies });
 
-      memory.recordTurn({ intent, mood, reply: agentResponse.reply });
-      return {
-        reply: agentResponse.reply,
-        intent,
-        mood,
-        crisis: null,
-        suggestions: suggestionsFor(intent),
-        meta: {
-          source: 'local-llm',
-          agentId: agentResponse.agentId,
-          clientId: agentResponse.clientId,
-          llmAvailable,
-          rejectedCandidates,
-          safety: { crisis: null, rejectedViolations: [] },
-          generatedAt: Date.now(),
-        },
-      };
-    } catch (error) {
-      if (error instanceof MentalHealthAgentRejectedError) {
-        rejectedCandidates += 1;
-        rejectedViolations.push(...error.violations);
-        logger.warn('Mental health agent reply rejected, falling back to rule engine', {
-          violations: error.violations,
-          finishReason: error.finishReason,
-        });
-      } else {
-        logger.warn('Mental health agent generation failed, falling back to rule engine', {
-          error: String(error),
-        });
+      if (completion.finishReason === 'stop' && verdict.ok) {
+        memory.recordTurn({ intent, mood, reply: candidate });
+        return {
+          reply: candidate,
+          intent,
+          mood,
+          crisis: null,
+          suggestions: agent.suggestionsFor(intent),
+          meta: {
+            source: 'local-llm',
+            agentId: agent.id,
+            clientId: client.id,
+            llmAvailable,
+            rejectedCandidates,
+            safety: { crisis: null, rejectedViolations: [] },
+            generatedAt: Date.now(),
+          },
+        };
       }
+      rejectedCandidates += 1;
+      rejectedViolations.push(...verdict.violations);
+      logger.warn('LLM reply rejected, falling back to rule engine', {
+        violations: verdict.violations,
+        finishReason: completion.finishReason,
+      });
+    } catch (error) {
+      logger.warn('LLM generation failed, falling back to rule engine', { error: String(error) });
     }
   }
 
@@ -146,9 +158,10 @@ export async function generateAIResponse(
         intent,
         mood,
         crisis: null,
-        suggestions: suggestionsFor(intent),
+        suggestions: agent.suggestionsFor(intent),
         meta: {
           source: 'rule-engine',
+          agentId: agent.id,
           llmAvailable,
           rejectedCandidates,
           safety: { crisis: null, rejectedViolations },
@@ -167,9 +180,10 @@ export async function generateAIResponse(
     intent,
     mood,
     crisis: null,
-    suggestions: suggestionsFor('unknown'),
+    suggestions: agent.suggestionsFor('unknown'),
     meta: {
       source: 'safe-fallback',
+      agentId: agent.id,
       llmAvailable,
       rejectedCandidates,
       safety: { crisis: null, rejectedViolations },

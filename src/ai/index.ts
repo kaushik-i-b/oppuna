@@ -2,6 +2,7 @@
  * Oppuna AI layer — fully offline.
  *
  * - `generateAIResponse` is the orchestrated entry point for chat.
+ * - `agents` — chat companions (mental health agent backed by llama.rn)
  * - `fallbackEngine` holds the deterministic rule-based engine.
  * - `safetyEngine` runs strict crisis detection before anything else.
  * - `llmClient` / `localLLMClient` — on-device LLM via llama.rn
@@ -9,6 +10,7 @@
  */
 
 export * from '@/ai/types';
+export * from '@/ai/agents';
 export { generateAIResponse } from '@/ai/engine';
 export type { GenerateAIResponseInput, GenerateAIResponseDeps } from '@/ai/engine';
 export { assessSafety, detectCrisis, CRISIS_PATTERNS, CRISIS_REPLY } from '@/ai/safetyEngine';
@@ -36,12 +38,6 @@ export {
 export type { GenerateOptions } from '@/ai/fallbackEngine';
 export { buildPrompt, buildSystemPrompt } from '@/ai/promptBuilder';
 export type { PromptInput } from '@/ai/promptBuilder';
-export {
-  MENTAL_HEALTH_AGENT_ID,
-  MentalHealthAgentRejectedError,
-  MentalHealthLlamaAgent,
-} from '@/ai/mentalHealthAgent';
-export type { MentalHealthAgentInput, MentalHealthAgentResponse } from '@/ai/mentalHealthAgent';
 export { validateResponse, similarity } from '@/ai/responseValidator';
 export type { ValidationContext } from '@/ai/responseValidator';
 export {

@@ -90,8 +90,8 @@ export type ResponseSource = 'safety' | 'local-llm' | 'rule-engine' | 'safe-fall
 
 export interface AIResponseMetadata {
   source: ResponseSource;
-  /** Named AI agent that produced the reply, when a model-backed agent was used. */
-  agentId?: string;
+  /** Which chat agent produced this response. */
+  agentId: string;
   /** Concrete local generation client/model identifier, when available. */
   clientId?: string;
   /** Whether a local LLM was available for this turn. */

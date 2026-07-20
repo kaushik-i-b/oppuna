@@ -1,6 +1,6 @@
 import { generateAIResponse } from '@/ai/engine';
 import { resetConversationMemory } from '@/ai/conversationMemory';
-import { MENTAL_HEALTH_AGENT_ID } from '@/ai/mentalHealthAgent';
+import { DEFAULT_AGENT_ID } from '@/ai/agents';
 import { MockLocalLLMClient } from '@/ai/llmClient';
 import { SAFE_FALLBACK } from '@/ai/fallbackEngine';
 
@@ -82,7 +82,7 @@ describe('generateAIResponse — LLM path', () => {
       { client },
     );
     expect(response.meta.source).toBe('local-llm');
-    expect(response.meta.agentId).toBe(MENTAL_HEALTH_AGENT_ID);
+    expect(response.meta.agentId).toBe(DEFAULT_AGENT_ID);
     expect(response.meta.clientId).toBe('mock');
     expect(response.meta.llmAvailable).toBe(true);
     expect(response.reply).toContain('What feels biggest right now?');

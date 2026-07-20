@@ -8,6 +8,7 @@ import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { useTranslation } from '@/hooks/useTranslation';
 import { generateAIResponse, resetConversationMemory } from '@/ai';
+import { DEFAULT_AGENT_ID } from '@/ai/agents';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
@@ -115,7 +116,7 @@ export function ChatScreen(): React.ReactElement {
         }
 
         const response = await generateAIResponse(
-          { sessionId, text: trimmed, recentMessages: agentHistory },
+          { sessionId, text: trimmed, agentId: DEFAULT_AGENT_ID, recentMessages: agentHistory },
           streamId
             ? {
                 onToken: (token) => {
