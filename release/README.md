@@ -5,6 +5,7 @@ This folder contains signed production Android builds.
 | File | Purpose |
 | --- | --- |
 | `oppuna-1.0.0-production.apk` | The signed release APK for direct install or internal testing. |
+| `oppuna-1.0.0.apk` | A version-only copy of the release APK for simpler file sharing. |
 | `oppuna-1.0.0-production.aab` | The signed Android App Bundle to upload to the Google Play Console. |
 | `oppuna-upload-key.keystore` | The **upload keystore** used to sign the bundle. |
 | `keystore-credentials.txt` | Passwords and alias for the keystore. |
@@ -18,6 +19,7 @@ This folder contains signed production Android builds.
 | File | Size | SHA-256 |
 | --- | ---: | --- |
 | `oppuna-1.0.0-production.apk` | 181 MB | `89e3e235d527ace8f786199d487edf44790f619795c37914a8682ab974ab0757` |
+| `oppuna-1.0.0.apk` | 181 MB | `89e3e235d527ace8f786199d487edf44790f619795c37914a8682ab974ab0757` |
 | `oppuna-1.0.0-production.aab` | 99 MB | `03a517984365bf6bcac0c89a7af087b2b74939faa95293e21c4b65685e3004af` |
 
 ## ⚠️ Security — read this first
@@ -69,9 +71,14 @@ cd android
   -POPPUNA_UPLOAD_KEY_ALIAS=oppuna-upload \
   -POPPUNA_UPLOAD_KEY_PASSWORD=<key password>
 
-# Outputs:
-# - android/app/build/outputs/apk/release/app-release.apk
-# - android/app/build/outputs/bundle/release/app-release.aab
+# 5. Copy the generated files into release/
+cd ..
+npm run export:android-release
+
+# Outputs in release/:
+# - release/oppuna-<version>-production.apk
+# - release/oppuna-<version>.apk
+# - release/oppuna-<version>-production.aab
 ```
 
 Toolchain used: JDK 21, Android SDK Platform 35, Build-Tools 35.0.0,
