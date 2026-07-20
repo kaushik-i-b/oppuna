@@ -1,9 +1,10 @@
-# Oppuna — Production Android App Bundle (.aab)
+# Oppuna — Production Android builds (.apk + .aab)
 
-This folder contains the signed production build for Google Play.
+This folder contains signed production Android builds.
 
 | File | Purpose |
 | --- | --- |
+| `oppuna-1.0.0-production.apk` | The signed release APK for direct install or internal testing. |
 | `oppuna-1.0.0-production.aab` | The signed Android App Bundle to upload to the Google Play Console. |
 | `oppuna-upload-key.keystore` | The **upload keystore** used to sign the bundle. |
 | `keystore-credentials.txt` | Passwords and alias for the keystore. |
@@ -11,6 +12,13 @@ This folder contains the signed production build for Google Play.
 - **Application ID:** `com.oppuna.app`
 - **Version:** `1.0.0` (versionCode `1`)
 - **Signing certificate validity:** ~27 years (until 2053)
+
+## Build artifacts
+
+| File | Size | SHA-256 |
+| --- | ---: | --- |
+| `oppuna-1.0.0-production.apk` | 181 MB | `89e3e235d527ace8f786199d487edf44790f619795c37914a8682ab974ab0757` |
+| `oppuna-1.0.0-production.aab` | 99 MB | `03a517984365bf6bcac0c89a7af087b2b74939faa95293e21c4b65685e3004af` |
 
 ## ⚠️ Security — read this first
 
@@ -53,15 +61,17 @@ npx expo prebuild --platform android --no-install
 # 3. Point Gradle at the upload keystore (copy it into android/app/)
 cp release/oppuna-upload-key.keystore android/app/oppuna-upload-key.keystore
 
-# 4. Build the signed bundle
+# 4. Build the signed APK and bundle
 cd android
-./gradlew :app:bundleRelease \
+./gradlew :app:assembleRelease :app:bundleRelease \
   -POPPUNA_UPLOAD_STORE_FILE=oppuna-upload-key.keystore \
   -POPPUNA_UPLOAD_STORE_PASSWORD=<store password> \
   -POPPUNA_UPLOAD_KEY_ALIAS=oppuna-upload \
   -POPPUNA_UPLOAD_KEY_PASSWORD=<key password>
 
-# Output: android/app/build/outputs/bundle/release/app-release.aab
+# Outputs:
+# - android/app/build/outputs/apk/release/app-release.apk
+# - android/app/build/outputs/bundle/release/app-release.aab
 ```
 
 Toolchain used: JDK 21, Android SDK Platform 35, Build-Tools 35.0.0,

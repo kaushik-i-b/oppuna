@@ -1,5 +1,6 @@
 import { generateAIResponse } from '@/ai/engine';
 import { resetConversationMemory } from '@/ai/conversationMemory';
+import { DEFAULT_AGENT_ID } from '@/ai/agents';
 import { MockLocalLLMClient } from '@/ai/llmClient';
 import { SAFE_FALLBACK } from '@/ai/fallbackEngine';
 
@@ -81,9 +82,33 @@ describe('generateAIResponse — LLM path', () => {
       { client },
     );
     expect(response.meta.source).toBe('local-llm');
-    expect(response.meta.agentId).toBe('mental-health');
+    expect(response.meta.agentId).toBe(DEFAULT_AGENT_ID);
+    expect(response.meta.clientId).toBe('mock');
     expect(response.meta.llmAvailable).toBe(true);
     expect(response.reply).toContain('What feels biggest right now?');
+  });
+
+  it('passes recent local chat history to the Llama mental health agent', async () => {
+    const client = new MockLocalLLMClient({
+      available: true,
+      reply: (prompt) => {
+        expect(prompt.turns.some((turn) => turn.content === 'My manager criticized me yesterday')).toBe(true);
+        return 'That criticism still seems to be sitting with you. What part feels hardest right now?';
+      },
+    });
+    const response = await generateAIResponse(
+      {
+        sessionId: freshSession(),
+        text: 'It feels worse today',
+        recentMessages: [
+          { role: 'user', content: 'My manager criticized me yesterday' },
+          { role: 'assistant', content: 'That sounds painful.' },
+        ],
+      },
+      { client },
+    );
+    expect(response.meta.source).toBe('local-llm');
+    expect(response.reply).toContain('criticism');
   });
 
   it('rejects an unsafe LLM reply and falls back to the rule engine', async () => {

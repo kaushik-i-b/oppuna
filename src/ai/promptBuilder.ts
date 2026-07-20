@@ -1,6 +1,6 @@
 /**
- * Prompt builder — turns conversation state into a guardrailed prompt for a
- * future on-device LLM. Pure and deterministic; no network, no side effects.
+ * Prompt builder — turns conversation state into a guardrailed prompt for the
+ * on-device Llama mental health agent. Pure and deterministic; no network, no side effects.
  *
  * Delegates to the mental health agent by default. Prefer using agents directly
  * via the orchestrator (`generateAIResponse`).
@@ -14,7 +14,7 @@ import { buildMentalHealthSystemPrompt, mentalHealthAgent } from '@/ai/agents/me
 export { buildMentalHealthSystemPrompt };
 
 /**
- * System instructions for any local model. The response validator remains the
+ * System instructions for the local Llama mental health agent. The response validator remains the
  * enforcement layer — these instructions just steer generation toward replies
  * that will pass it.
  */
@@ -27,7 +27,7 @@ export interface PromptInput {
   userText: string;
   /** Session memory used to summarise recent context. */
   memory?: ConversationMemory;
-  /** Recent chat turns, oldest first. Optional — memory alone also works. */
+  /** Recent chat turns before the current user message, oldest first. Optional — memory alone also works. */
   recentMessages?: AIMessage[];
   /** Intent/mood detected by the rule engine, passed as hints to the model. */
   intentHint?: Intent;

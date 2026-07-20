@@ -11,7 +11,7 @@ Oppuna is a fully offline, privacy-first mental wellness companion built with Re
 
 ## Features
 
-- **Offline AI companion** — a deterministic, on-device rule-based wellness engine (`src/services/offlineAI.ts`) with intent, mood, and crisis detection plus CBT-style, mindfulness, and grounding responses.
+- **Offline AI companion** — a safety-first chat pipeline with crisis detection, an optional on-device Llama mental health agent (`llama.rn` + local GGUF), and a deterministic rule-based fallback with CBT-style, mindfulness, and grounding responses.
 - **Crisis safety flow** — detects suicide, self-harm, abuse, violence, medical emergencies, and severe panic, then stops normal coaching and shows a dedicated crisis support screen.
 - **Mood tracker** — mood, 1–10 intensity, notes, tags, history, and weekly insights with a local chart.
 - **Journal** — daily, gratitude, thought records, trigger reflections, and private notes with search and edit/delete.
@@ -32,6 +32,7 @@ Oppuna is a fully offline, privacy-first mental wellness companion built with Re
 - `@react-navigation` (native-stack + bottom-tabs)
 - `react-native-reanimated` + `react-native-svg` for animations and charts
 - `expo-speech`, `expo-audio`, `expo-haptics`, `expo-file-system`, `expo-sharing`, `expo-localization`, `expo-secure-store`
+- `llama.rn` for fully local GGUF inference on mobile builds when a model is present on-device
 
 ---
 
@@ -77,7 +78,7 @@ npm run typecheck
 npm run test
 ```
 
-Unit tests cover the offline AI engine, crisis detection, and the mood/journal storage logic.
+Unit tests cover the offline AI engine, Llama mental health agent, crisis detection, and the mood/journal storage logic.
 
 ---
 
@@ -110,7 +111,7 @@ Preferences (theme, language, onboarding/disclaimer flags, app-lock flag) are st
 
 The architecture is intentionally ready to grow into:
 
-- an on-device LLM behind the same `offlineAI` interface,
+- bundling and lifecycle UX for on-device GGUF models behind the existing Llama agent,
 - on-device speech-to-text for voice mode,
 - encrypted local storage (SQLCipher / secure keys).
 

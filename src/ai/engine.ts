@@ -13,6 +13,7 @@
  */
 
 import { logger } from '@/utils/logger';
+import { LLM_CONFIG } from '@/constants/app';
 import type {
   AIMessage,
   AIChatResponse,
@@ -36,8 +37,7 @@ import { validateResponse } from '@/ai/responseValidator';
 /** Attempts at composing a non-repetitive rule-based reply before giving up. */
 const MAX_COMPOSE_ATTEMPTS = 3;
 /** Hard cap on on-device LLM generation time so the chat never hangs. */
-const LLM_TIMEOUT_MS = 6000;
-
+const LLM_TIMEOUT_MS = LLM_CONFIG.responseTimeoutMs;
 export interface GenerateAIResponseInput {
   /** Chat session id — scopes conversation memory. */
   sessionId: string;
@@ -45,7 +45,7 @@ export interface GenerateAIResponseInput {
   text: string;
   /** Optional agent id — defaults to the mental health companion. */
   agentId?: string;
-  /** Recent chat turns for Llama context (oldest first). */
+  /** Recent local chat history before the current user message, oldest first. */
   recentMessages?: AIMessage[];
 }
 
@@ -93,8 +93,9 @@ export async function generateAIResponse(
   const mood = detectMood(text);
   const recentReplies = memory.recentReplies();
 
-  // 2. Local LLM path (no model ships yet — mock reports unavailable).
+  // 2. Local Llama mental health agent path (when a GGUF model is on-device).
   const llmAvailable = await isLLMAvailable(client);
+  let rejectedCandidates = 0;
   if (llmAvailable) {
     try {
       const prompt = agent.buildPrompt({
@@ -121,13 +122,15 @@ export async function generateAIResponse(
           meta: {
             source: 'local-llm',
             agentId: agent.id,
+            clientId: client.id,
             llmAvailable,
-            rejectedCandidates: 0,
+            rejectedCandidates,
             safety: { crisis: null, rejectedViolations: [] },
             generatedAt: Date.now(),
           },
         };
       }
+      rejectedCandidates += 1;
       rejectedViolations.push(...verdict.violations);
       logger.warn('LLM reply rejected, falling back to rule engine', {
         violations: verdict.violations,
@@ -139,7 +142,6 @@ export async function generateAIResponse(
   }
 
   // 3. Rule-based fallback engine with validation + retries.
-  let rejectedCandidates = rejectedViolations.length > 0 ? 1 : 0;
   for (let attempt = 0; attempt < MAX_COMPOSE_ATTEMPTS; attempt += 1) {
     let candidate: string;
     try {

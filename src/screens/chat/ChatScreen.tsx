@@ -12,7 +12,7 @@ import { DEFAULT_AGENT_ID } from '@/ai/agents';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
-import type { ModelStatus } from '@/ai/types';
+import type { AIMessage, ModelStatus } from '@/ai/types';
 import type { TranslationKey } from '@/i18n';
 
 function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => string): string | null {
@@ -27,6 +27,14 @@ function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => strin
     default:
       return null;
   }
+}
+
+function toAgentMessage(message: ChatMessage): AIMessage {
+  return {
+    role: message.role,
+    content: message.content,
+    createdAt: message.createdAt,
+  };
 }
 
 export function ChatScreen(): React.ReactElement {
@@ -85,6 +93,7 @@ export function ChatScreen(): React.ReactElement {
           role: 'user',
           content: trimmed,
         });
+        const agentHistory = messages.map(toAgentMessage);
         setMessages((prev) => [...prev, userMessage]);
         scrollToEnd();
 
@@ -106,14 +115,8 @@ export function ChatScreen(): React.ReactElement {
           scrollToEnd();
         }
 
-        const recentMessages = messages.map((message) => ({
-          role: message.role,
-          content: message.content,
-          createdAt: message.createdAt,
-        }));
-
         const response = await generateAIResponse(
-          { sessionId, text: trimmed, agentId: DEFAULT_AGENT_ID, recentMessages },
+          { sessionId, text: trimmed, agentId: DEFAULT_AGENT_ID, recentMessages: agentHistory },
           streamId
             ? {
                 onToken: (token) => {
@@ -170,7 +173,7 @@ export function ChatScreen(): React.ReactElement {
         setSending(false);
       }
     },
-    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status, messages],
+    [sessionId, sending, messages, navigation, scrollToEnd, toast, modelState.status],
   );
 
   const handleClear = useCallback(async () => {

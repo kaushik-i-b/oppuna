@@ -4,7 +4,7 @@
  * Held in memory only (never persisted) to honour the privacy promise: it
  * stores intents, moods, and which app-authored template lines were used
  * recently — not raw user text. It powers repetition prevention, response
- * variation, and prompt context for a future on-device LLM.
+ * variation, and prompt context for the on-device Llama agent.
  */
 
 import type { MoodKey } from '@/types';

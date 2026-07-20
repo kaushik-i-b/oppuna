@@ -42,6 +42,7 @@ export const LLM_CONFIG = {
   storageDir: 'models',
   storageFilename: 'oppuna-model.gguf',
   contextSize: 2048,
+  responseTimeoutMs: 6000,
   maxThreads: 4,
   /** GPU layers on iOS (Metal). Set to 0 for CPU-only on Android if needed. */
   gpuLayers: 99,
