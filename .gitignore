@@ -38,3 +38,6 @@ yarn-error.*
 
 # tests
 coverage/
+
+# on-device LLM weights (bundled/side-loaded, never committed — hundreds of MB)
+*.gguf

@@ -34,9 +34,14 @@ export const SECURE_KEYS = {
 } as const;
 
 /**
- * On-device LLM configuration. Place a GGUF file at
- * `{documentDirectory}models/{storageFilename}` to enable the local model.
- * Production builds may also bundle the model under `assets/models/`.
+ * On-device LLM configuration for the mental-health chat agent.
+ *
+ * The model manager loads a GGUF file from
+ * `{documentDirectory}models/{storageFilename}`. To ship the agent with the
+ * app, place the model at `assets/models/oppuna-model.gguf` and enable the
+ * `require` in `src/ai/bundledModel.ts`; `src/ai/modelProvisioning.ts` then
+ * stages it into local storage on first launch (fully offline). You can also
+ * side-load a GGUF directly into the models directory during development.
  */
 export const LLM_CONFIG = {
   storageDir: 'models',

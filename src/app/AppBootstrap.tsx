@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { BrandSplash } from '@/app/BrandSplash';
 import { configureDefaultLocalLLMClient, getLocalLLMClient } from '@/ai/llmClient';
 import { initializeModelManager } from '@/ai/modelManager';
+import { provisionBundledModel } from '@/ai/modelProvisioning';
 import { initDatabase } from '@/database';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -24,6 +25,9 @@ export function AppBootstrap({ children }: { children: React.ReactNode }): React
       setStatus('loading');
       configureDefaultLocalLLMClient();
       await initDatabase();
+      // Stage a bundled GGUF model into local storage (offline, one-time) so
+      // the on-device mental-health agent can load it, then scan for models.
+      await provisionBundledModel();
       await initializeModelManager();
       const client = getLocalLLMClient();
       if (client.warmUp) {
