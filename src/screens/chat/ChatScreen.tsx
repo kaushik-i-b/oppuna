@@ -86,7 +86,11 @@ export function ChatScreen(): React.ReactElement {
           role: 'user',
           content: trimmed,
         });
-        const recentMessages = [...messages, userMessage];
+        const recentMessages = [...messages, userMessage].map((message) => ({
+          role: message.role,
+          content: message.content,
+          createdAt: message.createdAt,
+        }));
         setMessages((prev) => [...prev, userMessage]);
         scrollToEnd();
 
