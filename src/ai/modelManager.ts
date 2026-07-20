@@ -152,6 +152,23 @@ export function getModelPath(): string | null {
   return state.modelPath;
 }
 
+/**
+ * Canonical local file path where the downloaded GGUF model is stored.
+ * Used by the model downloader to place freshly downloaded weights.
+ */
+export function getDefaultModelPath(): string {
+  return DEFAULT_MODEL_PATH;
+}
+
+/**
+ * Re-scan local storage for the model, discarding any memoised result. Call
+ * this after downloading or deleting a model so the state reflects reality.
+ */
+export async function refreshModelState(): Promise<ModelState> {
+  initPromise = null;
+  return initializeModelManager();
+}
+
 export function markModelLoading(): void {
   if (state.status === 'unavailable') return;
   setState({ status: 'loading', error: null });

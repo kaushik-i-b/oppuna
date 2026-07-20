@@ -3,10 +3,15 @@
  *
  * Any attempt to reach a remote host through `fetch` or `XMLHttpRequest` is
  * rejected. Local development traffic (Metro bundler, React DevTools, local
- * asset loading) is allowed so the app remains debuggable, but no production
- * code path is permitted to call the public internet.
+ * asset loading) is allowed so the app remains debuggable.
+ *
+ * The single permitted production exception is the one-time, user-initiated
+ * download of the on-device AI model from an allow-listed host (see
+ * `MODEL_DOWNLOAD_HOSTS`). That path only ever fetches read-only model weights
+ * over HTTPS — no user data is ever uploaded anywhere.
  */
 
+import { MODEL_DOWNLOAD_HOSTS } from '@/constants/app';
 import { logger } from '@/utils/logger';
 
 const LOCAL_HOST_PATTERNS = [
@@ -21,6 +26,27 @@ const LOCAL_HOST_PATTERNS = [
 
 const ALLOWED_SCHEMES = ['file:', 'blob:', 'data:', 'content:', 'asset:'];
 
+function hostFromUrl(lowerUrl: string): string {
+  return lowerUrl.replace(/^https?:\/\//, '').split(/[/?#]/)[0]?.split(':')[0] ?? '';
+}
+
+/**
+ * Whether a host is allow-listed for the one-time on-device model download.
+ * Matches the exact host or any of its subdomains (e.g. Hugging Face LFS CDNs).
+ */
+export function isModelDownloadHost(host: string): boolean {
+  const normalized = host.toLowerCase();
+  return MODEL_DOWNLOAD_HOSTS.some(
+    (allowed) => normalized === allowed || normalized.endsWith(`.${allowed}`),
+  );
+}
+
+/** Whether an outbound URL is permitted for the on-device model download only. */
+export function isModelDownloadUrl(rawUrl: string): boolean {
+  if (!/^https:\/\//i.test(rawUrl)) return false;
+  return isModelDownloadHost(hostFromUrl(rawUrl.toLowerCase()));
+}
+
 function isAllowed(rawUrl: string): boolean {
   if (!rawUrl) return true;
 
@@ -31,8 +57,11 @@ function isAllowed(rawUrl: string): boolean {
   if (!/^https?:\/\//i.test(lower)) return true;
 
   try {
-    const host = lower.replace(/^https?:\/\//, '').split(/[/?#]/)[0]?.split(':')[0] ?? '';
+    const host = hostFromUrl(lower);
     if (__DEV__ && LOCAL_HOST_PATTERNS.some((re) => re.test(host))) return true;
+    // The only remote destination Oppuna may reach is the on-device model
+    // download host — over HTTPS, and never for uploading user data.
+    if (lower.startsWith('https://') && isModelDownloadHost(host)) return true;
   } catch {
     return false;
   }

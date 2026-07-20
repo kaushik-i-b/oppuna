@@ -2,7 +2,9 @@
 
 **Private mental wellness support, offline on your phone.**
 
-Oppuna is a fully offline, privacy-first mental wellness companion built with React Native, Expo, and TypeScript. It works completely in airplane mode — no login, no backend, no analytics, no tracking, and no external API calls. Everything you write, record, and track stays on your device.
+Oppuna is a privacy-first mental wellness companion built with React Native, Expo, and TypeScript. It works completely in airplane mode — no login, no backend, no analytics, and no tracking. Everything you write, record, and track stays on your device.
+
+The only time Oppuna ever touches the network is an **optional, one-time, opt-in download of the on-device AI model** (a small Llama model). You start it yourself from **Settings → On-device AI companion**; it downloads read-only model weights over a single allow-listed HTTPS connection and never uploads anything. After that, the mental-health chat agent runs entirely on your phone, offline.
 
 > **Important medical disclaimer**
 > Oppuna is not a doctor, therapist, crisis service, or medical device. It does not diagnose, treat, cure, prevent, or replace professional care. It provides supportive wellness guidance only. If you are in danger or need medical help, contact your local emergency services right away.
@@ -11,7 +13,8 @@ Oppuna is a fully offline, privacy-first mental wellness companion built with Re
 
 ## Features
 
-- **Offline AI companion** — a deterministic, on-device rule-based wellness engine (`src/services/offlineAI.ts`) with intent, mood, and crisis detection plus CBT-style, mindfulness, and grounding responses.
+- **On-device Llama mental-health agent** — a small Llama model runs directly on the phone via `llama.rn` to power warm, natural chat (`src/ai/`). The weights are downloaded once (opt-in, from Settings) and then inference is fully offline. Every reply passes strict on-device safety + validation guardrails.
+- **Offline AI companion fallback** — a deterministic, on-device rule-based wellness engine (`src/ai/fallbackEngine.ts`) with intent, mood, and crisis detection plus CBT-style, mindfulness, and grounding responses. Used automatically whenever the Llama model isn't installed.
 - **Crisis safety flow** — detects suicide, self-harm, abuse, violence, medical emergencies, and severe panic, then stops normal coaching and shows a dedicated crisis support screen.
 - **Mood tracker** — mood, 1–10 intensity, notes, tags, history, and weekly insights with a local chart.
 - **Journal** — daily, gratitude, thought records, trigger reflections, and private notes with search and edit/delete.
@@ -110,7 +113,7 @@ Preferences (theme, language, onboarding/disclaimer flags, app-lock flag) are st
 
 The architecture is intentionally ready to grow into:
 
-- an on-device LLM behind the same `offlineAI` interface,
+- bundling the GGUF model in the build so even the first-run download is optional,
 - on-device speech-to-text for voice mode,
 - encrypted local storage (SQLCipher / secure keys).
 

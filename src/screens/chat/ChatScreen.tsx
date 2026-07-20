@@ -47,6 +47,8 @@ export function ChatScreen(): React.ReactElement {
   const statusLabel = modelStatusLabel(modelState.status, t);
   const showStatusSpinner =
     modelState.status === 'checking' || modelState.status === 'loading';
+  const canEnableModel =
+    modelState.status === 'unavailable' || modelState.status === 'error';
 
   useEffect(() => {
     let active = true;
@@ -207,7 +209,11 @@ export function ChatScreen(): React.ReactElement {
       }
     >
       {statusLabel ? (
-        <View
+        <Pressable
+          onPress={
+            canEnableModel ? () => navigation.navigate('AIModel') : undefined
+          }
+          disabled={!canEnableModel}
           style={[
             styles.modelStatus,
             {
@@ -217,8 +223,9 @@ export function ChatScreen(): React.ReactElement {
               borderBottomColor: theme.colors.border,
             },
           ]}
-          accessibilityRole="text"
+          accessibilityRole={canEnableModel ? 'button' : 'text'}
           accessibilityLabel={statusLabel}
+          accessibilityHint={canEnableModel ? t('chat.modelEnableHint') : undefined}
         >
           {showStatusSpinner ? (
             <ActivityIndicator size="small" color={theme.colors.primary} style={{ marginRight: 8 }} />
@@ -230,7 +237,12 @@ export function ChatScreen(): React.ReactElement {
           >
             {statusLabel}
           </Text>
-        </View>
+          {canEnableModel ? (
+            <Text variant="caption" color="primary">
+              {t('chat.modelEnable')}
+            </Text>
+          ) : null}
+        </Pressable>
       ) : null}
 
       <FlatList

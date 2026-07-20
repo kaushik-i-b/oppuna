@@ -55,7 +55,18 @@ export {
   initializeModelManager,
   getModelState,
   getModelPath,
+  getDefaultModelPath,
   getModelsDirectory,
   isModelReady,
+  refreshModelState,
   subscribeToModelState,
 } from '@/ai/modelManager';
+export {
+  downloadModel,
+  cancelModelDownload,
+  deleteModel,
+  getModelDownloadState,
+  subscribeToModelDownload,
+  isModelDownloading,
+} from '@/ai/modelDownloader';
+export type { ModelDownloadState, DownloadPhase } from '@/ai/modelDownloader';

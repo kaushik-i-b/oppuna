@@ -33,6 +33,7 @@ export type RootStackParamList = {
   Disclaimer: { fromSettings?: boolean } | undefined;
   Terms: undefined;
   About: undefined;
+  AIModel: undefined;
 
   // Safety
   Crisis: { category?: SafetyCategory } | undefined;

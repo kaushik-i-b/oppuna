@@ -18,6 +18,9 @@ jest.mock('expo-file-system/legacy', () => ({
   makeDirectoryAsync: jest.fn(async () => undefined),
   readDirectoryAsync: jest.fn(async () => []),
   copyAsync: jest.fn(async () => undefined),
+  moveAsync: jest.fn(async () => undefined),
+  deleteAsync: jest.fn(async () => undefined),
+  createDownloadResumable: jest.fn(),
 }));
 
 jest.mock('llama.rn', () => ({

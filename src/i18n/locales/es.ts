@@ -60,6 +60,32 @@ export const es: DeepPartial<Translation> = {
     themeLight: 'Claro',
     themeDark: 'Oscuro',
     themeSystem: 'Sistema',
+    aiModel: 'Asistente de IA en el dispositivo',
+    aiModelDescription: 'Descarga el modelo Llama que impulsa la charla privada.',
+  },
+  aiModel: {
+    title: 'IA en el dispositivo',
+    intro:
+      'Oppuna puede ejecutar un pequeño modelo Llama directamente en tu teléfono para una charla más cálida y natural. Todo lo que escribes se queda en tu dispositivo: el modelo nunca envía tus palabras a ningún lugar.',
+    privacyNote:
+      'El modelo se descarga una sola vez desde una fuente confiable. Sin cuenta, sin rastreo y sin que ningún dato personal salga de tu teléfono. Después de la descarga puedes usarlo totalmente sin conexión, incluso en modo avión.',
+    statusLabel: 'Estado',
+    statusReady: 'Instalado',
+    statusDownloading: 'Descargando…',
+    statusNotInstalled: 'No instalado',
+    download: 'Descargar modelo',
+    downloadComplete: 'La IA en el dispositivo está lista.',
+    downloadFailed: 'La descarga falló. Inténtalo de nuevo.',
+    downloadCancelled: 'Descarga cancelada.',
+    finalizing: 'Finalizando…',
+    cancel: 'Cancelar descarga',
+    delete: 'Eliminar modelo',
+    deleted: 'Modelo eliminado.',
+    deleteConfirm: 'Esto libera almacenamiento. Puedes descargarlo de nuevo cuando quieras.',
+  },
+  chat: {
+    modelEnable: 'Activar',
+    modelEnableHint: 'Abre la configuración de IA en el dispositivo',
   },
   lock: {
     title: 'Oppuna está bloqueada',
