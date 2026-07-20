@@ -88,12 +88,31 @@ export interface SafetyFlags {
 /** Where the final reply text came from. */
 export type ResponseSource = 'safety' | 'local-llm' | 'rule-engine' | 'safe-fallback';
 
+/**
+ * Supportive techniques the mental health agent can steer the local Llama
+ * model toward on a given turn.
+ */
+export type AgentTechnique =
+  | 'reflective_listening'
+  | 'validation'
+  | 'grounding'
+  | 'breathing'
+  | 'cbt_reframe'
+  | 'behavioral_activation'
+  | 'self_compassion'
+  | 'problem_focus'
+  | 'sleep_winddown'
+  | 'savoring'
+  | 'open_question';
+
 export interface AIResponseMetadata {
   source: ResponseSource;
   /** Whether a local LLM was available for this turn. */
   llmAvailable: boolean;
   /** Number of candidate replies rejected by the validator before success. */
   rejectedCandidates: number;
+  /** Technique the mental health agent planned when the LLM path was used. */
+  technique: AgentTechnique | null;
   safety: SafetyFlags;
   generatedAt: number;
 }

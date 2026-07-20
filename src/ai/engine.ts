@@ -3,8 +3,9 @@
  *
  * Pipeline for every user message:
  *   1. Safety engine (strict crisis detection) — always first, never skipped.
- *   2. Local LLM, if one is available — generated reply must pass the
- *      response validator or it is discarded.
+ *   2. Mental health agent on the local Llama model, if one is available —
+ *      plans a supportive technique for the turn and generates a reply that
+ *      must pass the response validator or it is discarded.
  *   3. Rule-based fallback engine with conversation memory (repetition
  *      prevention + variation) — also validated, with retries.
  *   4. Safe fallback text as the last resort.
@@ -13,7 +14,7 @@
  */
 
 import { logger } from '@/utils/logger';
-import type { AIChatResponse, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
+import type { AIChatResponse, AgentTechnique, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
 import {
@@ -23,14 +24,12 @@ import {
   SAFE_FALLBACK,
   suggestionsFor,
 } from '@/ai/fallbackEngine';
-import { buildPrompt } from '@/ai/promptBuilder';
-import { generateStreamWithTimeout, generateWithTimeout, getLocalLLMClient, isLLMAvailable } from '@/ai/llmClient';
+import { getLocalLLMClient, isLLMAvailable } from '@/ai/llmClient';
+import { runMentalHealthAgent } from '@/ai/mentalHealthAgent';
 import { validateResponse } from '@/ai/responseValidator';
 
 /** Attempts at composing a non-repetitive rule-based reply before giving up. */
 const MAX_COMPOSE_ATTEMPTS = 3;
-/** Hard cap on on-device LLM generation time so the chat never hangs. */
-const LLM_TIMEOUT_MS = 6000;
 
 export interface GenerateAIResponseInput {
   /** Chat session id — scopes conversation memory. */
@@ -71,6 +70,7 @@ export async function generateAIResponse(
         source: 'safety',
         llmAvailable: false,
         rejectedCandidates: 0,
+        technique: null,
         safety: { crisis: safety.crisis, rejectedViolations: [] },
         generatedAt: Date.now(),
       },
@@ -80,43 +80,44 @@ export async function generateAIResponse(
   const intent = detectIntent(text);
   const mood = detectMood(text);
   const recentReplies = memory.recentReplies();
+  let plannedTechnique: AgentTechnique | null = null;
 
-  // 2. Local LLM path (no model ships yet — mock reports unavailable).
+  // 2. Mental health agent on the local Llama model.
   const llmAvailable = await isLLMAvailable(client);
   if (llmAvailable) {
-    try {
-      const prompt = buildPrompt({ userText: text, memory, intentHint: intent, moodHint: mood });
-      const completion = deps.onToken
-        ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
-        : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);
-      const candidate = completion.text.trim();
-      const verdict = validateResponse(candidate, { recentReplies });
+    const result = await runMentalHealthAgent({
+      client,
+      userText: text,
+      memory,
+      intent,
+      mood,
+      onToken: deps.onToken,
+    });
+    plannedTechnique = result.technique;
 
-      if (completion.finishReason === 'stop' && verdict.ok) {
-        memory.recordTurn({ intent, mood, reply: candidate });
-        return {
-          reply: candidate,
-          intent,
-          mood,
-          crisis: null,
-          suggestions: suggestionsFor(intent),
-          meta: {
-            source: 'local-llm',
-            llmAvailable,
-            rejectedCandidates: 0,
-            safety: { crisis: null, rejectedViolations: [] },
-            generatedAt: Date.now(),
-          },
-        };
-      }
-      rejectedViolations.push(...verdict.violations);
-      logger.warn('LLM reply rejected, falling back to rule engine', {
-        violations: verdict.violations,
-        finishReason: completion.finishReason,
-      });
-    } catch (error) {
-      logger.warn('LLM generation failed, falling back to rule engine', { error: String(error) });
+    if (result.ok) {
+      memory.recordTurn({ intent, mood, reply: result.reply });
+      return {
+        reply: result.reply,
+        intent,
+        mood,
+        crisis: null,
+        suggestions: suggestionsFor(intent),
+        meta: {
+          source: 'local-llm',
+          llmAvailable,
+          rejectedCandidates: 0,
+          technique: result.technique,
+          safety: { crisis: null, rejectedViolations: [] },
+          generatedAt: Date.now(),
+        },
+      };
     }
+    rejectedViolations.push(...result.violations);
+    logger.warn('Mental health agent turn failed, falling back to rule engine', {
+      technique: result.technique,
+      violations: result.violations,
+    });
   }
 
   // 3. Rule-based fallback engine with validation + retries.
@@ -142,6 +143,7 @@ export async function generateAIResponse(
           source: 'rule-engine',
           llmAvailable,
           rejectedCandidates,
+          technique: plannedTechnique,
           safety: { crisis: null, rejectedViolations },
           generatedAt: Date.now(),
         },
@@ -163,6 +165,7 @@ export async function generateAIResponse(
       source: 'safe-fallback',
       llmAvailable,
       rejectedCandidates,
+      technique: plannedTechnique,
       safety: { crisis: null, rejectedViolations },
       generatedAt: Date.now(),
     },

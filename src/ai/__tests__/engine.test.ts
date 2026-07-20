@@ -85,6 +85,19 @@ describe('generateAIResponse — LLM path', () => {
     expect(response.reply).toContain('What feels biggest right now?');
   });
 
+  it('records the technique the mental health agent planned for the turn', async () => {
+    const client = new MockLocalLLMClient({
+      available: true,
+      reply: 'That sounds like a lot to hold. What part feels heaviest today?',
+    });
+    const response = await generateAIResponse(
+      { sessionId: freshSession(), text: 'I feel anxious' },
+      { client },
+    );
+    expect(response.meta.source).toBe('local-llm');
+    expect(response.meta.technique).toBe('reflective_listening');
+  });
+
   it('rejects an unsafe LLM reply and falls back to the rule engine', async () => {
     const client = new MockLocalLLMClient({
       available: true,
