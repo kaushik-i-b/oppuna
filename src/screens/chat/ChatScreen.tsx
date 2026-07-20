@@ -171,7 +171,7 @@ export function ChatScreen(): React.ReactElement {
         setSending(false);
       }
     },
-    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status],
+    [sessionId, sending, messages, navigation, scrollToEnd, toast, modelState.status],
   );
 
   const handleClear = useCallback(async () => {
