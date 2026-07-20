@@ -1,24 +1,22 @@
-# Oppuna — Production Android builds (.apk + .aab)
+# Oppuna — Production Android release
 
-This folder contains signed production Android builds.
+This folder contains the signed production Android APK and signing assets.
 
 | File | Purpose |
 | --- | --- |
-| `oppuna-1.0.0-production.apk` | The signed release APK for direct install or internal testing. |
-| `oppuna-1.0.0-production.aab` | The signed Android App Bundle to upload to the Google Play Console. |
+| `oppuna-1.2.0.apk` | Signed release APK for direct install / sideloading. |
 | `oppuna-upload-key.keystore` | The **upload keystore** used to sign the bundle. |
 | `keystore-credentials.txt` | Passwords and alias for the keystore. |
 
 - **Application ID:** `com.oppuna.app`
-- **Version:** `1.0.0` (versionCode `1`)
+- **Version:** `1.2.0` (versionCode `12`)
 - **Signing certificate validity:** ~27 years (until 2053)
 
 ## Build artifacts
 
 | File | Size | SHA-256 |
 | --- | ---: | --- |
-| `oppuna-1.0.0-production.apk` | 181 MB | `89e3e235d527ace8f786199d487edf44790f619795c37914a8682ab974ab0757` |
-| `oppuna-1.0.0-production.aab` | 99 MB | `03a517984365bf6bcac0c89a7af087b2b74939faa95293e21c4b65685e3004af` |
+| `oppuna-1.2.0.apk` | 50 MB | _see commit or rebuild_ |
 
 ## ⚠️ Security — read this first
 
@@ -42,7 +40,7 @@ not be able to publish updates under the same app, so back it up.
    app (or open the existing one) → **Production** (or **Internal testing**) →
    **Create new release**.
 2. Opt in to **Play App Signing** when prompted.
-3. Upload `oppuna-1.0.0-production.aab`.
+3. Build or upload a signed `.aab` for Play Console releases (see build steps below).
 4. Fill in the store listing (see `docs/APP_STORE.md`) and the feature graphic
    (`assets/feature-image.png`), then roll out.
 

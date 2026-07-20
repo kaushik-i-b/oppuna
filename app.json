@@ -2,7 +2,7 @@
   "expo": {
     "name": "Oppuna",
     "slug": "oppuna",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "oppuna",
@@ -18,7 +18,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.oppuna.app",
-      "buildNumber": "1",
+      "buildNumber": "12",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "Oppuna uses the microphone only to record private voice notes that stay on your device. Nothing is ever uploaded.",
         "ITSAppUsesNonExemptEncryption": false
@@ -26,7 +26,7 @@
     },
     "android": {
       "package": "com.oppuna.app",
-      "versionCode": 1,
+      "versionCode": 12,
       "userInterfaceStyle": "automatic",
       "adaptiveIcon": {
         "backgroundColor": "#0E7C66",
