@@ -5,8 +5,10 @@
  * - `agents` — chat companions (mental health agent backed by llama.rn)
  * - `fallbackEngine` holds the deterministic rule-based engine.
  * - `safetyEngine` runs strict crisis detection before anything else.
+ * - `providers` — LocalLLMProvider abstraction (llama.rn, fake)
  * - `llmClient` / `localLLMClient` — on-device LLM via llama.rn
- * - `modelManager` — GGUF discovery and lifecycle in local storage
+ * - `modelManager` — GGUF discovery, integrity, and lifecycle
+ * - `contextBuilder` — bounded prompt context
  */
 
 export * from '@/ai/types';
@@ -38,6 +40,8 @@ export {
 export type { GenerateOptions } from '@/ai/fallbackEngine';
 export { buildPrompt, buildSystemPrompt } from '@/ai/promptBuilder';
 export type { PromptInput } from '@/ai/promptBuilder';
+export { buildContext } from '@/ai/contextBuilder';
+export type { ContextBuilderInput, BuiltContext, ContextBudget } from '@/ai/contextBuilder';
 export { validateResponse, similarity } from '@/ai/responseValidator';
 export type { ValidationContext } from '@/ai/responseValidator';
 export {
@@ -54,10 +58,26 @@ export {
 export type { MockLocalLLMClientOptions } from '@/ai/llmClient';
 export { LlamaRnLocalLLMClient } from '@/ai/localLLMClient';
 export {
+  FakeLocalLLMProvider,
+  LlamaRnProvider,
+  LocalLLMProviderError,
+} from '@/ai/providers';
+export type {
+  ChatMessage as ProviderChatMessage,
+  GenerationOptions as ProviderGenerationOptions,
+  LocalLLMProvider,
+} from '@/ai/providers';
+export {
+  initializeModel,
   initializeModelManager,
+  retryModelInitialization,
+  getModelStatus,
   getModelState,
   getModelPath,
   getModelsDirectory,
   isModelReady,
+  generate,
+  cancelGeneration,
+  unloadModel,
   subscribeToModelState,
 } from '@/ai/modelManager';

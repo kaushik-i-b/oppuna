@@ -1,5 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  AppState,
+  type AppStateStatus,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 import { Button, ChatBubble, Chip, ConfirmDialog, Screen, Text, TextField } from '@/components';
 import { useToast } from '@/components/feedback/ToastProvider';
@@ -7,22 +15,28 @@ import { chatRepository, safetyRepository } from '@/database';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { useTranslation } from '@/hooks/useTranslation';
-import { generateAIResponse, resetConversationMemory } from '@/ai';
+import { cancelGeneration, generateAIResponse, resetConversationMemory } from '@/ai';
 import { DEFAULT_AGENT_ID } from '@/ai/agents';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
-import type { AIMessage, ModelStatus } from '@/ai/types';
+import type { AIMessage, LocalModelStatus } from '@/ai/types';
 import type { TranslationKey } from '@/i18n';
 
-function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => string): string | null {
+const STREAM_FLUSH_MS = 40;
+
+function modelStatusLabel(
+  status: LocalModelStatus,
+  t: (key: TranslationKey) => string,
+): string | null {
   switch (status) {
-    case 'checking':
+    case 'locating':
+    case 'verifying':
     case 'loading':
       return t('chat.modelLoading');
     case 'unavailable':
       return t('chat.modelUnavailable');
-    case 'error':
+    case 'failed':
       return t('chat.modelError');
     default:
       return null;
@@ -52,10 +66,37 @@ export function ChatScreen(): React.ReactElement {
   const [confirmClear, setConfirmClear] = useState(false);
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const streamingIdRef = useRef<string | null>(null);
+  const streamBufferRef = useRef('');
+  const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sendingRef = useRef(false);
+  const mountedRef = useRef(true);
 
   const statusLabel = modelStatusLabel(modelState.status, t);
   const showStatusSpinner =
-    modelState.status === 'checking' || modelState.status === 'loading';
+    modelState.status === 'locating' ||
+    modelState.status === 'verifying' ||
+    modelState.status === 'loading';
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (flushTimerRef.current) clearTimeout(flushTimerRef.current);
+      void cancelGeneration().catch(() => undefined);
+    };
+  }, []);
+
+  useEffect(() => {
+    const onAppState = (next: AppStateStatus): void => {
+      if (next === 'background' || next === 'inactive') {
+        if (sendingRef.current) {
+          void cancelGeneration().catch(() => undefined);
+        }
+      }
+    };
+    const sub = AppState.addEventListener('change', onAppState);
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -79,13 +120,49 @@ export function ChatScreen(): React.ReactElement {
     requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
   }, []);
 
+  const flushStreamBuffer = useCallback(() => {
+    const activeId = streamingIdRef.current;
+    const chunk = streamBufferRef.current;
+    streamBufferRef.current = '';
+    flushTimerRef.current = null;
+    if (!activeId || !chunk || !mountedRef.current) return;
+    setMessages((prev) =>
+      prev.map((message) =>
+        message.id === activeId ? { ...message, content: message.content + chunk } : message,
+      ),
+    );
+  }, []);
+
+  const enqueueToken = useCallback(
+    (token: string) => {
+      streamBufferRef.current += token;
+      if (flushTimerRef.current) return;
+      flushTimerRef.current = setTimeout(flushStreamBuffer, STREAM_FLUSH_MS);
+    },
+    [flushStreamBuffer],
+  );
+
+  const clearStreamingPlaceholder = useCallback((streamId: string | null) => {
+    if (flushTimerRef.current) {
+      clearTimeout(flushTimerRef.current);
+      flushTimerRef.current = null;
+    }
+    streamBufferRef.current = '';
+    streamingIdRef.current = null;
+    if (!streamId) return;
+    setMessages((prev) => prev.filter((message) => message.id !== streamId));
+  }, []);
+
   const handleSend = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
-      if (!trimmed || !sessionId || sending) return;
+      if (!trimmed || !sessionId || sendingRef.current) return;
+      sendingRef.current = true;
       setSending(true);
       setInput('');
       setSuggestions([]);
+
+      let streamId: string | null = null;
 
       try {
         const userMessage = await chatRepository.addMessage({
@@ -97,9 +174,11 @@ export function ChatScreen(): React.ReactElement {
         setMessages((prev) => [...prev, userMessage]);
         scrollToEnd();
 
-        const streamId =
-          modelState.status === 'ready' ? `stream-${Date.now()}` : null;
+        const canStream =
+          modelState.status === 'ready' || modelState.status === 'generating';
+        streamId = canStream ? `stream-${Date.now()}` : null;
         streamingIdRef.current = streamId;
+        streamBufferRef.current = '';
 
         if (streamId) {
           const placeholder: ChatMessage = {
@@ -116,30 +195,35 @@ export function ChatScreen(): React.ReactElement {
         }
 
         const response = await generateAIResponse(
-          { sessionId, text: trimmed, agentId: DEFAULT_AGENT_ID, recentMessages: agentHistory },
+          {
+            sessionId,
+            text: trimmed,
+            agentId: DEFAULT_AGENT_ID,
+            recentMessages: agentHistory,
+          },
           streamId
             ? {
                 onToken: (token) => {
-                  const activeId = streamingIdRef.current;
-                  if (!activeId) return;
-                  setMessages((prev) =>
-                    prev.map((message) =>
-                      message.id === activeId
-                        ? { ...message, content: message.content + token }
-                        : message,
-                    ),
-                  );
+                  if (!mountedRef.current || streamingIdRef.current !== streamId) return;
+                  enqueueToken(token);
                 },
               }
             : undefined,
         );
 
-        streamingIdRef.current = null;
+        if (flushTimerRef.current) {
+          clearTimeout(flushTimerRef.current);
+          flushTimerRef.current = null;
+        }
+        flushStreamBuffer();
+
+        if (!mountedRef.current) {
+          clearStreamingPlaceholder(streamId);
+          return;
+        }
 
         if (response.crisis) {
-          if (streamId) {
-            setMessages((prev) => prev.filter((message) => message.id !== streamId));
-          }
+          clearStreamingPlaceholder(streamId);
           await safetyRepository.record(response.crisis);
           await chatRepository.addMessage({
             sessionId,
@@ -152,9 +236,7 @@ export function ChatScreen(): React.ReactElement {
           return;
         }
 
-        if (streamId) {
-          setMessages((prev) => prev.filter((message) => message.id !== streamId));
-        }
+        clearStreamingPlaceholder(streamId);
 
         const assistantMessage = await chatRepository.addMessage({
           sessionId,
@@ -167,19 +249,36 @@ export function ChatScreen(): React.ReactElement {
         setSuggestions(response.suggestions);
         scrollToEnd();
       } catch (error) {
+        clearStreamingPlaceholder(streamId);
         logger.error('Send failed', { error: String(error) });
         toast.show('Something went wrong. Please try again.', 'error');
       } finally {
-        setSending(false);
+        sendingRef.current = false;
+        if (mountedRef.current) setSending(false);
       }
     },
-    [sessionId, sending, messages, navigation, scrollToEnd, toast, modelState.status],
+    [
+      sessionId,
+      messages,
+      navigation,
+      scrollToEnd,
+      toast,
+      modelState.status,
+      enqueueToken,
+      flushStreamBuffer,
+      clearStreamingPlaceholder,
+    ],
   );
+
+  const handleCancel = useCallback(async () => {
+    await cancelGeneration().catch(() => undefined);
+  }, []);
 
   const handleClear = useCallback(async () => {
     setConfirmClear(false);
     if (!sessionId) return;
     try {
+      await cancelGeneration().catch(() => undefined);
       await chatRepository.clearSession(sessionId);
       resetConversationMemory(sessionId);
       setMessages([]);
@@ -235,7 +334,7 @@ export function ChatScreen(): React.ReactElement {
           ) : null}
           <Text
             variant="caption"
-            color={modelState.status === 'error' ? 'danger' : 'textMuted'}
+            color={modelState.status === 'failed' ? 'danger' : 'textMuted'}
             style={{ flex: 1 }}
           >
             {statusLabel}
@@ -274,7 +373,11 @@ export function ChatScreen(): React.ReactElement {
       <View
         style={[
           styles.inputBar,
-          { padding: theme.spacing.md, borderTopColor: theme.colors.border, backgroundColor: theme.colors.surface },
+          {
+            padding: theme.spacing.md,
+            borderTopColor: theme.colors.border,
+            backgroundColor: theme.colors.surface,
+          },
         ]}
       >
         <View style={{ flex: 1 }}>
@@ -285,16 +388,21 @@ export function ChatScreen(): React.ReactElement {
             multiline
             onSubmitEditing={() => void handleSend(input)}
             blurOnSubmit={false}
+            editable={!sending}
           />
         </View>
         <View style={{ width: 96 }}>
-          <Button
-            label="Send"
-            size="md"
-            onPress={() => void handleSend(input)}
-            disabled={!input.trim()}
-            loading={sending}
-          />
+          {sending ? (
+            <Button label={t('common.cancel')} size="md" onPress={() => void handleCancel()} />
+          ) : (
+            <Button
+              label="Send"
+              size="md"
+              onPress={() => void handleSend(input)}
+              disabled={!input.trim()}
+              loading={false}
+            />
+          )}
         </View>
       </View>
 

@@ -125,26 +125,47 @@ export interface AIChatResponse extends EngineResponse {
  * Model lifecycle
  * ------------------------------------------------------------------ */
 
-/** Lifecycle state of the on-device GGUF model. */
-export type ModelStatus =
-  | 'idle'
-  | 'checking'
+/**
+ * Lifecycle state of the on-device GGUF model.
+ * Prefer LocalModelStatus; ModelStatus is kept as an alias for older UI code.
+ */
+export type LocalModelStatus =
+  | 'uninitialized'
+  | 'locating'
+  | 'verifying'
   | 'loading'
   | 'ready'
-  | 'unavailable'
-  | 'error';
+  | 'generating'
+  | 'failed'
+  | 'unavailable';
 
-export interface ModelState {
-  status: ModelStatus;
-  /** Resolved local file URI for the GGUF model, when present. */
+/** @deprecated Use LocalModelStatus */
+export type ModelStatus = LocalModelStatus;
+
+export interface LocalModelState {
+  status: LocalModelStatus;
+  /** Resolved absolute filesystem path for the GGUF model, when present. */
   modelPath: string | null;
-  /** Human-readable model identifier derived from the filename. */
+  /** Human-readable model identifier. */
   modelId: string | null;
-  /** Last error message when status is `error`. */
+  /** Last error message when status is `failed`. */
   error: string | null;
   /** Timestamp when the model context became ready. */
   loadedAt: number | null;
+  /** Wall-clock time of the last successful initialize(). */
+  initDurationMs: number | null;
+  /** Rough tokens/sec from the last generation (diagnostics). */
+  lastTokensPerSecond: number | null;
+  /** Device capability tier used for load parameters. */
+  deviceTier: 'low' | 'medium' | 'high' | null;
+  /** Active provider id, e.g. llama.rn. */
+  providerId: string | null;
+  /** Effective n_ctx used by the provider. */
+  contextSize: number | null;
 }
+
+/** @deprecated Use LocalModelState */
+export type ModelState = LocalModelState;
 
 /** Tunable generation parameters shared by the prompt builder and LLM client. */
 export interface GenerationConfig {

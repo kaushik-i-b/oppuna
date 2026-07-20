@@ -159,6 +159,14 @@ export function SettingsScreen(): React.ReactElement {
           subtitle={`Version ${APP.version}`}
           onPress={() => navigation.navigate('About')}
         />
+        {__DEV__ ? (
+          <ListItem
+            leadingEmoji="🛠️"
+            title={t('settings.developerDiagnostics')}
+            subtitle="Local model status"
+            onPress={() => navigation.navigate('LocalAIDiagnostics')}
+          />
+        ) : null}
       </View>
     </Screen>
   );

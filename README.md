@@ -11,7 +11,7 @@ Oppuna is a fully offline, privacy-first mental wellness companion built with Re
 
 ## Features
 
-- **Offline AI companion** — a safety-first chat pipeline with crisis detection, an optional on-device Llama mental health agent (`llama.rn` + local GGUF), and a deterministic rule-based fallback with CBT-style, mindfulness, and grounding responses.
+- **Offline AI companion** — a safety-first chat pipeline with crisis detection, an on-device local LLM (`llama.rn` + llama.cpp + GGUF via Play Asset Delivery), streaming replies, and a deterministic rule-based fallback.
 - **Crisis safety flow** — detects suicide, self-harm, abuse, violence, medical emergencies, and severe panic, then stops normal coaching and shows a dedicated crisis support screen.
 - **Mood tracker** — mood, 1–10 intensity, notes, tags, history, and weekly insights with a local chart.
 - **Journal** — daily, gratitude, thought records, trigger reflections, and private notes with search and edit/delete.
@@ -32,7 +32,9 @@ Oppuna is a fully offline, privacy-first mental wellness companion built with Re
 - `@react-navigation` (native-stack + bottom-tabs)
 - `react-native-reanimated` + `react-native-svg` for animations and charts
 - `expo-speech`, `expo-audio`, `expo-haptics`, `expo-file-system`, `expo-sharing`, `expo-localization`, `expo-secure-store`
-- `llama.rn` for fully local GGUF inference on mobile builds when a model is present on-device
+- `llama.rn` for fully local GGUF inference on mobile builds (install-time Play Asset Delivery on Android; no Ollama)
+
+See [docs/LOCAL_LLM_ANDROID.md](docs/LOCAL_LLM_ANDROID.md) for the on-device LLM architecture, PAD setup, and release workflow.
 
 ---
 

@@ -38,3 +38,8 @@ yarn-error.*
 
 # tests
 coverage/
+
+# On-device LLM weights (Play Asset Delivery / local sideload)
+*.gguf
+assets/ai-model/*.gguf
+assets/models/

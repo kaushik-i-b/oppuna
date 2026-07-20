@@ -1,65 +1,47 @@
 /**
- * llama.rn-backed local LLM client.
+ * llama.rn-backed LocalLLMClient adapter.
  *
- * Implements the `LocalLLMClient` contract using GGUF inference via llama.rn.
- * Fully offline — no network calls.
+ * Delegates lifecycle to modelManager / LlamaRnProvider so the rest of the
+ * app can keep using the existing LocalLLMClient contract.
  */
 
 import { Platform } from 'react-native';
-import { initLlama, type LlamaContext, type NativeCompletionResult, type TokenData } from 'llama.rn';
 
-import { LLM_CONFIG } from '@/constants/app';
+import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
 import { logger } from '@/utils/logger';
 import type {
   LLMCompletion,
-  LLMFinishReason,
   LLMGenerateOptions,
   LLMPrompt,
   LLMTokenCallback,
   LocalLLMClient,
 } from '@/ai/types';
+import type { ChatMessage } from '@/ai/providers';
 import {
-  getModelPath,
+  cancelGeneration,
+  generate,
   getModelState,
-  initializeModelManager,
+  initializeModel,
   isModelReady,
-  markModelError,
-  markModelLoading,
-  markModelReady,
-  markModelReleased,
+  unloadModel,
 } from '@/ai/modelManager';
 import { LLMGenerationError, LLMUnavailableError } from '@/ai/llmClient';
 
-const DEFAULT_STOP_SEQUENCES = [
-  '</s>',
-  '<|end|>',
-  '<|eot_id|>',
-  '<|end_of_text|>',
-  '<|im_end|>',
-  '<|EOT|>',
-  '<|END_OF_TURN_TOKEN|>',
-  '<|end_of_turn|>',
-  '<|endoftext|>',
-] as const;
-
-function mapFinishReason(result: NativeCompletionResult, aborted: boolean): LLMFinishReason {
-  if (aborted || result.interrupted) return 'aborted';
-  if (result.stopped_limit || result.truncated || result.context_full) return 'length';
-  return 'stop';
-}
-
-function toFileUri(path: string): string {
-  if (path.startsWith('file://')) return path;
-  return `file://${path}`;
+function promptToMessages(prompt: LLMPrompt): ChatMessage[] {
+  const messages: ChatMessage[] = [{ role: 'system', content: prompt.system }];
+  for (const turn of prompt.turns) {
+    if (turn.role === 'system' || turn.role === 'user' || turn.role === 'assistant') {
+      messages.push({ role: turn.role, content: turn.content });
+    }
+  }
+  return messages;
 }
 
 /**
- * On-device LLM client backed by llama.rn / llama.cpp.
+ * On-device LLM client backed by the LocalLLMProvider managed in modelManager.
  */
 export class LlamaRnLocalLLMClient implements LocalLLMClient {
   readonly id: string;
-  private context: LlamaContext | null = null;
-  private loadPromise: Promise<LlamaContext | null> | null = null;
 
   constructor() {
     const modelId = getModelState().modelId;
@@ -68,19 +50,21 @@ export class LlamaRnLocalLLMClient implements LocalLLMClient {
 
   async isAvailable(): Promise<boolean> {
     if (Platform.OS === 'web') return false;
-    if (isModelReady() && this.context !== null) return true;
+    if (isModelReady()) return true;
 
-    await initializeModelManager();
-    const modelState = getModelState();
-    if (modelState.status === 'unavailable' || modelState.status === 'error') {
-      return false;
-    }
-    return getModelPath() !== null;
+    const state = await initializeModel();
+    return state.status === 'ready' || state.status === 'generating';
   }
 
   async warmUp(): Promise<void> {
     if (Platform.OS === 'web') return;
-    await this.ensureContext();
+    const state = await initializeModel();
+    if (state.status === 'failed' || state.status === 'unavailable') {
+      logger.warn('On-device model warm-up skipped', {
+        status: state.status,
+        error: state.error,
+      });
+    }
   }
 
   async generate(prompt: LLMPrompt, options?: LLMGenerateOptions): Promise<LLMCompletion> {
@@ -96,77 +80,7 @@ export class LlamaRnLocalLLMClient implements LocalLLMClient {
   }
 
   async release(): Promise<void> {
-    this.loadPromise = null;
-    if (this.context) {
-      try {
-        await this.context.release();
-      } catch (error) {
-        logger.warn('Failed to release llama.rn context', { error: String(error) });
-      }
-      this.context = null;
-    }
-    markModelReleased();
-  }
-
-  private async ensureContext(): Promise<LlamaContext | null> {
-    if (this.context) return this.context;
-    if (this.loadPromise) return this.loadPromise;
-
-    this.loadPromise = this.loadContext();
-    try {
-      return await this.loadPromise;
-    } finally {
-      this.loadPromise = null;
-    }
-  }
-
-  private async loadContext(): Promise<LlamaContext | null> {
-    await initializeModelManager();
-    const modelPath = getModelPath();
-    if (!modelPath) {
-      return null;
-    }
-
-    markModelLoading();
-
-    try {
-      const context = await initLlama({
-        model: toFileUri(modelPath),
-        use_mlock: true,
-        n_ctx: LLM_CONFIG.contextSize,
-        n_threads: LLM_CONFIG.maxThreads,
-        n_gpu_layers: Platform.OS === 'ios' ? LLM_CONFIG.gpuLayers : 0,
-      });
-
-      this.context = context;
-      markModelReady();
-      logger.info('llama.rn model loaded', {
-        modelId: getModelState().modelId,
-        gpu: context.gpu,
-      });
-      return context;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      markModelError(message);
-      logger.error('Failed to load llama.rn model', { error: message });
-      throw new LLMGenerationError(`Failed to load on-device model: ${message}`, error);
-    }
-  }
-
-  private promptToMessages(prompt: LLMPrompt): { role: string; content: string }[] {
-    const messages: { role: string; content: string }[] = [
-      { role: 'system', content: prompt.system },
-    ];
-
-    for (const turn of prompt.turns) {
-      if (turn.role === 'system') {
-        messages.push({ role: 'system', content: turn.content });
-      } else {
-        messages.push({ role: turn.role, content: turn.content });
-      }
-    }
-
-    return messages;
+    await unloadModel();
   }
 
   private async runCompletion(
@@ -175,51 +89,52 @@ export class LlamaRnLocalLLMClient implements LocalLLMClient {
     onToken?: LLMTokenCallback,
   ): Promise<LLMCompletion> {
     const started = Date.now();
-    const context = await this.ensureContext();
-    if (!context) {
-      throw new LLMUnavailableError();
+
+    if (!isModelReady()) {
+      const state = await initializeModel();
+      if (state.status !== 'ready') {
+        throw new LLMUnavailableError(state.error ?? undefined);
+      }
     }
 
-    const params = prompt.params ?? {};
-    let aborted = false;
+    if (options?.signal?.aborted) {
+      return { text: '', finishReason: 'aborted', durationMs: 0 };
+    }
 
     const onAbort = (): void => {
-      aborted = true;
-      void context.stopCompletion().catch(() => undefined);
+      void cancelGeneration().catch(() => undefined);
     };
-
-    if (options?.signal) {
-      if (options.signal.aborted) {
-        return { text: '', finishReason: 'aborted', durationMs: 0 };
-      }
-      options.signal.addEventListener('abort', onAbort, { once: true });
-    }
+    options?.signal?.addEventListener('abort', onAbort, { once: true });
 
     try {
-      const result = await context.completion(
+      const params = prompt.params ?? {};
+      const text = await generate(
+        promptToMessages(prompt),
         {
-          messages: this.promptToMessages(prompt),
-          n_predict: params.maxTokens ?? 220,
-          temperature: params.temperature ?? 0.7,
-          top_p: params.topP ?? 0.9,
-          stop: params.stopSequences ?? [...DEFAULT_STOP_SEQUENCES],
+          maxTokens: params.maxTokens ?? LOCAL_MODEL_CONFIG.maxGenerationTokens,
+          temperature: params.temperature ?? LOCAL_MODEL_CONFIG.temperature,
+          topP: params.topP ?? LOCAL_MODEL_CONFIG.topP,
+          stop: params.stopSequences,
         },
-        (data: TokenData) => {
-          if (aborted) return;
-          const token = data.token ?? '';
-          if (token) onToken?.(token);
-        },
+        onToken,
       );
 
-      const text = (result.content || result.text || '').trim();
+      if (options?.signal?.aborted) {
+        return { text: '', finishReason: 'aborted', durationMs: Date.now() - started };
+      }
+
       return {
         text,
-        finishReason: mapFinishReason(result, aborted),
+        finishReason: 'stop',
         durationMs: Date.now() - started,
       };
     } catch (error) {
-      if (aborted) {
+      if (options?.signal?.aborted) {
         return { text: '', finishReason: 'aborted', durationMs: Date.now() - started };
+      }
+      const message = error instanceof Error ? error.message : String(error);
+      if (/not ready|unavailable/i.test(message)) {
+        throw new LLMUnavailableError(message);
       }
       throw new LLMGenerationError('llama.rn generation failed', error);
     } finally {

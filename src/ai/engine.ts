@@ -9,11 +9,11 @@
  *      prevention + variation) — also validated, with retries.
  *   4. Safe fallback text as the last resort.
  *
- * Fully offline. No network calls on any path.
+ * Fully offline. No network calls on any path. No Ollama / localhost HTTP.
  */
 
 import { logger } from '@/utils/logger';
-import { LLM_CONFIG } from '@/constants/app';
+import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
 import type {
   AIMessage,
   AIChatResponse,
@@ -31,13 +31,22 @@ import {
   detectMood,
   SAFE_FALLBACK,
 } from '@/ai/fallbackEngine';
-import { generateStreamWithTimeout, generateWithTimeout, getLocalLLMClient, isLLMAvailable } from '@/ai/llmClient';
+import { buildContext } from '@/ai/contextBuilder';
+import { getDeviceCapability } from '@/services/deviceCapabilityService';
+import { getModelState } from '@/ai/modelManager';
+import {
+  generateStreamWithTimeout,
+  generateWithTimeout,
+  getLocalLLMClient,
+  isLLMAvailable,
+} from '@/ai/llmClient';
 import { validateResponse } from '@/ai/responseValidator';
 
 /** Attempts at composing a non-repetitive rule-based reply before giving up. */
 const MAX_COMPOSE_ATTEMPTS = 3;
 /** Hard cap on on-device LLM generation time so the chat never hangs. */
-const LLM_TIMEOUT_MS = LLM_CONFIG.responseTimeoutMs;
+const LLM_TIMEOUT_MS = LOCAL_MODEL_CONFIG.responseTimeoutMs;
+
 export interface GenerateAIResponseInput {
   /** Chat session id — scopes conversation memory. */
   sessionId: string;
@@ -47,6 +56,8 @@ export interface GenerateAIResponseInput {
   agentId?: string;
   /** Recent local chat history before the current user message, oldest first. */
   recentMessages?: AIMessage[];
+  /** Optional short journal summary — never raw full journal dump. */
+  journalSummary?: string | null;
 }
 
 export interface GenerateAIResponseDeps {
@@ -69,7 +80,7 @@ export async function generateAIResponse(
   const memory = getConversationMemory(input.sessionId);
   const rejectedViolations: ValidationViolation[] = [];
 
-  // 1. Safety first — a crisis stops everything else.
+  // 1. Safety first — a crisis stops everything else. Never ask the LLM.
   const safety = assessSafety(text);
   if (safety.crisis) {
     return {
@@ -93,21 +104,28 @@ export async function generateAIResponse(
   const mood = detectMood(text);
   const recentReplies = memory.recentReplies();
 
-  // 2. Local Llama mental health agent path (when a GGUF model is on-device).
+  // 2. Local on-device LLM path (llama.rn / llama.cpp) when ready.
   const llmAvailable = await isLLMAvailable(client);
   let rejectedCandidates = 0;
   if (llmAvailable) {
     try {
-      const prompt = agent.buildPrompt({
+      const capability = getDeviceCapability();
+      const modelState = getModelState();
+      const built = buildContext({
         userText: text,
+        systemPrompt: agent.buildSystemPrompt(),
         memory,
         recentMessages: input.recentMessages,
         intentHint: intent,
         moodHint: mood,
+        journalSummary: input.journalSummary,
+        contextSize: modelState.contextSize ?? capability.recommendedContextSize,
+        maxGenerationTokens: capability.maxGenerationTokens,
       });
+
       const completion = deps.onToken
-        ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
-        : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);
+        ? await generateStreamWithTimeout(client, built.prompt, LLM_TIMEOUT_MS, deps.onToken)
+        : await generateWithTimeout(client, built.prompt, LLM_TIMEOUT_MS);
       const candidate = completion.text.trim();
       const verdict = validateResponse(candidate, { recentReplies });
 
