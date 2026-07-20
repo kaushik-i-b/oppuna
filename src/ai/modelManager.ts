@@ -183,6 +183,125 @@ export function isModelReady(): boolean {
   return state.status === 'ready';
 }
 
+/**
+ * Result of installing an on-device model file from an external URI.
+ * The `installedPath` is a `file://` URI in Oppuna's private models directory.
+ */
+export interface InstallModelResult {
+  installedPath: string;
+  modelId: string;
+  sizeBytes: number | null;
+}
+
+const GGUF_EXTENSION = /\.gguf$/i;
+
+function sanitizeFilename(name: string | undefined): string {
+  const base = (name ?? '').split('/').pop() ?? '';
+  const trimmed = base.trim();
+  if (trimmed.length === 0) return LLM_CONFIG.storageFilename;
+  const safe = trimmed.replace(/[^A-Za-z0-9._-]/g, '_');
+  return GGUF_EXTENSION.test(safe) ? safe : `${safe}.gguf`;
+}
+
+/**
+ * Copy a GGUF model file from an external URI (e.g. one returned by
+ * `expo-document-picker`) into Oppuna's private models directory and refresh
+ * the model manager state. The source file is never touched.
+ *
+ * The copy stays local to the device — no network access is performed here or
+ * anywhere else in the AI layer.
+ */
+export async function installModelFromUri(
+  sourceUri: string,
+  options: { filename?: string } = {},
+): Promise<InstallModelResult> {
+  if (Platform.OS === 'web') {
+    throw new Error('On-device model install is not supported on web.');
+  }
+  if (!sourceUri) {
+    throw new Error('Missing source URI for model install.');
+  }
+
+  await ensureModelsDirectory();
+
+  const info = await FileSystem.getInfoAsync(sourceUri);
+  if (!info.exists) {
+    throw new Error('The selected file could not be read from device storage.');
+  }
+  if (info.isDirectory) {
+    throw new Error('Please select a single GGUF model file, not a folder.');
+  }
+
+  const filename = sanitizeFilename(options.filename ?? sourceUri.split('/').pop() ?? undefined);
+  const destination = `${MODELS_DIR}${filename}`;
+
+  const destInfo = await FileSystem.getInfoAsync(destination);
+  if (destInfo.exists) {
+    await FileSystem.deleteAsync(destination, { idempotent: true });
+  }
+
+  setState({ status: 'checking', error: null });
+
+  try {
+    await FileSystem.copyAsync({ from: sourceUri, to: destination });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Failed to install on-device model', { error: message });
+    setState({ status: 'error', error: message });
+    throw new Error(`Could not copy the model into local storage: ${message}`);
+  }
+
+  const finalInfo = await FileSystem.getInfoAsync(destination);
+  const sizeBytes = finalInfo.exists && !finalInfo.isDirectory ? finalInfo.size : null;
+  const modelId = modelIdFromPath(destination);
+
+  setState({
+    status: 'idle',
+    modelPath: destination,
+    modelId,
+    error: null,
+    loadedAt: null,
+  });
+  logger.info('On-device LLM model installed', { modelId, sizeBytes });
+
+  return { installedPath: destination, modelId, sizeBytes };
+}
+
+/**
+ * Remove the currently-installed on-device model file, if any, and reset the
+ * model manager state to `unavailable`.
+ */
+export async function removeInstalledModel(): Promise<void> {
+  if (Platform.OS === 'web') return;
+
+  const path = state.modelPath;
+  if (!path) {
+    setState({
+      status: 'unavailable',
+      modelPath: null,
+      modelId: null,
+      error: null,
+      loadedAt: null,
+    });
+    return;
+  }
+
+  try {
+    await FileSystem.deleteAsync(path, { idempotent: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.warn('Failed to delete installed on-device model', { error: message });
+  }
+
+  setState({
+    status: 'unavailable',
+    modelPath: null,
+    modelId: null,
+    error: null,
+    loadedAt: null,
+  });
+}
+
 /** @internal Reset state for unit tests. */
 export function __resetModelManagerForTests(): void {
   state = { ...INITIAL_STATE };
