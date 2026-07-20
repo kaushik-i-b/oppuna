@@ -11,8 +11,10 @@ Oppuna is a fully offline, privacy-first mental wellness companion built with Re
 
 ## Features
 
-- **Offline AI companion** — a deterministic, on-device rule-based wellness engine (`src/services/offlineAI.ts`) with intent, mood, and crisis detection plus CBT-style, mindfulness, and grounding responses.
+- **On-device Llama mental-health companion** — a named agent (`src/ai/mentalHealthAgent.ts`) powered by a Llama GGUF model running through [`llama.rn`](https://github.com/mybigday/llama.rn). When a model is installed on the device the chat is answered by the LLM; when not, the same agent falls back to a deterministic rule-based wellness engine. Every path stays fully on-device.
+- **Guided-response fallback** — a rule-based wellness engine (`src/ai/fallbackEngine.ts`) with intent, mood, and crisis detection plus CBT-style, mindfulness, and grounding responses. This is what the agent uses when no Llama model is installed.
 - **Crisis safety flow** — detects suicide, self-harm, abuse, violence, medical emergencies, and severe panic, then stops normal coaching and shows a dedicated crisis support screen.
+- **Response validator** — every LLM candidate reply is checked before it reaches the user; medical-diagnosis claims, therapy claims, medication advice, unsafe content, or repetitive replies are rejected and the rule engine takes over.
 - **Mood tracker** — mood, 1–10 intensity, notes, tags, history, and weekly insights with a local chart.
 - **Journal** — daily, gratitude, thought records, trigger reflections, and private notes with search and edit/delete.
 - **Breathing exercises** — 4-4-6, box breathing, and a 5-minute calm session with an animated breathing circle and completion screen.
@@ -106,11 +108,22 @@ Preferences (theme, language, onboarding/disclaimer flags, app-lock flag) are st
 - **Export** writes a local JSON file and uses the OS share sheet (user-controlled). **Delete all data** wipes every table and removes recorded voice files.
 - App-lock is included as a preference placeholder, ready for device biometrics in a future update.
 
+## Installing the on-device Llama mental-health agent
+
+Oppuna's chat is answered by an on-device Llama model when one is present, and by the rule-based wellness engine otherwise. Because the model file is large and highly personal (it stays on the phone), the app never downloads one for the user — you install a local GGUF file yourself:
+
+1. Download any Llama-compatible GGUF instruct model onto the phone (for example `Llama-3.2-1B-Instruct-Q4_K_M.gguf`, `Llama-3.2-3B-Instruct-Q4_K_M.gguf`, or `TinyLlama-1.1B-Chat-Q4_K_M.gguf`).
+2. Open **Settings → Mental health companion** in Oppuna.
+3. Tap **Choose a GGUF model file** and pick the file from Files / Downloads. Oppuna copies it into its private storage under `documentDirectory/models/`.
+4. The chat screen shows the on-device Llama companion becoming ready. From then on, replies are generated locally by Llama, still filtered through the safety engine and response validator.
+
+The model runs entirely on the device via `llama.rn`. Your chats, prompts, and the model file itself never leave the phone — Oppuna's `networkGuard` blocks outbound network calls in production.
+
 ## Roadmap-ready
 
 The architecture is intentionally ready to grow into:
 
-- an on-device LLM behind the same `offlineAI` interface,
+- bundled first-party Llama models delivered via app updates,
 - on-device speech-to-text for voice mode,
 - encrypted local storage (SQLCipher / secure keys).
 
