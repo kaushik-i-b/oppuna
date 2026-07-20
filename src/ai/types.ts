@@ -90,6 +90,8 @@ export type ResponseSource = 'safety' | 'local-llm' | 'rule-engine' | 'safe-fall
 
 export interface AIResponseMetadata {
   source: ResponseSource;
+  /** Which chat agent produced this response. */
+  agentId: string;
   /** Whether a local LLM was available for this turn. */
   llmAvailable: boolean;
   /** Number of candidate replies rejected by the validator before success. */
