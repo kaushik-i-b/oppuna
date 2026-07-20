@@ -11,7 +11,7 @@ Oppuna is a fully offline, privacy-first mental wellness companion built with Re
 
 ## Features
 
-- **Offline AI companion** — a deterministic, on-device rule-based wellness engine (`src/services/offlineAI.ts`) with intent, mood, and crisis detection plus CBT-style, mindfulness, and grounding responses.
+- **Offline AI companion** — an on-device mental health support agent powered by a local Llama (GGUF) model via `llama.rn` (`src/ai/mentalHealthAgent.ts`), with a deterministic rule-based wellness engine as the always-available fallback. Import a GGUF model from your phone in Settings › AI model — inference runs entirely on-device, and chat replies stream in as they are generated.
 - **Crisis safety flow** — detects suicide, self-harm, abuse, violence, medical emergencies, and severe panic, then stops normal coaching and shows a dedicated crisis support screen.
 - **Mood tracker** — mood, 1–10 intensity, notes, tags, history, and weekly insights with a local chart.
 - **Journal** — daily, gratitude, thought records, trigger reflections, and private notes with search and edit/delete.

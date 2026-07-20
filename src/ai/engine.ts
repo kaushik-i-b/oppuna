@@ -13,7 +13,14 @@
  */
 
 import { logger } from '@/utils/logger';
-import type { AIChatResponse, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
+import type {
+  AIChatResponse,
+  AIMessage,
+  LLMTokenCallback,
+  LocalLLMClient,
+  Rng,
+  ValidationViolation,
+} from '@/ai/types';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
 import {
@@ -29,14 +36,22 @@ import { validateResponse } from '@/ai/responseValidator';
 
 /** Attempts at composing a non-repetitive rule-based reply before giving up. */
 const MAX_COMPOSE_ATTEMPTS = 3;
-/** Hard cap on on-device LLM generation time so the chat never hangs. */
-const LLM_TIMEOUT_MS = 6000;
+/**
+ * Hard cap on on-device LLM generation time so the chat never hangs.
+ * Mobile inference is slow — streaming keeps the UI responsive meanwhile.
+ */
+const LLM_TIMEOUT_MS = 30000;
 
 export interface GenerateAIResponseInput {
   /** Chat session id — scopes conversation memory. */
   sessionId: string;
   /** Raw user message. */
   text: string;
+  /**
+   * Recent chat turns (oldest first, excluding the new message) so the
+   * on-device agent can respond with real conversational context.
+   */
+  recentMessages?: AIMessage[];
 }
 
 export interface GenerateAIResponseDeps {
@@ -85,7 +100,13 @@ export async function generateAIResponse(
   const llmAvailable = await isLLMAvailable(client);
   if (llmAvailable) {
     try {
-      const prompt = buildPrompt({ userText: text, memory, intentHint: intent, moodHint: mood });
+      const prompt = buildPrompt({
+        userText: text,
+        memory,
+        recentMessages: input.recentMessages,
+        intentHint: intent,
+        moodHint: mood,
+      });
       const completion = deps.onToken
         ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
         : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);

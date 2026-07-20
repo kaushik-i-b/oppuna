@@ -61,6 +61,32 @@ export const es: DeepPartial<Translation> = {
     themeDark: 'Oscuro',
     themeSystem: 'Sistema',
   },
+  aiModel: {
+    title: 'Modelo de IA',
+    settingsSubtitle: 'Modelo Llama en el dispositivo para la charla',
+    agentTitle: 'Compañero de salud mental',
+    agentBody:
+      'El compañero de Oppuna es un agente empático de apoyo a la salud mental. Escucha, refleja lo que compartes y ofrece pequeños pasos basados en evidencia como respiración, conexión a tierra o replanteamientos suaves. Con un modelo Llama importado funciona por completo en tu teléfono: nada de lo que dices sale de tu dispositivo.',
+    modelTitle: 'Modelo en el dispositivo',
+    activeModel: 'Modelo activo',
+    statusReady: 'Modelo cargado y listo',
+    statusIdle: 'Modelo encontrado: se carga al conversar',
+    statusChecking: 'Revisando el almacenamiento local…',
+    statusLoading: 'Cargando modelo…',
+    statusUnavailable: 'No hay modelo en este dispositivo: la charla usa respuestas guiadas',
+    statusError: 'No se pudo cargar el modelo',
+    import: 'Importar modelo GGUF',
+    importing: 'Importando…',
+    importHint:
+      'Elige un archivo GGUF de Llama que ya esté en tu teléfono (por ejemplo Llama 3.2 1B o 3B Instruct, cuantizado Q4). Se copia al almacenamiento privado de Oppuna y nunca se sube a ningún lado.',
+    imported: 'Modelo importado. El compañero ahora usa IA en el dispositivo.',
+    importFailed: 'No se pudo importar ese archivo. Asegúrate de que sea un modelo .gguf.',
+    remove: 'Eliminar modelo',
+    removeConfirmTitle: '¿Eliminar el modelo?',
+    removeConfirmMessage:
+      'La charla vuelve a las respuestas guiadas. El archivo del modelo se elimina del almacenamiento de Oppuna.',
+    removed: 'Modelo eliminado.',
+  },
   lock: {
     title: 'Oppuna está bloqueada',
     subtitle: 'Verifica tu identidad para abrir tu espacio privado.',

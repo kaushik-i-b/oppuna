@@ -79,6 +79,11 @@ export function ChatScreen(): React.ReactElement {
       setSuggestions([]);
 
       try {
+        // History before this turn — gives the on-device agent real context.
+        const recentMessages = messages
+          .filter((m) => m.role === 'user' || m.role === 'assistant')
+          .map((m) => ({ role: m.role, content: m.content }));
+
         const userMessage = await chatRepository.addMessage({
           sessionId,
           role: 'user',
@@ -106,7 +111,7 @@ export function ChatScreen(): React.ReactElement {
         }
 
         const response = await generateAIResponse(
-          { sessionId, text: trimmed },
+          { sessionId, text: trimmed, recentMessages },
           streamId
             ? {
                 onToken: (token) => {
@@ -163,7 +168,7 @@ export function ChatScreen(): React.ReactElement {
         setSending(false);
       }
     },
-    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status],
+    [sessionId, sending, messages, navigation, scrollToEnd, toast, modelState.status],
   );
 
   const handleClear = useCallback(async () => {

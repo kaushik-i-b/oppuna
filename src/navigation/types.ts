@@ -30,6 +30,7 @@ export type RootStackParamList = {
   SelfCare: undefined;
   DataExport: undefined;
   DeleteData: undefined;
+  AIModel: undefined;
   Disclaimer: { fromSettings?: boolean } | undefined;
   Terms: undefined;
   About: undefined;

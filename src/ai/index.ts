@@ -2,10 +2,11 @@
  * Oppuna AI layer — fully offline.
  *
  * - `generateAIResponse` is the orchestrated entry point for chat.
+ * - `mentalHealthAgent` — the persona driving the on-device Llama model.
  * - `fallbackEngine` holds the deterministic rule-based engine.
  * - `safetyEngine` runs strict crisis detection before anything else.
  * - `llmClient` / `localLLMClient` — on-device LLM via llama.rn
- * - `modelManager` — GGUF discovery and lifecycle in local storage
+ * - `modelManager` — GGUF discovery, import, and lifecycle in local storage
  */
 
 export * from '@/ai/types';
@@ -36,6 +37,8 @@ export {
 export type { GenerateOptions } from '@/ai/fallbackEngine';
 export { buildPrompt, buildSystemPrompt } from '@/ai/promptBuilder';
 export type { PromptInput } from '@/ai/promptBuilder';
+export { MENTAL_HEALTH_AGENT, getActiveAgent } from '@/ai/mentalHealthAgent';
+export type { AgentProfile } from '@/ai/mentalHealthAgent';
 export { validateResponse, similarity } from '@/ai/responseValidator';
 export type { ValidationContext } from '@/ai/responseValidator';
 export {
@@ -56,6 +59,8 @@ export {
   getModelState,
   getModelPath,
   getModelsDirectory,
+  importModelFromUri,
+  removeModel,
   isModelReady,
   subscribeToModelState,
 } from '@/ai/modelManager';

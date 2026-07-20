@@ -97,6 +97,12 @@ export function SettingsScreen(): React.ReactElement {
             subtitle={currentLanguage}
             onPress={() => navigation.navigate('Language', { fromSettings: true })}
           />
+          <ListItem
+            leadingEmoji="🧠"
+            title={t('aiModel.title')}
+            subtitle={t('aiModel.settingsSubtitle')}
+            onPress={() => navigation.navigate('AIModel')}
+          />
           <Card>
             <View style={styles.switchRow}>
               <View style={{ flex: 1 }}>

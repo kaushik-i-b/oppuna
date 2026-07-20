@@ -20,6 +20,7 @@ import { BreathingScreen } from '@/screens/breathing/BreathingScreen';
 import { GroundingScreen } from '@/screens/grounding/GroundingScreen';
 import { SleepScreen } from '@/screens/sleep/SleepScreen';
 import { SelfCareScreen } from '@/screens/selfcare/SelfCareScreen';
+import { AIModelScreen } from '@/screens/settings/AIModelScreen';
 import { DataExportScreen } from '@/screens/settings/DataExportScreen';
 import { DeleteDataScreen } from '@/screens/settings/DeleteDataScreen';
 import { TermsScreen } from '@/screens/settings/TermsScreen';
@@ -55,6 +56,7 @@ export function RootNavigator(): React.ReactElement {
             <Stack.Screen name="SelfCare" component={SelfCareScreen} />
             <Stack.Screen name="DataExport" component={DataExportScreen} />
             <Stack.Screen name="DeleteData" component={DeleteDataScreen} />
+            <Stack.Screen name="AIModel" component={AIModelScreen} />
             <Stack.Screen name="Terms" component={TermsScreen} />
             <Stack.Screen name="About" component={AboutScreen} />
             <Stack.Screen name="Language" component={LanguageScreen} />

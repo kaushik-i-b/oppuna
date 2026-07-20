@@ -45,7 +45,7 @@ export const en = {
     clear: 'Clear conversation',
     modelLoading: 'Loading on-device assistant…',
     modelReady: 'On-device assistant ready',
-    modelUnavailable: 'Guided responses — place a model in local storage to enable on-device AI',
+    modelUnavailable: 'Guided responses — import a Llama model in Settings › AI model to enable on-device AI',
     modelError: 'On-device assistant unavailable — using guided responses',
   },
   mood: {
@@ -107,6 +107,32 @@ export const en = {
     themeLight: 'Light',
     themeDark: 'Dark',
     themeSystem: 'System',
+  },
+  aiModel: {
+    title: 'AI model',
+    settingsSubtitle: 'On-device Llama model for the chat companion',
+    agentTitle: 'Mental health companion',
+    agentBody:
+      'Oppuna’s companion is an empathetic mental health support agent. It listens, reflects back what you share, and offers small evidence-informed steps like breathing, grounding, or gentle reframes. With a Llama model imported it runs entirely on your phone — nothing you say ever leaves your device.',
+    modelTitle: 'On-device model',
+    activeModel: 'Active model',
+    statusReady: 'Model loaded and ready',
+    statusIdle: 'Model found — it loads when you chat',
+    statusChecking: 'Checking local storage…',
+    statusLoading: 'Loading model…',
+    statusUnavailable: 'No model on this device — chat uses guided responses',
+    statusError: 'The model couldn’t be loaded',
+    import: 'Import GGUF model',
+    importing: 'Importing…',
+    importHint:
+      'Pick a Llama GGUF file already on your phone (for example Llama 3.2 1B or 3B Instruct, Q4 quantized). It is copied into Oppuna’s private storage and never uploaded anywhere.',
+    imported: 'Model imported. The companion now uses on-device AI.',
+    importFailed: 'Couldn’t import that file. Make sure it is a .gguf model.',
+    remove: 'Remove model',
+    removeConfirmTitle: 'Remove model?',
+    removeConfirmMessage:
+      'Chat switches back to guided responses. The model file is deleted from Oppuna’s storage.',
+    removed: 'Model removed.',
   },
   lock: {
     title: 'Oppuna is locked',

@@ -4,8 +4,10 @@
  * Models are loaded from the app's private document directory:
  *   `{documentDirectory}models/oppuna-model.gguf`
  *
- * No network access. If no model file is present the status becomes
- * `unavailable` and the orchestrator falls back to the rule engine.
+ * Users can import a Llama GGUF file they already have on their device
+ * (`importModelFromUri`) — the file is copied into the app sandbox, never
+ * downloaded. No network access. If no model file is present the status
+ * becomes `unavailable` and the orchestrator falls back to the rule engine.
  */
 
 import { Platform } from 'react-native';
@@ -150,6 +152,73 @@ export async function initializeModelManager(): Promise<ModelState> {
 /** Resolved model path, or null when no model is available. */
 export function getModelPath(): string | null {
   return state.modelPath;
+}
+
+/**
+ * Copy a GGUF file the user picked from their device into the app's private
+ * models directory and make it the active model. Purely local — the source
+ * URI comes from the OS file picker, nothing is downloaded.
+ */
+export async function importModelFromUri(sourceUri: string, filename?: string): Promise<ModelState> {
+  const rawName = filename ?? sourceUri.split('/').pop() ?? LLM_CONFIG.storageFilename;
+  const safeName = rawName.toLowerCase().endsWith('.gguf') ? rawName : `${rawName}.gguf`;
+  const targetPath = `${MODELS_DIR}${safeName}`;
+
+  setState({ status: 'checking', error: null });
+
+  try {
+    await ensureModelsDirectory();
+
+    // Only one model is kept at a time — remove any previous files first.
+    const existing = await FileSystem.readDirectoryAsync(MODELS_DIR);
+    for (const entry of existing) {
+      await FileSystem.deleteAsync(`${MODELS_DIR}${entry}`, { idempotent: true });
+    }
+
+    await FileSystem.copyAsync({ from: sourceUri, to: targetPath });
+
+    setState({
+      status: 'idle',
+      modelPath: targetPath,
+      modelId: modelIdFromPath(targetPath),
+      error: null,
+      loadedAt: null,
+    });
+    logger.info('On-device LLM model imported', { modelId: state.modelId });
+    return state;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Model import failed', { error: message });
+    setState({
+      status: 'error',
+      modelPath: null,
+      modelId: null,
+      error: message,
+      loadedAt: null,
+    });
+    return state;
+  }
+}
+
+/** Delete the active model file from the app sandbox. */
+export async function removeModel(): Promise<ModelState> {
+  try {
+    const entries = await FileSystem.readDirectoryAsync(MODELS_DIR).catch(() => [] as string[]);
+    for (const entry of entries) {
+      await FileSystem.deleteAsync(`${MODELS_DIR}${entry}`, { idempotent: true });
+    }
+  } catch (error) {
+    logger.warn('Model removal encountered an error', { error: String(error) });
+  }
+
+  setState({
+    status: 'unavailable',
+    modelPath: null,
+    modelId: null,
+    error: null,
+    loadedAt: null,
+  });
+  return state;
 }
 
 export function markModelLoading(): void {
