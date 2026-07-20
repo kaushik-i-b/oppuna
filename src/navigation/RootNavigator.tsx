@@ -24,6 +24,7 @@ import { DataExportScreen } from '@/screens/settings/DataExportScreen';
 import { DeleteDataScreen } from '@/screens/settings/DeleteDataScreen';
 import { TermsScreen } from '@/screens/settings/TermsScreen';
 import { AboutScreen } from '@/screens/settings/AboutScreen';
+import { MentalHealthAgentScreen } from '@/screens/settings/MentalHealthAgentScreen';
 import { CrisisScreen } from '@/screens/crisis/CrisisScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -57,6 +58,7 @@ export function RootNavigator(): React.ReactElement {
             <Stack.Screen name="DeleteData" component={DeleteDataScreen} />
             <Stack.Screen name="Terms" component={TermsScreen} />
             <Stack.Screen name="About" component={AboutScreen} />
+            <Stack.Screen name="MentalHealthAgent" component={MentalHealthAgentScreen} />
             <Stack.Screen name="Language" component={LanguageScreen} />
             <Stack.Screen name="Privacy" component={PrivacyScreen} />
             <Stack.Screen name="Disclaimer" component={DisclaimerScreen} />

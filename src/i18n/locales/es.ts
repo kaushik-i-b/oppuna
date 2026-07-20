@@ -60,6 +60,49 @@ export const es: DeepPartial<Translation> = {
     themeLight: 'Claro',
     themeDark: 'Oscuro',
     themeSystem: 'Sistema',
+    agentSection: 'IA en el dispositivo',
+    mentalHealthAgent: 'Compañero de salud mental',
+    mentalHealthAgentSubtitle: 'Administra el modelo Llama que se ejecuta en tu teléfono',
+  },
+  agent: {
+    title: 'Compañero de salud mental',
+    statusSection: 'Estado',
+    statusReady: 'Compañero Llama en el dispositivo listo',
+    statusLoading: 'Cargando el modelo…',
+    statusChecking: 'Revisando el almacenamiento del dispositivo…',
+    statusUnavailable: 'Sin modelo instalado en el dispositivo — usando respuestas guiadas',
+    statusError: 'Modelo en el dispositivo no disponible',
+    modelLabel: 'Modelo instalado',
+    runtimeLabel: 'Motor',
+    installSection: 'Modelo Llama en el dispositivo',
+    installBody:
+      'Elige un archivo de modelo Llama en formato GGUF que ya tengas en este dispositivo ' +
+      '(por ejemplo, en Archivos o Descargas). Se copia al almacenamiento privado de Oppuna y ' +
+      'se usa completamente sin conexión. Nada de lo que escribas en el chat sale de tu teléfono.',
+    recommendedIntro: 'Familias recomendadas (cualquier modelo instruct GGUF reciente sirve):',
+    installCta: 'Elegir un archivo GGUF',
+    replaceCta: 'Reemplazar con otro archivo GGUF',
+    installBusy: 'Instalando…',
+    removeCta: 'Eliminar el modelo instalado',
+    removeBusy: 'Eliminando…',
+    removeConfirm:
+      'Esto borra el archivo del modelo de Oppuna. Tus conversaciones y datos no se ven afectados. ' +
+      'Puedes instalar otro modelo más adelante.',
+    installed: 'Modelo instalado. El compañero se está preparando.',
+    removed: 'Modelo eliminado. Usando respuestas guiadas.',
+    errorNotGguf: 'Por favor elige un archivo de modelo .gguf.',
+    errorTooLarge: 'Ese archivo parece demasiado grande para un teléfono. Prueba con un modelo cuantizado más pequeño.',
+    errorInstallFailed: 'No se pudo instalar el modelo. Intenta con otro archivo.',
+    errorRemoveFailed: 'No se pudo eliminar el modelo instalado.',
+    privacySection: 'Privacidad',
+    privacyBody:
+      'El modelo se ejecuta en tu dispositivo. Tus mensajes, indicaciones y el modelo mismo nunca salen de tu teléfono. ' +
+      'Oppuna no realiza llamadas de red en producción y no puede subir tus conversaciones.',
+    storagePathIntro: 'Ubicación del archivo del modelo en este dispositivo:',
+    aboutSection: 'Sobre este compañero',
+    aboutBody:
+      'Un compañero de chat privado y sin conexión que escucha, refleja y comparte pequeños pasos basados en evidencia ' +
+      'para el bienestar mental. No es un terapeuta, médico ni servicio de salud, y nunca sustituye la atención profesional.',
   },
   lock: {
     title: 'Oppuna está bloqueada',

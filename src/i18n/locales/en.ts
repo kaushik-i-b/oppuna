@@ -43,10 +43,11 @@ export const en = {
       'Hey — this stays on your phone, completely private. What’s on your mind?',
     cleared: 'Conversation cleared',
     clear: 'Clear conversation',
-    modelLoading: 'Loading on-device assistant…',
-    modelReady: 'On-device assistant ready',
-    modelUnavailable: 'Guided responses — place a model in local storage to enable on-device AI',
-    modelError: 'On-device assistant unavailable — using guided responses',
+    modelLoading: 'Loading on-device Llama companion…',
+    modelReady: 'On-device Llama companion ready',
+    modelUnavailable: 'Guided responses — tap to install a Llama model for on-device AI',
+    modelError: 'On-device companion unavailable — using guided responses',
+    modelHint: 'Opens the on-device Llama companion settings',
   },
   mood: {
     title: 'How are you?',
@@ -107,6 +108,47 @@ export const en = {
     themeLight: 'Light',
     themeDark: 'Dark',
     themeSystem: 'System',
+    agentSection: 'On-device AI',
+    mentalHealthAgent: 'Mental health companion',
+    mentalHealthAgentSubtitle: 'Manage the on-device Llama chat model',
+  },
+  agent: {
+    title: 'Mental health companion',
+    statusSection: 'Status',
+    statusReady: 'On-device Llama companion ready',
+    statusLoading: 'Loading model…',
+    statusChecking: 'Checking on-device storage…',
+    statusUnavailable: 'No on-device model installed — using guided responses',
+    statusError: 'On-device model unavailable',
+    modelLabel: 'Installed model',
+    runtimeLabel: 'Runtime',
+    installSection: 'On-device Llama model',
+    installBody:
+      'Pick a GGUF Llama model file already saved on this device (for example, in Files or Downloads). ' +
+      'It is copied into Oppuna’s private storage and used entirely offline. Nothing you type in chat leaves your phone.',
+    recommendedIntro: 'Recommended families (any recent GGUF instruct model will work):',
+    installCta: 'Choose a GGUF model file',
+    replaceCta: 'Replace with a different GGUF file',
+    installBusy: 'Installing…',
+    removeCta: 'Remove installed model',
+    removeBusy: 'Removing…',
+    removeConfirm:
+      'This deletes the model file from Oppuna. Your chats and data are not affected. You can install another model later.',
+    installed: 'Model installed. The companion is warming up.',
+    removed: 'Model removed. Using guided responses.',
+    errorNotGguf: 'Please pick a .gguf model file.',
+    errorTooLarge: 'That file looks too large to run on a phone. Try a smaller quantized model.',
+    errorInstallFailed: 'Could not install the model. Please try a different file.',
+    errorRemoveFailed: 'Could not remove the installed model.',
+    privacySection: 'Privacy',
+    privacyBody:
+      'The model runs on your device. Your chat messages, prompts, and the model itself never leave your phone. ' +
+      'Oppuna has no network calls in production and cannot upload your conversations.',
+    storagePathIntro: 'Model file location on this device:',
+    aboutSection: 'About this companion',
+    aboutBody:
+      'A private, offline chat companion that listens, reflects, and shares small evidence-informed steps ' +
+      'for mental wellness. It is not a therapist, doctor, or medical service and never replaces professional care.',
   },
   lock: {
     title: 'Oppuna is locked',

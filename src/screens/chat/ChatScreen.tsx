@@ -19,6 +19,8 @@ function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => strin
     case 'checking':
     case 'loading':
       return t('chat.modelLoading');
+    case 'ready':
+      return t('chat.modelReady');
     case 'unavailable':
       return t('chat.modelUnavailable');
     case 'error':
@@ -207,7 +209,11 @@ export function ChatScreen(): React.ReactElement {
       }
     >
       {statusLabel ? (
-        <View
+        <Pressable
+          onPress={() => navigation.navigate('MentalHealthAgent')}
+          accessibilityRole="button"
+          accessibilityLabel={statusLabel}
+          accessibilityHint={t('chat.modelHint')}
           style={[
             styles.modelStatus,
             {
@@ -217,12 +223,18 @@ export function ChatScreen(): React.ReactElement {
               borderBottomColor: theme.colors.border,
             },
           ]}
-          accessibilityRole="text"
-          accessibilityLabel={statusLabel}
         >
           {showStatusSpinner ? (
             <ActivityIndicator size="small" color={theme.colors.primary} style={{ marginRight: 8 }} />
-          ) : null}
+          ) : (
+            <Text
+              variant="caption"
+              color={modelState.status === 'ready' ? 'primary' : 'textMuted'}
+              style={{ marginRight: 8 }}
+            >
+              {modelState.status === 'ready' ? '●' : '○'}
+            </Text>
+          )}
           <Text
             variant="caption"
             color={modelState.status === 'error' ? 'danger' : 'textMuted'}
@@ -230,7 +242,10 @@ export function ChatScreen(): React.ReactElement {
           >
             {statusLabel}
           </Text>
-        </View>
+          <Text variant="caption" color="textFaint">
+            ›
+          </Text>
+        </Pressable>
       ) : null}
 
       <FlatList

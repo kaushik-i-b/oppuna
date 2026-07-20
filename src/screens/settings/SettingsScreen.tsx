@@ -89,6 +89,16 @@ export function SettingsScreen(): React.ReactElement {
       </Card>
 
       <View style={{ marginTop: theme.spacing.lg }}>
+        <SectionHeader title={t('settings.agentSection')} />
+        <ListItem
+          leadingEmoji="🧠"
+          title={t('settings.mentalHealthAgent')}
+          subtitle={t('settings.mentalHealthAgentSubtitle')}
+          onPress={() => navigation.navigate('MentalHealthAgent')}
+        />
+      </View>
+
+      <View style={{ marginTop: theme.spacing.lg }}>
         <SectionHeader title="Preferences" />
         <View style={{ gap: theme.spacing.sm }}>
           <ListItem
