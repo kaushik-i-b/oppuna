@@ -153,12 +153,19 @@ export async function generateWithTimeout(
   prompt: LLMPrompt,
   timeoutMs: number,
 ): Promise<LLMCompletion> {
+  const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new LLMGenerationError(`LLM timed out after ${timeoutMs}ms`)), timeoutMs);
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new LLMGenerationError(`LLM timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
   });
   try {
-    return await Promise.race([client.generate(prompt, { timeoutMs }), timeout]);
+    return await Promise.race([
+      client.generate(prompt, { timeoutMs, signal: controller.signal }),
+      timeout,
+    ]);
   } finally {
     if (timer !== undefined) clearTimeout(timer);
   }
@@ -171,13 +178,17 @@ export async function generateStreamWithTimeout(
   timeoutMs: number,
   onToken: LLMTokenCallback,
 ): Promise<LLMCompletion> {
+  const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new LLMGenerationError(`LLM timed out after ${timeoutMs}ms`)), timeoutMs);
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new LLMGenerationError(`LLM timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
   });
   try {
     return await Promise.race([
-      client.generateStream(prompt, onToken, { timeoutMs }),
+      client.generateStream(prompt, onToken, { timeoutMs, signal: controller.signal }),
       timeout,
     ]);
   } finally {

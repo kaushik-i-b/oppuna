@@ -36,11 +36,14 @@ export const SECURE_KEYS = {
 /**
  * On-device LLM configuration. Place a GGUF file at
  * `{documentDirectory}models/{storageFilename}` to enable the local model.
- * Production builds may also bundle the model under `assets/models/`.
+ * Production builds may also bundle the model under one of the configured
+ * `bundledRelativePaths`, which the app will copy into private storage on
+ * first launch.
  */
 export const LLM_CONFIG = {
   storageDir: 'models',
   storageFilename: 'oppuna-model.gguf',
+  bundledRelativePaths: ['models/oppuna-model.gguf', 'assets/models/oppuna-model.gguf'],
   contextSize: 2048,
   maxThreads: 4,
   /** GPU layers on iOS (Metal). Set to 0 for CPU-only on Android if needed. */

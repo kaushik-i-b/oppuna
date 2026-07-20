@@ -65,10 +65,52 @@ async function ensureModelsDirectory(): Promise<void> {
   }
 }
 
+function bundledModelCandidates(): string[] {
+  const bundleRoot = FileSystem.bundleDirectory ?? '';
+  if (!bundleRoot) return [];
+  return LLM_CONFIG.bundledRelativePaths.map((relativePath) => `${bundleRoot}${relativePath}`);
+}
+
+async function stageBundledModel(): Promise<string | null> {
+  const candidates = bundledModelCandidates();
+  if (candidates.length === 0) return null;
+
+  for (const sourcePath of candidates) {
+    try {
+      const info = await FileSystem.getInfoAsync(sourcePath);
+      if (!info.exists) continue;
+
+      await ensureModelsDirectory();
+      const destination = DEFAULT_MODEL_PATH;
+      const staged = await FileSystem.getInfoAsync(destination);
+      if (!staged.exists) {
+        await FileSystem.copyAsync({ from: sourcePath, to: destination });
+        logger.info('Bundled on-device model staged into private storage', {
+          sourcePath,
+          destination,
+        });
+      }
+      return destination;
+    } catch (error) {
+      logger.warn('Could not stage bundled model candidate', {
+        sourcePath,
+        error: String(error),
+      });
+    }
+  }
+
+  return null;
+}
+
 async function findModelFile(): Promise<string | null> {
   const preferred = await FileSystem.getInfoAsync(DEFAULT_MODEL_PATH);
   if (preferred.exists) {
     return DEFAULT_MODEL_PATH;
+  }
+
+  const bundled = await stageBundledModel();
+  if (bundled) {
+    return bundled;
   }
 
   try {

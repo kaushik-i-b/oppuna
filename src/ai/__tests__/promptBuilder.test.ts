@@ -7,7 +7,8 @@ describe('buildSystemPrompt', () => {
     expect(system).toMatch(/never diagnose/i);
     expect(system).toMatch(/medication/i);
     expect(system).toMatch(/not a therapist/i);
-    expect(system).toMatch(/offline/i);
+    expect(system).toMatch(/Llama model/i);
+    expect(system).toMatch(/user’s phone/i);
   });
 });
 

@@ -85,6 +85,33 @@ describe('generateAIResponse — LLM path', () => {
     expect(response.reply).toContain('What feels biggest right now?');
   });
 
+  it('passes recent chat history into the on-device prompt', async () => {
+    const client = new MockLocalLLMClient({
+      available: true,
+      reply: (prompt) => {
+        const firstHistory = prompt.turns[0]?.content;
+        const secondHistory = prompt.turns[1]?.content;
+        const latest = prompt.turns[prompt.turns.length - 1]?.content;
+        return `history:${firstHistory}|${secondHistory}|latest:${latest}`;
+      },
+    });
+    const response = await generateAIResponse(
+      {
+        sessionId: freshSession(),
+        text: 'Still feeling tense',
+        recentMessages: [
+          { role: 'user', content: 'I feel anxious about work' },
+          { role: 'assistant', content: 'That sounds hard. What part feels biggest?' },
+        ],
+      },
+      { client },
+    );
+    expect(response.meta.source).toBe('local-llm');
+    expect(response.reply).toContain('history:I feel anxious about work');
+    expect(response.reply).toContain('That sounds hard. What part feels biggest?');
+    expect(response.reply).toContain('latest:Still feeling tense');
+  });
+
   it('rejects an unsafe LLM reply and falls back to the rule engine', async () => {
     const client = new MockLocalLLMClient({
       available: true,

@@ -16,6 +16,8 @@ import type { TranslationKey } from '@/i18n';
 
 function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => string): string | null {
   switch (status) {
+    case 'ready':
+      return t('chat.modelReady');
     case 'checking':
     case 'loading':
       return t('chat.modelLoading');
@@ -84,6 +86,7 @@ export function ChatScreen(): React.ReactElement {
           role: 'user',
           content: trimmed,
         });
+        const recentMessages = [...messages, userMessage];
         setMessages((prev) => [...prev, userMessage]);
         scrollToEnd();
 
@@ -106,7 +109,7 @@ export function ChatScreen(): React.ReactElement {
         }
 
         const response = await generateAIResponse(
-          { sessionId, text: trimmed },
+          { sessionId, text: trimmed, recentMessages },
           streamId
             ? {
                 onToken: (token) => {

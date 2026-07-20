@@ -14,6 +14,7 @@ jest.mock('expo-haptics', () => ({
 
 jest.mock('expo-file-system/legacy', () => ({
   documentDirectory: 'file:///mock-documents/',
+  bundleDirectory: 'file:///mock-bundle/',
   getInfoAsync: jest.fn(async () => ({ exists: false })),
   makeDirectoryAsync: jest.fn(async () => undefined),
   readDirectoryAsync: jest.fn(async () => []),
