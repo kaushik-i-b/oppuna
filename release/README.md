@@ -4,6 +4,7 @@ This folder contains signed production Android builds.
 
 | File | Purpose |
 | --- | --- |
+| `oppuna.apk` | Stable filename for the signed release APK for direct install or internal testing. |
 | `oppuna-1.0.0-production.apk` | The signed release APK for direct install or internal testing. |
 | `oppuna-1.0.0-production.aab` | The signed Android App Bundle to upload to the Google Play Console. |
 | `oppuna-upload-key.keystore` | The **upload keystore** used to sign the bundle. |
@@ -17,6 +18,7 @@ This folder contains signed production Android builds.
 
 | File | Size | SHA-256 |
 | --- | ---: | --- |
+| `oppuna.apk` | 181 MB | `89e3e235d527ace8f786199d487edf44790f619795c37914a8682ab974ab0757` |
 | `oppuna-1.0.0-production.apk` | 181 MB | `89e3e235d527ace8f786199d487edf44790f619795c37914a8682ab974ab0757` |
 | `oppuna-1.0.0-production.aab` | 99 MB | `03a517984365bf6bcac0c89a7af087b2b74939faa95293e21c4b65685e3004af` |
 
