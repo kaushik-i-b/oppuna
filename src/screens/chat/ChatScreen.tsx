@@ -11,6 +11,7 @@ import { generateAIResponse, resetConversationMemory } from '@/ai';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
+import type { AIMessage } from '@/ai/types';
 import type { ModelStatus } from '@/ai/types';
 import type { TranslationKey } from '@/i18n';
 
@@ -79,6 +80,11 @@ export function ChatScreen(): React.ReactElement {
       setSuggestions([]);
 
       try {
+        const recentMessages: AIMessage[] = messages.map((message) => ({
+          role: message.role,
+          content: message.content,
+          createdAt: message.createdAt,
+        }));
         const userMessage = await chatRepository.addMessage({
           sessionId,
           role: 'user',
@@ -106,7 +112,7 @@ export function ChatScreen(): React.ReactElement {
         }
 
         const response = await generateAIResponse(
-          { sessionId, text: trimmed },
+          { sessionId, text: trimmed, recentMessages },
           streamId
             ? {
                 onToken: (token) => {
@@ -163,7 +169,7 @@ export function ChatScreen(): React.ReactElement {
         setSending(false);
       }
     },
-    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status],
+    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status, messages],
   );
 
   const handleClear = useCallback(async () => {

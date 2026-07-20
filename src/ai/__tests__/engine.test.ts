@@ -85,6 +85,35 @@ describe('generateAIResponse — LLM path', () => {
     expect(response.reply).toContain('What feels biggest right now?');
   });
 
+  it('passes recent mobile chat history into the on-device mental health agent prompt', async () => {
+    const client = new MockLocalLLMClient({
+      available: true,
+      reply: (prompt) => {
+        expect(prompt.system).toMatch(/mental wellness agent/i);
+        expect(prompt.turns.map((turn) => turn.content)).toEqual([
+          'Earlier you said work has been exhausting.',
+          'Yes, and I have felt tense all week.',
+          'I still feel on edge tonight',
+        ]);
+        return 'It sounds like the tension has been building for a while. What feels heaviest tonight?';
+      },
+    });
+
+    const response = await generateAIResponse(
+      {
+        sessionId: freshSession(),
+        text: 'I still feel on edge tonight',
+        recentMessages: [
+          { role: 'assistant', content: 'Earlier you said work has been exhausting.' },
+          { role: 'user', content: 'Yes, and I have felt tense all week.' },
+        ],
+      },
+      { client },
+    );
+
+    expect(response.meta.source).toBe('local-llm');
+  });
+
   it('rejects an unsafe LLM reply and falls back to the rule engine', async () => {
     const client = new MockLocalLLMClient({
       available: true,

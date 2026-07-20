@@ -13,7 +13,14 @@
  */
 
 import { logger } from '@/utils/logger';
-import type { AIChatResponse, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
+import type {
+  AIChatResponse,
+  AIMessage,
+  LLMTokenCallback,
+  LocalLLMClient,
+  Rng,
+  ValidationViolation,
+} from '@/ai/types';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
 import {
@@ -23,7 +30,7 @@ import {
   SAFE_FALLBACK,
   suggestionsFor,
 } from '@/ai/fallbackEngine';
-import { buildPrompt } from '@/ai/promptBuilder';
+import { buildMentalHealthPrompt } from '@/ai/mentalHealthAgent';
 import { generateStreamWithTimeout, generateWithTimeout, getLocalLLMClient, isLLMAvailable } from '@/ai/llmClient';
 import { validateResponse } from '@/ai/responseValidator';
 
@@ -37,6 +44,8 @@ export interface GenerateAIResponseInput {
   sessionId: string;
   /** Raw user message. */
   text: string;
+  /** Recent mobile chat turns, excluding the new user message being sent now. */
+  recentMessages?: AIMessage[];
 }
 
 export interface GenerateAIResponseDeps {
@@ -85,7 +94,13 @@ export async function generateAIResponse(
   const llmAvailable = await isLLMAvailable(client);
   if (llmAvailable) {
     try {
-      const prompt = buildPrompt({ userText: text, memory, intentHint: intent, moodHint: mood });
+      const prompt = buildMentalHealthPrompt({
+        userText: text,
+        memory,
+        recentMessages: input.recentMessages,
+        intentHint: intent,
+        moodHint: mood,
+      });
       const completion = deps.onToken
         ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
         : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);
