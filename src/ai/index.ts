@@ -4,6 +4,7 @@
  * - `generateAIResponse` is the orchestrated entry point for chat.
  * - `fallbackEngine` holds the deterministic rule-based engine.
  * - `safetyEngine` runs strict crisis detection before anything else.
+ * - `mentalHealthAgent` — on-device Llama mental wellness agent for chat
  * - `llmClient` / `localLLMClient` — on-device LLM via llama.rn
  * - `modelManager` — GGUF discovery and lifecycle in local storage
  */
@@ -11,6 +12,16 @@
 export * from '@/ai/types';
 export { generateAIResponse } from '@/ai/engine';
 export type { GenerateAIResponseInput, GenerateAIResponseDeps } from '@/ai/engine';
+export {
+  MentalHealthAgent,
+  getMentalHealthAgent,
+  __resetMentalHealthAgentForTests,
+} from '@/ai/mentalHealthAgent';
+export type {
+  MentalHealthAgentInput,
+  MentalHealthAgentDeps,
+  MentalHealthAgentOutcome,
+} from '@/ai/mentalHealthAgent';
 export { assessSafety, detectCrisis, CRISIS_PATTERNS, CRISIS_REPLY } from '@/ai/safetyEngine';
 export {
   ConversationMemory,

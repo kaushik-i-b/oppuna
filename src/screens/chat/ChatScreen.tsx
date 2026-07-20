@@ -11,7 +11,7 @@ import { generateAIResponse, resetConversationMemory } from '@/ai';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
-import type { ModelStatus } from '@/ai/types';
+import type { AIMessage, Intent, ModelStatus } from '@/ai/types';
 import type { TranslationKey } from '@/i18n';
 
 function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => string): string | null {
@@ -105,8 +105,16 @@ export function ChatScreen(): React.ReactElement {
           scrollToEnd();
         }
 
+        const history: AIMessage[] = messages.map((message) => ({
+          role: message.role,
+          content: message.content,
+          createdAt: message.createdAt,
+          intent: (message.intent as Intent | null) ?? undefined,
+          mood: message.mood,
+        }));
+
         const response = await generateAIResponse(
-          { sessionId, text: trimmed },
+          { sessionId, text: trimmed, recentMessages: history },
           streamId
             ? {
                 onToken: (token) => {

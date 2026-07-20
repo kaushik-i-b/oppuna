@@ -8,6 +8,7 @@ describe('buildSystemPrompt', () => {
     expect(system).toMatch(/medication/i);
     expect(system).toMatch(/not a therapist/i);
     expect(system).toMatch(/offline/i);
+    expect(system).toMatch(/mental wellness/i);
   });
 });
 
