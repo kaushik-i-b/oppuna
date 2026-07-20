@@ -11,7 +11,8 @@ Oppuna is a fully offline, privacy-first mental wellness companion built with Re
 
 ## Features
 
-- **Offline AI companion** — a deterministic, on-device rule-based wellness engine (`src/services/offlineAI.ts`) with intent, mood, and crisis detection plus CBT-style, mindfulness, and grounding responses.
+- **Offline AI companion** — an on-device mental-health chat agent powered by a local llama.cpp model via `llama.rn`, orchestrated in `src/ai/`. Every message runs through strict crisis detection first, then the on-device LLM (with conversation context and streaming), and finally a deterministic rule-based wellness engine as a guaranteed fallback. No network on any path.
+- **On-device model, bundled or side-loaded** — drop a quantized GGUF at `assets/models/oppuna-model.gguf` (see `src/ai/bundledModel.ts`) and `src/ai/modelProvisioning.ts` stages it into private local storage on first launch. With no model present the app uses the guided rule-based responses.
 - **Crisis safety flow** — detects suicide, self-harm, abuse, violence, medical emergencies, and severe panic, then stops normal coaching and shows a dedicated crisis support screen.
 - **Mood tracker** — mood, 1–10 intensity, notes, tags, history, and weekly insights with a local chart.
 - **Journal** — daily, gratitude, thought records, trigger reflections, and private notes with search and edit/delete.
@@ -106,11 +107,20 @@ Preferences (theme, language, onboarding/disclaimer flags, app-lock flag) are st
 - **Export** writes a local JSON file and uses the OS share sheet (user-controlled). **Delete all data** wipes every table and removes recorded voice files.
 - App-lock is included as a preference placeholder, ready for device biometrics in a future update.
 
+## On-device mental-health agent
+
+The chat companion can run a small instruction-tuned LLM entirely on the phone:
+
+1. Add a quantized GGUF model at `assets/models/oppuna-model.gguf` (a Llama 3.2 1B Instruct `Q4_K_M` build is a good phone-sized default). See `assets/models/README.md`.
+2. Enable it by editing `src/ai/bundledModel.ts` to `require` the file.
+3. Rebuild. On first launch the model is staged into local storage, the model manager discovers it, and the chat screen loads the agent and streams replies.
+
+The pipeline (`src/ai/engine.ts`) is: **safety → on-device LLM → rule engine → safe fallback**. Generated replies must pass `responseValidator` guardrails (no diagnosis, medication, or therapy claims) or they are discarded. Everything is offline.
+
 ## Roadmap-ready
 
 The architecture is intentionally ready to grow into:
 
-- an on-device LLM behind the same `offlineAI` interface,
 - on-device speech-to-text for voice mode,
 - encrypted local storage (SQLCipher / secure keys).
 
