@@ -11,7 +11,7 @@ import { generateAIResponse, resetConversationMemory } from '@/ai';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
-import type { ModelStatus } from '@/ai/types';
+import type { AIMessage, ModelStatus } from '@/ai/types';
 import type { TranslationKey } from '@/i18n';
 
 function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => string): string | null {
@@ -26,6 +26,14 @@ function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => strin
     default:
       return null;
   }
+}
+
+function toAgentMessage(message: ChatMessage): AIMessage {
+  return {
+    role: message.role,
+    content: message.content,
+    createdAt: message.createdAt,
+  };
 }
 
 export function ChatScreen(): React.ReactElement {
@@ -84,6 +92,7 @@ export function ChatScreen(): React.ReactElement {
           role: 'user',
           content: trimmed,
         });
+        const agentHistory = messages.map(toAgentMessage);
         setMessages((prev) => [...prev, userMessage]);
         scrollToEnd();
 
@@ -106,7 +115,7 @@ export function ChatScreen(): React.ReactElement {
         }
 
         const response = await generateAIResponse(
-          { sessionId, text: trimmed },
+          { sessionId, text: trimmed, recentMessages: agentHistory },
           streamId
             ? {
                 onToken: (token) => {
@@ -163,7 +172,7 @@ export function ChatScreen(): React.ReactElement {
         setSending(false);
       }
     },
-    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status],
+    [sessionId, sending, messages, navigation, scrollToEnd, toast, modelState.status],
   );
 
   const handleClear = useCallback(async () => {

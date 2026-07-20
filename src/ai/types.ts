@@ -3,7 +3,7 @@
  *
  * Everything in `src/ai` runs entirely on the device. These types describe
  * the contracts between the safety engine, the rule-based fallback engine,
- * the response validator, conversation memory, and a future on-device LLM.
+ * the response validator, conversation memory, and the on-device Llama agent.
  */
 
 import type { MoodKey, SafetyCategory } from '@/types';
@@ -90,6 +90,10 @@ export type ResponseSource = 'safety' | 'local-llm' | 'rule-engine' | 'safe-fall
 
 export interface AIResponseMetadata {
   source: ResponseSource;
+  /** Named AI agent that produced the reply, when a model-backed agent was used. */
+  agentId?: string;
+  /** Concrete local generation client/model identifier, when available. */
+  clientId?: string;
   /** Whether a local LLM was available for this turn. */
   llmAvailable: boolean;
   /** Number of candidate replies rejected by the validator before success. */

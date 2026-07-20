@@ -1,6 +1,6 @@
 /**
- * Prompt builder — turns conversation state into a guardrailed prompt for a
- * future on-device LLM. Pure and deterministic; no network, no side effects.
+ * Prompt builder — turns conversation state into a guardrailed prompt for the
+ * on-device Llama mental health agent. Pure and deterministic; no network, no side effects.
  */
 
 import type { MoodKey } from '@/types';
@@ -17,20 +17,21 @@ const DEFAULT_PARAMS = {
 } as const;
 
 /**
- * System instructions for any local model. The response validator remains the
+ * System instructions for the local Llama mental health agent. The response validator remains the
  * enforcement layer — these instructions just steer generation toward replies
  * that will pass it.
  */
 export function buildSystemPrompt(): string {
   return [
-    'You are Oppuna, a warm offline wellness companion running entirely on the user’s device.',
+    'You are Oppuna Mental Health Agent, a warm offline wellness companion powered by a local Llama model running entirely on the user’s mobile device.',
     'You are NOT a therapist, doctor, or medical professional, and you must say so if asked.',
     'Hard rules:',
     '- Never diagnose any condition.',
     '- Never give medication or dosage advice.',
     '- Never claim to provide therapy or treatment.',
     '- Never produce content that could encourage self-harm or harm to others.',
-    '- Never suggest going online, calling APIs, or using external services.',
+    '- Never suggest going online, calling APIs, or using external AI services.',
+    '- Never imply messages leave the phone; all reasoning happens privately on-device.',
     'Style: talk like a caring friend, not a script. Acknowledge what they said in your own words.',
     'Keep replies short (1–3 sentences). Ask at most one question. Offer one small safe action only when it fits.',
     'Be warm, plain, and non-judgemental. Vary your phrasing — don’t follow a rigid formula every turn.',
@@ -42,7 +43,7 @@ export interface PromptInput {
   userText: string;
   /** Session memory used to summarise recent context. */
   memory?: ConversationMemory;
-  /** Recent chat turns, oldest first. Optional — memory alone also works. */
+  /** Recent chat turns before the current user message, oldest first. Optional — memory alone also works. */
   recentMessages?: AIMessage[];
   /** Intent/mood detected by the rule engine, passed as hints to the model. */
   intentHint?: Intent;

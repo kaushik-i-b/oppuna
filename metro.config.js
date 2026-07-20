@@ -7,4 +7,9 @@ if (!config.resolver.assetExts.includes('wasm')) {
   config.resolver.assetExts.push('wasm');
 }
 
+// Allow optional bundled GGUF models for llama.rn-backed on-device generation.
+if (!config.resolver.assetExts.includes('gguf')) {
+  config.resolver.assetExts.push('gguf');
+}
+
 module.exports = config;

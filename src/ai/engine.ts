@@ -13,7 +13,7 @@
  */
 
 import { logger } from '@/utils/logger';
-import type { AIChatResponse, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
+import type { AIChatResponse, AIMessage, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
 import {
@@ -23,20 +23,19 @@ import {
   SAFE_FALLBACK,
   suggestionsFor,
 } from '@/ai/fallbackEngine';
-import { buildPrompt } from '@/ai/promptBuilder';
-import { generateStreamWithTimeout, generateWithTimeout, getLocalLLMClient, isLLMAvailable } from '@/ai/llmClient';
+import { getLocalLLMClient } from '@/ai/llmClient';
+import { MentalHealthAgentRejectedError, MentalHealthLlamaAgent } from '@/ai/mentalHealthAgent';
 import { validateResponse } from '@/ai/responseValidator';
 
 /** Attempts at composing a non-repetitive rule-based reply before giving up. */
 const MAX_COMPOSE_ATTEMPTS = 3;
-/** Hard cap on on-device LLM generation time so the chat never hangs. */
-const LLM_TIMEOUT_MS = 6000;
-
 export interface GenerateAIResponseInput {
   /** Chat session id — scopes conversation memory. */
   sessionId: string;
   /** Raw user message. */
   text: string;
+  /** Recent local chat history before the current user message, oldest first. */
+  recentMessages?: AIMessage[];
 }
 
 export interface GenerateAIResponseDeps {
@@ -81,46 +80,56 @@ export async function generateAIResponse(
   const mood = detectMood(text);
   const recentReplies = memory.recentReplies();
 
-  // 2. Local LLM path (no model ships yet — mock reports unavailable).
-  const llmAvailable = await isLLMAvailable(client);
+  // 2. Local Llama mental health agent path (when a GGUF model is on-device).
+  const mentalHealthAgent = new MentalHealthLlamaAgent(client);
+  const llmAvailable = await mentalHealthAgent.isAvailable();
+  let rejectedCandidates = 0;
   if (llmAvailable) {
     try {
-      const prompt = buildPrompt({ userText: text, memory, intentHint: intent, moodHint: mood });
-      const completion = deps.onToken
-        ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
-        : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);
-      const candidate = completion.text.trim();
-      const verdict = validateResponse(candidate, { recentReplies });
-
-      if (completion.finishReason === 'stop' && verdict.ok) {
-        memory.recordTurn({ intent, mood, reply: candidate });
-        return {
-          reply: candidate,
-          intent,
-          mood,
-          crisis: null,
-          suggestions: suggestionsFor(intent),
-          meta: {
-            source: 'local-llm',
-            llmAvailable,
-            rejectedCandidates: 0,
-            safety: { crisis: null, rejectedViolations: [] },
-            generatedAt: Date.now(),
-          },
-        };
-      }
-      rejectedViolations.push(...verdict.violations);
-      logger.warn('LLM reply rejected, falling back to rule engine', {
-        violations: verdict.violations,
-        finishReason: completion.finishReason,
+      const agentResponse = await mentalHealthAgent.respond({
+        userText: text,
+        memory,
+        recentMessages: input.recentMessages,
+        intentHint: intent,
+        moodHint: mood,
+        recentReplies,
+        onToken: deps.onToken,
       });
+
+      memory.recordTurn({ intent, mood, reply: agentResponse.reply });
+      return {
+        reply: agentResponse.reply,
+        intent,
+        mood,
+        crisis: null,
+        suggestions: suggestionsFor(intent),
+        meta: {
+          source: 'local-llm',
+          agentId: agentResponse.agentId,
+          clientId: agentResponse.clientId,
+          llmAvailable,
+          rejectedCandidates,
+          safety: { crisis: null, rejectedViolations: [] },
+          generatedAt: Date.now(),
+        },
+      };
     } catch (error) {
-      logger.warn('LLM generation failed, falling back to rule engine', { error: String(error) });
+      if (error instanceof MentalHealthAgentRejectedError) {
+        rejectedCandidates += 1;
+        rejectedViolations.push(...error.violations);
+        logger.warn('Mental health agent reply rejected, falling back to rule engine', {
+          violations: error.violations,
+          finishReason: error.finishReason,
+        });
+      } else {
+        logger.warn('Mental health agent generation failed, falling back to rule engine', {
+          error: String(error),
+        });
+      }
     }
   }
 
   // 3. Rule-based fallback engine with validation + retries.
-  let rejectedCandidates = rejectedViolations.length > 0 ? 1 : 0;
   for (let attempt = 0; attempt < MAX_COMPOSE_ATTEMPTS; attempt += 1) {
     let candidate: string;
     try {
