@@ -53,6 +53,7 @@ export type { MockLocalLLMClientOptions } from '@/ai/llmClient';
 export { LlamaRnLocalLLMClient } from '@/ai/localLLMClient';
 export {
   initializeModelManager,
+  registerBundledModelAsset,
   getModelState,
   getModelPath,
   getModelsDirectory,

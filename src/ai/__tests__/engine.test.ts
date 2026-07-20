@@ -125,6 +125,33 @@ describe('generateAIResponse — LLM path', () => {
     expect(tokens.length).toBeGreaterThan(0);
     expect(tokens.join('')).toBe(response.reply);
   });
+
+  it('passes recent chat turns into the local LLM prompt', async () => {
+    const client = new MockLocalLLMClient({
+      available: true,
+      reply: (prompt) => {
+        const previousAssistantTurn = prompt.turns.find((turn) => turn.content === 'We named work stress earlier.');
+        const currentUserTurn = prompt.turns[prompt.turns.length - 1];
+        return previousAssistantTurn && currentUserTurn?.content === 'It is still there'
+          ? 'That work stress is still hanging around. Want to take one slow breath before we unpack it?'
+          : 'I am missing the prior chat context.';
+      },
+    });
+    const response = await generateAIResponse(
+      {
+        sessionId: freshSession(),
+        text: 'It is still there',
+        recentMessages: [
+          { role: 'user', content: 'Work stress is bad' },
+          { role: 'assistant', content: 'We named work stress earlier.' },
+        ],
+      },
+      { client },
+    );
+
+    expect(response.meta.source).toBe('local-llm');
+    expect(response.reply).toContain('still hanging around');
+  });
 });
 
 describe('generateAIResponse — last resort', () => {

@@ -20,6 +20,16 @@ jest.mock('expo-file-system/legacy', () => ({
   copyAsync: jest.fn(async () => undefined),
 }));
 
+jest.mock('expo-asset', () => ({
+  Asset: {
+    fromModule: jest.fn(() => ({
+      downloadAsync: jest.fn(async () => undefined),
+      localUri: 'file:///mock-bundle/oppuna-model.gguf',
+      uri: 'file:///mock-bundle/oppuna-model.gguf',
+    })),
+  },
+}));
+
 jest.mock('llama.rn', () => ({
   initLlama: jest.fn(),
 }));

@@ -11,7 +11,7 @@ Oppuna is a fully offline, privacy-first mental wellness companion built with Re
 
 ## Features
 
-- **Offline AI companion** — a deterministic, on-device rule-based wellness engine (`src/services/offlineAI.ts`) with intent, mood, and crisis detection plus CBT-style, mindfulness, and grounding responses.
+- **Offline AI companion** — a safety-first mental wellness agent that can use a local Llama GGUF model through `llama.rn` on mobile, with deterministic guided responses as the fallback when no model is present.
 - **Crisis safety flow** — detects suicide, self-harm, abuse, violence, medical emergencies, and severe panic, then stops normal coaching and shows a dedicated crisis support screen.
 - **Mood tracker** — mood, 1–10 intensity, notes, tags, history, and weekly insights with a local chart.
 - **Journal** — daily, gratitude, thought records, trigger reflections, and private notes with search and edit/delete.
@@ -31,7 +31,8 @@ Oppuna is a fully offline, privacy-first mental wellness companion built with Re
 - `zustand` for preferences state (persisted via AsyncStorage)
 - `@react-navigation` (native-stack + bottom-tabs)
 - `react-native-reanimated` + `react-native-svg` for animations and charts
-- `expo-speech`, `expo-audio`, `expo-haptics`, `expo-file-system`, `expo-sharing`, `expo-localization`, `expo-secure-store`
+- `expo-speech`, `expo-audio`, `expo-haptics`, `expo-file-system`, `expo-asset`, `expo-sharing`, `expo-localization`, `expo-secure-store`
+- `llama.rn` for fully on-device Llama/GGUF inference in native mobile builds
 
 ---
 
@@ -81,6 +82,18 @@ Unit tests cover the offline AI engine, crisis detection, and the mood/journal s
 
 ---
 
+## On-device Llama mental-health agent
+
+Chat calls `generateAIResponse` in `src/ai/engine.ts`. The pipeline is:
+
+1. crisis/safety detection,
+2. local Llama response through `llama.rn` when a GGUF model is available,
+3. validated guided responses when the model is missing or a generated reply is unsafe.
+
+The model manager looks for `oppuna-model.gguf` in the app's private `models/` directory. For a release build that bundles a model, place the GGUF under `assets/models/`, update `src/ai/bundledModelAsset.ts` to return the static asset module, and Metro will bundle the `.gguf` asset. Large model files are intentionally not committed here.
+
+---
+
 ## Database schema
 
 SQLite database `oppuna.db`, versioned with `PRAGMA user_version`. See `src/database/schema.ts`.
@@ -110,7 +123,6 @@ Preferences (theme, language, onboarding/disclaimer flags, app-lock flag) are st
 
 The architecture is intentionally ready to grow into:
 
-- an on-device LLM behind the same `offlineAI` interface,
 - on-device speech-to-text for voice mode,
 - encrypted local storage (SQLCipher / secure keys).
 

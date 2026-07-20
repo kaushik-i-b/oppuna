@@ -9,6 +9,7 @@
  */
 
 import { Platform } from 'react-native';
+import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system/legacy';
 
 import { LLM_CONFIG } from '@/constants/app';
@@ -31,6 +32,7 @@ const INITIAL_STATE: ModelState = {
 let state: ModelState = { ...INITIAL_STATE };
 const listeners = new Set<ModelStateListener>();
 let initPromise: Promise<ModelState> | null = null;
+let bundledModelAssetModule: number | null = null;
 
 function emit(): void {
   for (const listener of listeners) {
@@ -84,6 +86,41 @@ async function findModelFile(): Promise<string | null> {
   return null;
 }
 
+async function stageBundledModelAsset(): Promise<string | null> {
+  if (bundledModelAssetModule === null) {
+    return null;
+  }
+
+  try {
+    const asset = Asset.fromModule(bundledModelAssetModule);
+    await asset.downloadAsync();
+    const sourceUri = asset.localUri ?? asset.uri ?? null;
+
+    if (!sourceUri || /^https?:\/\//i.test(sourceUri)) {
+      logger.warn('Bundled LLM asset did not resolve to a local file');
+      return null;
+    }
+
+    await FileSystem.copyAsync({ from: sourceUri, to: DEFAULT_MODEL_PATH });
+    const copied = await FileSystem.getInfoAsync(DEFAULT_MODEL_PATH);
+    return copied.exists ? DEFAULT_MODEL_PATH : null;
+  } catch (error) {
+    logger.warn('Could not stage bundled LLM model asset', { error: String(error) });
+    return null;
+  }
+}
+
+/**
+ * Register a bundled GGUF asset for release builds.
+ *
+ * Example:
+ *   registerBundledModelAsset(require('../../assets/models/oppuna-model.gguf'));
+ */
+export function registerBundledModelAsset(assetModule: number): void {
+  bundledModelAssetModule = assetModule;
+  initPromise = null;
+}
+
 /**
  * Scan local storage for a GGUF model. Safe to call multiple times.
  * Does not load weights into memory — that happens in `localLLMClient.warmUp`.
@@ -107,7 +144,7 @@ export async function initializeModelManager(): Promise<ModelState> {
 
     try {
       await ensureModelsDirectory();
-      const modelPath = await findModelFile();
+      const modelPath = (await findModelFile()) ?? (await stageBundledModelAsset());
 
       if (!modelPath) {
         logger.info('No on-device LLM model found in local storage', { dir: MODELS_DIR });
@@ -187,5 +224,6 @@ export function isModelReady(): boolean {
 export function __resetModelManagerForTests(): void {
   state = { ...INITIAL_STATE };
   initPromise = null;
+  bundledModelAssetModule = null;
   listeners.clear();
 }
