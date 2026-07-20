@@ -9,6 +9,13 @@ describe('buildSystemPrompt', () => {
     expect(system).toMatch(/not a therapist/i);
     expect(system).toMatch(/offline/i);
   });
+
+  it('defaults to the local mental health agent persona', () => {
+    const system = buildSystemPrompt();
+    expect(system).toMatch(/mental health agent/i);
+    expect(system).toMatch(/local llama model/i);
+    expect(system).toMatch(/stress, anxiety, sadness, sleep/i);
+  });
 });
 
 describe('buildPrompt', () => {

@@ -13,7 +13,15 @@
  */
 
 import { logger } from '@/utils/logger';
-import type { AIChatResponse, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
+import { getAgentProfile, DEFAULT_AGENT_ID } from '@/ai/agents';
+import type {
+  AgentId,
+  AIChatResponse,
+  LLMTokenCallback,
+  LocalLLMClient,
+  Rng,
+  ValidationViolation,
+} from '@/ai/types';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
 import {
@@ -35,6 +43,8 @@ const LLM_TIMEOUT_MS = 6000;
 export interface GenerateAIResponseInput {
   /** Chat session id — scopes conversation memory. */
   sessionId: string;
+  /** Built-in agent persona to use for this reply. */
+  agentId?: AgentId;
   /** Raw user message. */
   text: string;
 }
@@ -54,6 +64,8 @@ export async function generateAIResponse(
 ): Promise<AIChatResponse> {
   const rng = deps.rng ?? Math.random;
   const client = deps.client ?? getLocalLLMClient();
+  const agentId = input.agentId ?? DEFAULT_AGENT_ID;
+  const agent = getAgentProfile(agentId);
   const text = input.text.trim();
   const memory = getConversationMemory(input.sessionId);
   const rejectedViolations: ValidationViolation[] = [];
@@ -68,6 +80,8 @@ export async function generateAIResponse(
       crisis: safety.crisis,
       suggestions: [],
       meta: {
+        agentId,
+        agentName: agent.name,
         source: 'safety',
         llmAvailable: false,
         rejectedCandidates: 0,
@@ -85,7 +99,7 @@ export async function generateAIResponse(
   const llmAvailable = await isLLMAvailable(client);
   if (llmAvailable) {
     try {
-      const prompt = buildPrompt({ userText: text, memory, intentHint: intent, moodHint: mood });
+      const prompt = buildPrompt({ agentId, userText: text, memory, intentHint: intent, moodHint: mood });
       const completion = deps.onToken
         ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
         : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);
@@ -101,6 +115,8 @@ export async function generateAIResponse(
           crisis: null,
           suggestions: suggestionsFor(intent),
           meta: {
+            agentId,
+            agentName: agent.name,
             source: 'local-llm',
             llmAvailable,
             rejectedCandidates: 0,
@@ -139,6 +155,8 @@ export async function generateAIResponse(
         crisis: null,
         suggestions: suggestionsFor(intent),
         meta: {
+          agentId,
+          agentName: agent.name,
           source: 'rule-engine',
           llmAvailable,
           rejectedCandidates,
@@ -160,6 +178,8 @@ export async function generateAIResponse(
     crisis: null,
     suggestions: suggestionsFor('unknown'),
     meta: {
+      agentId,
+      agentName: agent.name,
       source: 'safe-fallback',
       llmAvailable,
       rejectedCandidates,

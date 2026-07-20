@@ -9,6 +9,8 @@
  */
 
 export * from '@/ai/types';
+export { DEFAULT_AGENT_ID, getAgentProfile } from '@/ai/agents';
+export type { AgentProfile } from '@/ai/agents';
 export { generateAIResponse } from '@/ai/engine';
 export type { GenerateAIResponseInput, GenerateAIResponseDeps } from '@/ai/engine';
 export { assessSafety, detectCrisis, CRISIS_PATTERNS, CRISIS_REPLY } from '@/ai/safetyEngine';

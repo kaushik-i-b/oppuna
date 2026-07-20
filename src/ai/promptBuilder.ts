@@ -4,7 +4,8 @@
  */
 
 import type { MoodKey } from '@/types';
-import type { AIMessage, Intent, LLMPrompt } from '@/ai/types';
+import { getAgentProfile, DEFAULT_AGENT_ID } from '@/ai/agents';
+import type { AgentId, AIMessage, Intent, LLMPrompt } from '@/ai/types';
 import type { ConversationMemory } from '@/ai/conversationMemory';
 
 /** How many recent conversation turns are included in the prompt. */
@@ -21,9 +22,11 @@ const DEFAULT_PARAMS = {
  * enforcement layer — these instructions just steer generation toward replies
  * that will pass it.
  */
-export function buildSystemPrompt(): string {
+export function buildSystemPrompt(agentId: AgentId = DEFAULT_AGENT_ID): string {
+  const agent = getAgentProfile(agentId);
+
   return [
-    'You are Oppuna, a warm offline wellness companion running entirely on the user’s device.',
+    ...agent.systemPromptSections,
     'You are NOT a therapist, doctor, or medical professional, and you must say so if asked.',
     'Hard rules:',
     '- Never diagnose any condition.',
@@ -38,6 +41,8 @@ export function buildSystemPrompt(): string {
 }
 
 export interface PromptInput {
+  /** Which built-in agent persona should answer this turn. */
+  agentId?: AgentId;
   /** The new user message (already screened by the safety engine). */
   userText: string;
   /** Session memory used to summarise recent context. */
@@ -87,7 +92,7 @@ export function buildPrompt(input: PromptInput): LLMPrompt {
   turns.push({ role: 'user', content: input.userText.trim() });
 
   return {
-    system: buildSystemPrompt(),
+    system: buildSystemPrompt(input.agentId),
     turns,
     params: { ...DEFAULT_PARAMS },
   };

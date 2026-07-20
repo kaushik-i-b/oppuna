@@ -37,16 +37,20 @@ export const en = {
     logMood: 'Log mood',
   },
   chat: {
-    title: 'Companion',
+    title: 'Mental Health Agent',
     placeholder: 'Share what’s on your mind…',
     intro:
-      'Hey — this stays on your phone, completely private. What’s on your mind?',
+      'Hey — this stays on your phone, completely private. Your mental health companion is here whenever you want to talk.',
+    agentDescription:
+      'Private, offline emotional support inside Oppuna. Chat for grounding, stress, sleep, reflection, or a calmer next step.',
+    agentReadyBadge: 'Local Llama agent active',
+    agentFallbackBadge: 'Guided support active',
     cleared: 'Conversation cleared',
     clear: 'Clear conversation',
     modelLoading: 'Loading on-device assistant…',
-    modelReady: 'On-device assistant ready',
-    modelUnavailable: 'Guided responses — place a model in local storage to enable on-device AI',
-    modelError: 'On-device assistant unavailable — using guided responses',
+    modelReady: 'Llama mental health agent ready on this device',
+    modelUnavailable: 'Guided mental health support active — add a local GGUF model to enable the on-device Llama agent',
+    modelError: 'On-device mental health agent unavailable — using guided support',
   },
   mood: {
     title: 'How are you?',

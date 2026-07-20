@@ -85,6 +85,24 @@ describe('generateAIResponse — LLM path', () => {
     expect(response.reply).toContain('What feels biggest right now?');
   });
 
+  it('threads the mental health agent persona into the prompt and metadata', async () => {
+    const client = new MockLocalLLMClient({
+      available: true,
+      reply: (prompt) => {
+        expect(prompt.system).toMatch(/mental health agent/i);
+        expect(prompt.system).toMatch(/local llama model/i);
+        return 'You do not have to hold all of this at once. What feels most pressing right now?';
+      },
+    });
+    const response = await generateAIResponse(
+      { sessionId: freshSession(), text: 'I feel stressed and tired' },
+      { client },
+    );
+    expect(response.meta.source).toBe('local-llm');
+    expect(response.meta.agentId).toBe('mental-health');
+    expect(response.meta.agentName).toBe('Mental Health Agent');
+  });
+
   it('rejects an unsafe LLM reply and falls back to the rule engine', async () => {
     const client = new MockLocalLLMClient({
       available: true,

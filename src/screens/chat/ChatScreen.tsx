@@ -7,7 +7,7 @@ import { chatRepository, safetyRepository } from '@/database';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { useTranslation } from '@/hooks/useTranslation';
-import { generateAIResponse, resetConversationMemory } from '@/ai';
+import { generateAIResponse, getAgentProfile, resetConversationMemory } from '@/ai';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
@@ -19,6 +19,8 @@ function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => strin
     case 'checking':
     case 'loading':
       return t('chat.modelLoading');
+    case 'ready':
+      return t('chat.modelReady');
     case 'unavailable':
       return t('chat.modelUnavailable');
     case 'error':
@@ -34,6 +36,7 @@ export function ChatScreen(): React.ReactElement {
   const toast = useToast();
   const navigation = useAppNavigation();
   const modelState = useModelStatus();
+  const agent = getAgentProfile();
 
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -106,7 +109,7 @@ export function ChatScreen(): React.ReactElement {
         }
 
         const response = await generateAIResponse(
-          { sessionId, text: trimmed },
+          { sessionId, text: trimmed, agentId: agent.id },
           streamId
             ? {
                 onToken: (token) => {
@@ -163,7 +166,7 @@ export function ChatScreen(): React.ReactElement {
         setSending(false);
       }
     },
-    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status],
+    [agent.id, sessionId, sending, navigation, scrollToEnd, toast, modelState.status],
   );
 
   const handleClear = useCallback(async () => {
@@ -244,6 +247,42 @@ export function ChatScreen(): React.ReactElement {
             <Text variant="display" center>
               🌿
             </Text>
+            <View
+              style={[
+                styles.agentCard,
+                {
+                  marginTop: theme.spacing.lg,
+                  padding: theme.spacing.md,
+                  backgroundColor: theme.colors.surface,
+                  borderColor: theme.colors.border,
+                  borderRadius: theme.radius.lg,
+                },
+              ]}
+            >
+              <Text variant="subtitle" center>
+                {agent.name}
+              </Text>
+              <Text
+                variant="caption"
+                color="textMuted"
+                center
+                style={{ marginTop: theme.spacing.xs }}
+              >
+                {t('chat.agentDescription')}
+              </Text>
+              <Text
+                variant="label"
+                center
+                style={{
+                  marginTop: theme.spacing.sm,
+                  color: theme.colors.primary,
+                }}
+              >
+                {modelState.status === 'ready'
+                  ? t('chat.agentReadyBadge')
+                  : t('chat.agentFallbackBadge')}
+              </Text>
+            </View>
             <Text variant="body" color="textMuted" center style={{ marginTop: theme.spacing.md }}>
               {t('chat.intro')}
             </Text>
@@ -303,6 +342,10 @@ export function ChatScreen(): React.ReactElement {
 }
 
 const styles = StyleSheet.create({
+  agentCard: {
+    alignSelf: 'stretch',
+    borderWidth: 1,
+  },
   modelStatus: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -11,6 +11,9 @@ import type { MoodKey, SafetyCategory } from '@/types';
 /** Injectable random source so composition stays testable/deterministic. */
 export type Rng = () => number;
 
+/** First-class chat personas available inside Oppuna's on-device AI layer. */
+export type AgentId = 'mental-health';
+
 /** Conversational intents recognised by the rule engine. */
 export type Intent =
   | 'greeting'
@@ -89,6 +92,10 @@ export interface SafetyFlags {
 export type ResponseSource = 'safety' | 'local-llm' | 'rule-engine' | 'safe-fallback';
 
 export interface AIResponseMetadata {
+  /** Which built-in agent persona handled the turn. */
+  agentId: AgentId;
+  /** Human-readable agent name for analytics-free UI state. */
+  agentName: string;
   source: ResponseSource;
   /** Whether a local LLM was available for this turn. */
   llmAvailable: boolean;
