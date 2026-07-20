@@ -4,6 +4,7 @@ This folder contains signed production Android builds.
 
 | File | Purpose |
 | --- | --- |
+| `app-release.apk` | Standard Android release APK filename (same build as `oppuna-1.0.0-production.apk`). |
 | `oppuna-1.0.0-production.apk` | The signed release APK for direct install or internal testing. |
 | `oppuna-1.0.0-production.aab` | The signed Android App Bundle to upload to the Google Play Console. |
 | `oppuna-upload-key.keystore` | The **upload keystore** used to sign the bundle. |
