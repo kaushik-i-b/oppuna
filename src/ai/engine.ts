@@ -13,7 +13,14 @@
  */
 
 import { logger } from '@/utils/logger';
-import type { AIChatResponse, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
+import type {
+  AIChatResponse,
+  AIMessage,
+  LLMTokenCallback,
+  LocalLLMClient,
+  Rng,
+  ValidationViolation,
+} from '@/ai/types';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
 import {
@@ -37,6 +44,12 @@ export interface GenerateAIResponseInput {
   sessionId: string;
   /** Raw user message. */
   text: string;
+  /**
+   * Prior conversation turns (oldest first), excluding the current message.
+   * Given to the on-device LLM so it can respond with real context. Optional —
+   * the rule engine works from session memory alone.
+   */
+  history?: AIMessage[];
 }
 
 export interface GenerateAIResponseDeps {
@@ -85,7 +98,13 @@ export async function generateAIResponse(
   const llmAvailable = await isLLMAvailable(client);
   if (llmAvailable) {
     try {
-      const prompt = buildPrompt({ userText: text, memory, intentHint: intent, moodHint: mood });
+      const prompt = buildPrompt({
+        userText: text,
+        memory,
+        recentMessages: input.history,
+        intentHint: intent,
+        moodHint: mood,
+      });
       const completion = deps.onToken
         ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
         : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);

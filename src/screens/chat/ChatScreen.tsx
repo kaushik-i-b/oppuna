@@ -11,7 +11,7 @@ import { generateAIResponse, resetConversationMemory } from '@/ai';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
-import type { ModelStatus } from '@/ai/types';
+import type { AIMessage, ModelStatus } from '@/ai/types';
 import type { TranslationKey } from '@/i18n';
 
 function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => string): string | null {
@@ -78,6 +78,12 @@ export function ChatScreen(): React.ReactElement {
       setInput('');
       setSuggestions([]);
 
+      // Snapshot prior turns before adding the new user message so the
+      // on-device agent responds with real conversation context.
+      const history: AIMessage[] = messages
+        .filter((m) => m.role === 'user' || m.role === 'assistant')
+        .map((m) => ({ role: m.role, content: m.content, createdAt: m.createdAt }));
+
       try {
         const userMessage = await chatRepository.addMessage({
           sessionId,
@@ -106,7 +112,7 @@ export function ChatScreen(): React.ReactElement {
         }
 
         const response = await generateAIResponse(
-          { sessionId, text: trimmed },
+          { sessionId, text: trimmed, history },
           streamId
             ? {
                 onToken: (token) => {
@@ -163,7 +169,7 @@ export function ChatScreen(): React.ReactElement {
         setSending(false);
       }
     },
-    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status],
+    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status, messages],
   );
 
   const handleClear = useCallback(async () => {

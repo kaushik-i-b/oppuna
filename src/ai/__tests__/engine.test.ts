@@ -111,6 +111,28 @@ describe('generateAIResponse — LLM path', () => {
     expect(response.reply.length).toBeGreaterThan(0);
   });
 
+  it('passes prior conversation history into the LLM prompt', async () => {
+    const client = new MockLocalLLMClient({
+      available: true,
+      reply: (prompt) =>
+        `saw ${prompt.turns.filter((turn) => turn.role !== 'system').length} turns. How are you now?`,
+    });
+    const response = await generateAIResponse(
+      {
+        sessionId: freshSession(),
+        text: 'still can’t sleep',
+        history: [
+          { role: 'user', content: 'I feel anxious at night' },
+          { role: 'assistant', content: 'That sounds tough. What is on your mind?' },
+        ],
+      },
+      { client },
+    );
+    expect(response.meta.source).toBe('local-llm');
+    // 2 history turns + the current user message = 3 non-system turns.
+    expect(response.reply).toContain('saw 3 turns');
+  });
+
   it('streams tokens through onToken when the LLM path is used', async () => {
     const client = new MockLocalLLMClient({
       available: true,
