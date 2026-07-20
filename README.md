@@ -11,7 +11,7 @@ Oppuna is a fully offline, privacy-first mental wellness companion built with Re
 
 ## Features
 
-- **Offline AI companion** — a deterministic, on-device rule-based wellness engine (`src/services/offlineAI.ts`) with intent, mood, and crisis detection plus CBT-style, mindfulness, and grounding responses.
+- **Offline AI companion** — a mobile mental-health agent that uses an on-device Llama GGUF model via `llama.rn` when bundled or staged locally, with deterministic rule-based wellness responses as the always-available fallback.
 - **Crisis safety flow** — detects suicide, self-harm, abuse, violence, medical emergencies, and severe panic, then stops normal coaching and shows a dedicated crisis support screen.
 - **Mood tracker** — mood, 1–10 intensity, notes, tags, history, and weekly insights with a local chart.
 - **Journal** — daily, gratitude, thought records, trigger reflections, and private notes with search and edit/delete.
@@ -102,6 +102,7 @@ Preferences (theme, language, onboarding/disclaimer flags, app-lock flag) are st
 ## Security & privacy
 
 - **Network guard** (`src/services/networkGuard.ts`) wraps `fetch` and `XMLHttpRequest` and rejects any outbound request to a remote host. In production no code path can reach the internet; local dev tooling is allowed only under `__DEV__`.
+- **On-device Llama model** — place a real GGUF file at `assets/models/oppuna-model.gguf` for native builds, or stage one in the app document directory at `models/oppuna-model.gguf`. Oppuna never downloads model weights at runtime.
 - No login, no cloud sync, no analytics, no tracking.
 - **Export** writes a local JSON file and uses the OS share sheet (user-controlled). **Delete all data** wipes every table and removes recorded voice files.
 - App-lock is included as a preference placeholder, ready for device biometrics in a future update.
@@ -110,7 +111,6 @@ Preferences (theme, language, onboarding/disclaimer flags, app-lock flag) are st
 
 The architecture is intentionally ready to grow into:
 
-- an on-device LLM behind the same `offlineAI` interface,
 - on-device speech-to-text for voice mode,
 - encrypted local storage (SQLCipher / secure keys).
 

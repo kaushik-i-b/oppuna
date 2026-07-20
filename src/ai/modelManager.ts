@@ -3,6 +3,8 @@
  *
  * Models are loaded from the app's private document directory:
  *   `{documentDirectory}models/oppuna-model.gguf`
+ * or staged there from a bundled app asset:
+ *   `{bundleDirectory}assets/models/oppuna-model.gguf`
  *
  * No network access. If no model file is present the status becomes
  * `unavailable` and the orchestrator falls back to the rule engine.
@@ -17,6 +19,14 @@ import type { ModelState } from '@/ai/types';
 
 const MODELS_DIR = `${FileSystem.documentDirectory ?? ''}${LLM_CONFIG.storageDir}/`;
 const DEFAULT_MODEL_PATH = `${MODELS_DIR}${LLM_CONFIG.storageFilename}`;
+const BUNDLED_MODEL_RELATIVE_PATHS = [
+  `assets/${LLM_CONFIG.storageDir}/${LLM_CONFIG.storageFilename}`,
+  `${LLM_CONFIG.storageDir}/${LLM_CONFIG.storageFilename}`,
+] as const;
+
+type FileSystemWithBundleDirectory = typeof FileSystem & {
+  bundleDirectory?: string | null;
+};
 
 type ModelStateListener = (state: ModelState) => void;
 
@@ -58,6 +68,14 @@ function modelIdFromPath(path: string): string {
   return filename.replace(/\.gguf$/i, '');
 }
 
+function joinUri(base: string, relativePath: string): string {
+  return `${base.replace(/\/?$/, '/')}${relativePath.replace(/^\//, '')}`;
+}
+
+function getBundleDirectory(): string | null {
+  return (FileSystem as FileSystemWithBundleDirectory).bundleDirectory ?? null;
+}
+
 async function ensureModelsDirectory(): Promise<void> {
   const info = await FileSystem.getInfoAsync(MODELS_DIR);
   if (!info.exists) {
@@ -81,7 +99,47 @@ async function findModelFile(): Promise<string | null> {
     logger.warn('Could not scan models directory', { error: String(error) });
   }
 
+  const bundledModel = await stageBundledModelIfPresent();
+  if (bundledModel) return bundledModel;
+
   return null;
+}
+
+async function findBundledModelFile(): Promise<string | null> {
+  const bundleDirectory = getBundleDirectory();
+  if (!bundleDirectory) return null;
+
+  for (const relativePath of BUNDLED_MODEL_RELATIVE_PATHS) {
+    const candidate = joinUri(bundleDirectory, relativePath);
+    const info = await FileSystem.getInfoAsync(candidate);
+    if (info.exists) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+async function stageBundledModelIfPresent(): Promise<string | null> {
+  const bundledModelPath = await findBundledModelFile();
+  if (!bundledModelPath) return null;
+
+  try {
+    await FileSystem.copyAsync({ from: bundledModelPath, to: DEFAULT_MODEL_PATH });
+    const staged = await FileSystem.getInfoAsync(DEFAULT_MODEL_PATH);
+    if (staged.exists) {
+      logger.info('Bundled on-device LLM model staged to private storage', {
+        modelId: modelIdFromPath(DEFAULT_MODEL_PATH),
+      });
+      return DEFAULT_MODEL_PATH;
+    }
+  } catch (error) {
+    logger.warn('Could not stage bundled model; trying bundled path directly', {
+      error: String(error),
+    });
+  }
+
+  return bundledModelPath;
 }
 
 /**

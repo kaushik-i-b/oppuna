@@ -36,7 +36,8 @@ export const SECURE_KEYS = {
 /**
  * On-device LLM configuration. Place a GGUF file at
  * `{documentDirectory}models/{storageFilename}` to enable the local model.
- * Production builds may also bundle the model under `assets/models/`.
+ * Production builds may also bundle the model under `assets/models/`; the
+ * model manager stages it into private storage on first launch.
  */
 export const LLM_CONFIG = {
   storageDir: 'models',

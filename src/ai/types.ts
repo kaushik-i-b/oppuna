@@ -3,7 +3,7 @@
  *
  * Everything in `src/ai` runs entirely on the device. These types describe
  * the contracts between the safety engine, the rule-based fallback engine,
- * the response validator, conversation memory, and a future on-device LLM.
+ * the response validator, conversation memory, and the on-device Llama client.
  */
 
 import type { MoodKey, SafetyCategory } from '@/types';
@@ -190,8 +190,8 @@ export interface LLMGenerateOptions {
  * Contract for an on-device text generation backend.
  *
  * Implementations must be fully offline (no network calls of any kind).
- * A native llama.cpp / MLC / ONNX-backed client can implement this later
- * without touching the rest of the app.
+ * Implementations can be llama.cpp / MLC / ONNX-backed without touching the
+ * rest of the app.
  */
 export interface LocalLLMClient {
   /** Stable identifier, e.g. 'mock' or 'llama-3.2-1b-q4'. */

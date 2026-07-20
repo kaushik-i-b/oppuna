@@ -7,7 +7,7 @@ import { chatRepository, safetyRepository } from '@/database';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { useTranslation } from '@/hooks/useTranslation';
-import { generateAIResponse, resetConversationMemory } from '@/ai';
+import { mentalHealthAgent, resetConversationMemory } from '@/ai';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
@@ -105,7 +105,7 @@ export function ChatScreen(): React.ReactElement {
           scrollToEnd();
         }
 
-        const response = await generateAIResponse(
+        const response = await mentalHealthAgent.respondToChat(
           { sessionId, text: trimmed },
           streamId
             ? {
