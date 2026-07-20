@@ -9,6 +9,15 @@
  */
 
 export * from '@/ai/types';
+export {
+  AGENTS,
+  COMPANION_AGENT,
+  MENTAL_HEALTH_AGENT,
+  DEFAULT_AGENT_ID,
+  getAgent,
+  isAgentId,
+} from '@/ai/agents';
+export type { AgentDefinition, AgentId } from '@/ai/agents';
 export { generateAIResponse } from '@/ai/engine';
 export type { GenerateAIResponseInput, GenerateAIResponseDeps } from '@/ai/engine';
 export { assessSafety, detectCrisis, CRISIS_PATTERNS, CRISIS_REPLY } from '@/ai/safetyEngine';

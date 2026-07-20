@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { DEFAULT_AGENT_ID, type AgentId } from '@/ai/agents';
 import { DEFAULT_CRISIS_REGION, type CrisisRegionCode } from '@/constants/crisis';
 import type { LanguageCode } from '@/i18n';
 import type { ThemeMode } from '@/theme/types';
@@ -13,6 +14,7 @@ interface SettingsState {
   disclaimerAccepted: boolean;
   appLockEnabled: boolean;
   crisisRegion: CrisisRegionCode;
+  chatAgentId: AgentId;
   hydrated: boolean;
 
   setThemeMode: (mode: ThemeMode) => void;
@@ -21,6 +23,7 @@ interface SettingsState {
   acceptDisclaimer: () => void;
   setAppLockEnabled: (enabled: boolean) => void;
   setCrisisRegion: (region: CrisisRegionCode) => void;
+  setChatAgentId: (agentId: AgentId) => void;
   resetPreferences: () => void;
   setHydrated: (value: boolean) => void;
 }
@@ -32,6 +35,7 @@ const DEFAULTS = {
   disclaimerAccepted: false,
   appLockEnabled: false,
   crisisRegion: DEFAULT_CRISIS_REGION,
+  chatAgentId: DEFAULT_AGENT_ID,
 };
 
 export const useSettingsStore = create<SettingsState>()(
@@ -46,6 +50,7 @@ export const useSettingsStore = create<SettingsState>()(
       acceptDisclaimer: () => set({ disclaimerAccepted: true }),
       setAppLockEnabled: (appLockEnabled) => set({ appLockEnabled }),
       setCrisisRegion: (crisisRegion) => set({ crisisRegion }),
+      setChatAgentId: (chatAgentId) => set({ chatAgentId }),
       resetPreferences: () => set({ ...DEFAULTS }),
       setHydrated: (hydrated) => set({ hydrated }),
     }),
@@ -59,6 +64,7 @@ export const useSettingsStore = create<SettingsState>()(
         disclaimerAccepted: state.disclaimerAccepted,
         appLockEnabled: state.appLockEnabled,
         crisisRegion: state.crisisRegion,
+        chatAgentId: state.chatAgentId,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);

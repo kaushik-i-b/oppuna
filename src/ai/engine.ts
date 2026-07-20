@@ -13,6 +13,7 @@
  */
 
 import { logger } from '@/utils/logger';
+import type { AgentId } from '@/ai/agents';
 import type { AIChatResponse, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
@@ -37,6 +38,12 @@ export interface GenerateAIResponseInput {
   sessionId: string;
   /** Raw user message. */
   text: string;
+  /**
+   * Agent (persona) answering this turn — e.g. the mental health support
+   * agent. Only shapes the LLM system prompt; safety checks, the response
+   * validator, and the rule-based fallback are identical for every agent.
+   */
+  agentId?: AgentId | null;
 }
 
 export interface GenerateAIResponseDeps {
@@ -85,7 +92,13 @@ export async function generateAIResponse(
   const llmAvailable = await isLLMAvailable(client);
   if (llmAvailable) {
     try {
-      const prompt = buildPrompt({ userText: text, memory, intentHint: intent, moodHint: mood });
+      const prompt = buildPrompt({
+        userText: text,
+        memory,
+        intentHint: intent,
+        moodHint: mood,
+        agentId: input.agentId,
+      });
       const completion = deps.onToken
         ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
         : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);

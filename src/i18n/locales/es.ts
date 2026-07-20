@@ -40,6 +40,21 @@ export const es: DeepPartial<Translation> = {
     insights: 'Resumen',
     logMood: 'Registrar ánimo',
   },
+  chat: {
+    agentLabel: 'Hablando con',
+    agentSwitched: 'Ahora hablas con',
+    agents: {
+      companion: {
+        name: 'Compañía',
+        description: 'Una amistad cálida para el día a día.',
+      },
+      mental_health: {
+        name: 'Apoyo emocional',
+        description:
+          'Apoyo emocional suave con conexión a tierra, respiración y reencuadre — privado y en tu dispositivo. No es terapia.',
+      },
+    },
+  },
   settings: {
     title: 'Ajustes',
     appearance: 'Apariencia',

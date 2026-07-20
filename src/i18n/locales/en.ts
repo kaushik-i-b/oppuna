@@ -47,6 +47,19 @@ export const en = {
     modelReady: 'On-device assistant ready',
     modelUnavailable: 'Guided responses — place a model in local storage to enable on-device AI',
     modelError: 'On-device assistant unavailable — using guided responses',
+    agentLabel: 'Talking with',
+    agentSwitched: 'Now talking with',
+    agents: {
+      companion: {
+        name: 'Companion',
+        description: 'A warm friend for everyday check-ins.',
+      },
+      mental_health: {
+        name: 'Mental health support',
+        description:
+          'Gentle emotional support with grounding, breathing, and reframing — private and on-device. Not therapy.',
+      },
+    },
   },
   mood: {
     title: 'How are you?',

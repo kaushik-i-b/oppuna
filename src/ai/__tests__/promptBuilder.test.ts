@@ -1,5 +1,6 @@
 import { buildPrompt, buildSystemPrompt } from '@/ai/promptBuilder';
 import { ConversationMemory } from '@/ai/conversationMemory';
+import { MENTAL_HEALTH_AGENT } from '@/ai/agents';
 
 describe('buildSystemPrompt', () => {
   it('encodes the hard guardrails', () => {
@@ -8,6 +9,16 @@ describe('buildSystemPrompt', () => {
     expect(system).toMatch(/medication/i);
     expect(system).toMatch(/not a therapist/i);
     expect(system).toMatch(/offline/i);
+  });
+
+  it('injects the mental health agent persona while keeping the hard rules', () => {
+    const system = buildSystemPrompt(MENTAL_HEALTH_AGENT);
+    expect(system).toMatch(/mental health support companion/i);
+    expect(system).toMatch(/grounding/i);
+    // Guardrails are shared by every agent.
+    expect(system).toMatch(/never diagnose/i);
+    expect(system).toMatch(/medication/i);
+    expect(system).toMatch(/not a therapist/i);
   });
 });
 
@@ -29,6 +40,13 @@ describe('buildPrompt', () => {
     expect(context?.content).toContain('sleep');
     expect(context?.content).toContain('anxiety');
     expect(context?.content).toContain('low');
+  });
+
+  it('uses the selected agent for the system prompt', () => {
+    const companionPrompt = buildPrompt({ userText: 'hello' });
+    const agentPrompt = buildPrompt({ userText: 'hello', agentId: 'mental_health' });
+    expect(companionPrompt.system).not.toBe(agentPrompt.system);
+    expect(agentPrompt.system).toMatch(/mental health support companion/i);
   });
 
   it('caps included history and keeps only user/assistant turns', () => {

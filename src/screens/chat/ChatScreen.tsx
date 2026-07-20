@@ -7,10 +7,12 @@ import { chatRepository, safetyRepository } from '@/database';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { useTranslation } from '@/hooks/useTranslation';
-import { generateAIResponse, resetConversationMemory } from '@/ai';
+import { AGENTS, generateAIResponse, getAgent, resetConversationMemory } from '@/ai';
+import { useSettingsStore } from '@/store/settingsStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
+import type { AgentId } from '@/ai/agents';
 import type { ModelStatus } from '@/ai/types';
 import type { TranslationKey } from '@/i18n';
 
@@ -34,6 +36,10 @@ export function ChatScreen(): React.ReactElement {
   const toast = useToast();
   const navigation = useAppNavigation();
   const modelState = useModelStatus();
+
+  const chatAgentId = useSettingsStore((state) => state.chatAgentId);
+  const setChatAgentId = useSettingsStore((state) => state.setChatAgentId);
+  const activeAgent = getAgent(chatAgentId);
 
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -106,7 +112,7 @@ export function ChatScreen(): React.ReactElement {
         }
 
         const response = await generateAIResponse(
-          { sessionId, text: trimmed },
+          { sessionId, text: trimmed, agentId: chatAgentId },
           streamId
             ? {
                 onToken: (token) => {
@@ -163,7 +169,17 @@ export function ChatScreen(): React.ReactElement {
         setSending(false);
       }
     },
-    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status],
+    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status, chatAgentId],
+  );
+
+  const handleSelectAgent = useCallback(
+    (agentId: AgentId) => {
+      if (agentId === chatAgentId) return;
+      setChatAgentId(agentId);
+      const agent = getAgent(agentId);
+      toast.show(`${t('chat.agentSwitched')} ${t(agent.nameKey)}`, 'success');
+    },
+    [chatAgentId, setChatAgentId, toast, t],
   );
 
   const handleClear = useCallback(async () => {
@@ -206,6 +222,37 @@ export function ChatScreen(): React.ReactElement {
         </View>
       }
     >
+      <View
+        style={[
+          styles.agentPicker,
+          {
+            paddingHorizontal: theme.spacing.lg,
+            paddingVertical: theme.spacing.sm,
+            backgroundColor: theme.colors.surface,
+            borderBottomColor: theme.colors.border,
+          },
+        ]}
+      >
+        <View style={styles.agentChips}>
+          {AGENTS.map((agent) => (
+            <Chip
+              key={agent.id}
+              label={`${agent.icon} ${t(agent.nameKey)}`}
+              selected={agent.id === activeAgent.id}
+              onPress={() => handleSelectAgent(agent.id)}
+              accessibilityHint={t(agent.descriptionKey)}
+            />
+          ))}
+        </View>
+        <Text
+          variant="caption"
+          color="textMuted"
+          style={{ marginTop: theme.spacing.xs }}
+        >
+          {t(activeAgent.descriptionKey)}
+        </Text>
+      </View>
+
       {statusLabel ? (
         <View
           style={[
@@ -303,6 +350,10 @@ export function ChatScreen(): React.ReactElement {
 }
 
 const styles = StyleSheet.create({
+  agentPicker: {
+    borderBottomWidth: 1,
+  },
+  agentChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   modelStatus: {
     flexDirection: 'row',
     alignItems: 'center',

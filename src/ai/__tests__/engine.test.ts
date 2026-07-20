@@ -111,6 +111,36 @@ describe('generateAIResponse — LLM path', () => {
     expect(response.reply.length).toBeGreaterThan(0);
   });
 
+  it('routes the mental health agent persona into the LLM system prompt', async () => {
+    let capturedSystem = '';
+    const client = new MockLocalLLMClient({
+      available: true,
+      reply: (prompt) => {
+        capturedSystem = prompt.system;
+        return 'That sounds really hard. Would naming what you’re feeling right now help?';
+      },
+    });
+    const response = await generateAIResponse(
+      { sessionId: freshSession(), text: 'I feel overwhelmed', agentId: 'mental_health' },
+      { client },
+    );
+    expect(response.meta.source).toBe('local-llm');
+    expect(capturedSystem).toMatch(/mental health support companion/i);
+    // Hard safety rules stay in place for every agent.
+    expect(capturedSystem).toMatch(/never diagnose/i);
+  });
+
+  it('runs crisis detection first even for the mental health agent', async () => {
+    const client = new MockLocalLLMClient({ available: true, reply: 'You are fine.' });
+    const response = await generateAIResponse(
+      { sessionId: freshSession(), text: 'I want to kill myself', agentId: 'mental_health' },
+      { client },
+    );
+    expect(response.crisis).toBe('suicide');
+    expect(response.meta.source).toBe('safety');
+    expect(response.reply).not.toBe('You are fine.');
+  });
+
   it('streams tokens through onToken when the LLM path is used', async () => {
     const client = new MockLocalLLMClient({
       available: true,

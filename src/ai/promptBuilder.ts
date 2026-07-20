@@ -6,6 +6,7 @@
 import type { MoodKey } from '@/types';
 import type { AIMessage, Intent, LLMPrompt } from '@/ai/types';
 import type { ConversationMemory } from '@/ai/conversationMemory';
+import { getAgent, type AgentDefinition, type AgentId } from '@/ai/agents';
 
 /** How many recent conversation turns are included in the prompt. */
 const MAX_CONTEXT_TURNS = 8;
@@ -17,13 +18,16 @@ const DEFAULT_PARAMS = {
 } as const;
 
 /**
- * System instructions for any local model. The response validator remains the
- * enforcement layer — these instructions just steer generation toward replies
- * that will pass it.
+ * System instructions for any local model. The persona block comes from the
+ * selected agent; the hard rules below are shared by every agent and always
+ * follow the persona so they take precedence. The response validator remains
+ * the enforcement layer — these instructions just steer generation toward
+ * replies that will pass it.
  */
-export function buildSystemPrompt(): string {
+export function buildSystemPrompt(agent?: AgentDefinition): string {
+  const persona = (agent ?? getAgent()).persona;
   return [
-    'You are Oppuna, a warm offline wellness companion running entirely on the user’s device.',
+    persona,
     'You are NOT a therapist, doctor, or medical professional, and you must say so if asked.',
     'Hard rules:',
     '- Never diagnose any condition.',
@@ -31,7 +35,6 @@ export function buildSystemPrompt(): string {
     '- Never claim to provide therapy or treatment.',
     '- Never produce content that could encourage self-harm or harm to others.',
     '- Never suggest going online, calling APIs, or using external services.',
-    'Style: talk like a caring friend, not a script. Acknowledge what they said in your own words.',
     'Keep replies short (1–3 sentences). Ask at most one question. Offer one small safe action only when it fits.',
     'Be warm, plain, and non-judgemental. Vary your phrasing — don’t follow a rigid formula every turn.',
   ].join('\n');
@@ -47,6 +50,8 @@ export interface PromptInput {
   /** Intent/mood detected by the rule engine, passed as hints to the model. */
   intentHint?: Intent;
   moodHint?: MoodKey | null;
+  /** Agent (persona) answering this turn. Defaults to the companion. */
+  agentId?: AgentId | null;
 }
 
 function contextSummary(input: PromptInput): string | null {
@@ -87,7 +92,7 @@ export function buildPrompt(input: PromptInput): LLMPrompt {
   turns.push({ role: 'user', content: input.userText.trim() });
 
   return {
-    system: buildSystemPrompt(),
+    system: buildSystemPrompt(getAgent(input.agentId)),
     turns,
     params: { ...DEFAULT_PARAMS },
   };

@@ -40,6 +40,21 @@ export const hi: DeepPartial<Translation> = {
     insights: 'अंतर्दृष्टि',
     logMood: 'मनोदशा दर्ज करें',
   },
+  chat: {
+    agentLabel: 'बातचीत साथी',
+    agentSwitched: 'अब आप बात कर रहे हैं',
+    agents: {
+      companion: {
+        name: 'साथी',
+        description: 'रोज़मर्रा की बातचीत के लिए एक गर्मजोशी भरा दोस्त।',
+      },
+      mental_health: {
+        name: 'मानसिक स्वास्थ्य सहारा',
+        description:
+          'ग्राउंडिंग, साँस और सोच बदलने के साथ कोमल भावनात्मक सहारा — निजी और आपके डिवाइस पर। यह थेरेपी नहीं है।',
+      },
+    },
+  },
   settings: {
     title: 'सेटिंग्स',
     appearance: 'रूप',
