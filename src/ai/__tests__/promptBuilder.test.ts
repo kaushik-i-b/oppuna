@@ -9,6 +9,13 @@ describe('buildSystemPrompt', () => {
     expect(system).toMatch(/not a therapist/i);
     expect(system).toMatch(/offline/i);
   });
+
+  it('includes the on-device llama mental health agent identity', () => {
+    const system = buildSystemPrompt();
+    expect(system).toMatch(/mental health agent/i);
+    expect(system).toMatch(/llama/i);
+    expect(system).toMatch(/mobile app/i);
+  });
 });
 
 describe('buildPrompt', () => {

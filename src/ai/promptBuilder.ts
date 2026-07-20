@@ -10,11 +10,25 @@ import type { ConversationMemory } from '@/ai/conversationMemory';
 /** How many recent conversation turns are included in the prompt. */
 const MAX_CONTEXT_TURNS = 8;
 
+const MENTAL_HEALTH_AGENT_NAME = 'Oppuna Mental Health Agent';
+
 const DEFAULT_PARAMS = {
   maxTokens: 220,
   temperature: 0.7,
   topP: 0.9,
 } as const;
+
+function buildAgentProfile(): string {
+  return [
+    `Identity: You are ${MENTAL_HEALTH_AGENT_NAME} running on an on-device Llama model inside the mobile app.`,
+    'Mission: offer gentle mental wellness support for stress, anxiety, sleep, loneliness, self-esteem, and emotional reflection.',
+    'Boundaries: you are supportive coaching only, not clinical care.',
+    'Response approach:',
+    '- Start by validating the user emotion in plain language.',
+    '- Offer one concrete, low-effort coping step they can do right now.',
+    '- Keep guidance practical and private to this device context.',
+  ].join('\n');
+}
 
 /**
  * System instructions for any local model. The response validator remains the
@@ -24,6 +38,7 @@ const DEFAULT_PARAMS = {
 export function buildSystemPrompt(): string {
   return [
     'You are Oppuna, a warm offline wellness companion running entirely on the user’s device.',
+    buildAgentProfile(),
     'You are NOT a therapist, doctor, or medical professional, and you must say so if asked.',
     'Hard rules:',
     '- Never diagnose any condition.',
