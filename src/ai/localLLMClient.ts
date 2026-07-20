@@ -153,8 +153,8 @@ export class LlamaRnLocalLLMClient implements LocalLLMClient {
     }
   }
 
-  private promptToMessages(prompt: LLMPrompt): Array<{ role: string; content: string }> {
-    const messages: Array<{ role: string; content: string }> = [
+  private promptToMessages(prompt: LLMPrompt): { role: string; content: string }[] {
+    const messages: { role: string; content: string }[] = [
       { role: 'system', content: prompt.system },
     ];
 

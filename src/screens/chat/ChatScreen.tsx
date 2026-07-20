@@ -11,8 +11,7 @@ import { generateAIResponse, resetConversationMemory } from '@/ai';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
-import type { AIMessage } from '@/ai/types';
-import type { ModelStatus } from '@/ai/types';
+import type { AIMessage, ModelStatus } from '@/ai/types';
 import type { TranslationKey } from '@/i18n';
 
 function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => string): string | null {

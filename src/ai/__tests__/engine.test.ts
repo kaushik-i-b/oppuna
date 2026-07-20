@@ -90,7 +90,9 @@ describe('generateAIResponse — LLM path', () => {
       available: true,
       reply: (prompt) => {
         expect(prompt.system).toMatch(/mental wellness agent/i);
-        expect(prompt.turns.map((turn) => turn.content)).toEqual([
+        expect(prompt.turns[0]?.role).toBe('system');
+        expect(prompt.turns[0]?.content).toContain('Current topic looks like: anxiety.');
+        expect(prompt.turns.slice(-3).map((turn) => turn.content)).toEqual([
           'Earlier you said work has been exhausting.',
           'Yes, and I have felt tense all week.',
           'I still feel on edge tonight',
