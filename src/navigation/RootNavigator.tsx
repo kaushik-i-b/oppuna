@@ -35,7 +35,10 @@ export function RootNavigator(): React.ReactElement {
 
   return (
     <NavigationContainer theme={toNavigationTheme(theme)}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator
+        key={onboardingComplete ? 'app' : 'onboarding'}
+        screenOptions={{ headerShown: false }}
+      >
         {!onboardingComplete ? (
           <Stack.Group>
             <Stack.Screen name="Onboarding" component={OnboardingScreen} />

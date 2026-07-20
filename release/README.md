@@ -4,21 +4,21 @@ This folder contains signed production Android builds.
 
 | File | Purpose |
 | --- | --- |
-| `oppuna-1.0.0-production.apk` | The signed release APK for direct install or internal testing. |
-| `oppuna-1.0.0-production.aab` | The signed Android App Bundle to upload to the Google Play Console. |
+| `oppuna-1.2.0-production.apk` | The signed release APK for direct install or internal testing. |
+| `oppuna-1.2.0-production.aab` | The signed Android App Bundle to upload to the Google Play Console. |
 | `oppuna-upload-key.keystore` | The **upload keystore** used to sign the bundle. |
 | `keystore-credentials.txt` | Passwords and alias for the keystore. |
 
 - **Application ID:** `com.oppuna.app`
-- **Version:** `1.0.0` (versionCode `1`)
+- **Version:** `1.2.0` (versionCode `3`)
 - **Signing certificate validity:** ~27 years (until 2053)
 
 ## Build artifacts
 
 | File | Size | SHA-256 |
 | --- | ---: | --- |
-| `oppuna-1.0.0-production.apk` | 181 MB | `a0e5a3b2ba6b4dfd55f74e77f29b4480ca8974b2bf29e6d94d290b9e00f1c9bd` |
-| `oppuna-1.0.0-production.aab` | 99 MB | `916266975ecec816acab4a8b246c973e7206a39c2eb114f257f45670dc98484d` |
+| `oppuna-1.2.0-production.apk` | 181 MB | `c7aa10f72c38fd567c301d1bf0e1546d8ab70c0c4e0e0334375e486ba71d9989` |
+| `oppuna-1.2.0-production.aab` | 99 MB | `134ec49028c07d9ebbf27f06e4ac09777f8de09342970ca2014aba9817e3571d` |
 
 ## ⚠️ Security — read this first
 
@@ -42,7 +42,7 @@ not be able to publish updates under the same app, so back it up.
    app (or open the existing one) → **Production** (or **Internal testing**) →
    **Create new release**.
 2. Opt in to **Play App Signing** when prompted.
-3. Upload `oppuna-1.0.0-production.aab`.
+3. Upload `oppuna-1.2.0-production.aab`.
 4. Fill in the store listing (see `docs/APP_STORE.md`) and the feature graphic
    (`assets/feature-image.png`), then roll out.
 
@@ -74,7 +74,7 @@ cd android
 # - android/app/build/outputs/bundle/release/app-release.aab
 ```
 
-Toolchain used: JDK 21, Android SDK Platform 35, Build-Tools 35.0.0,
+Toolchain used: JDK 17, Android SDK Platform 36, Build-Tools 35.0.1,
 NDK 27.1.12297006, CMake 3.22.1, Gradle 8.14.3.
 
 > Note: the `release` signing config is added to `android/app/build.gradle` after

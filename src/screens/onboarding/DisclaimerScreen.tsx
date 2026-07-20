@@ -21,8 +21,10 @@ export function DisclaimerScreen({ navigation, route }: Props): React.ReactEleme
   const handleAgree = (): void => {
     acceptDisclaimer();
     completeOnboarding();
-    // The root navigator swaps to the main app automatically once onboarding
-    // is complete, so no explicit navigation is needed here.
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Main', params: { screen: 'Home' } }],
+    });
   };
 
   return (

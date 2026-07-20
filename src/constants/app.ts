@@ -3,7 +3,7 @@ import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
 export const APP = {
   name: 'Oppuna',
   tagline: 'A private, offline journal, mood, and reflection companion.',
-  version: '1.0.0',
+  version: '1.2.0',
 } as const;
 
 export const MEDICAL_DISCLAIMER =

@@ -54,7 +54,7 @@ describe('modelAssetService', () => {
       JSON.stringify({
         modelId: LOCAL_MODEL_CONFIG.id,
         modelVersion: LOCAL_MODEL_CONFIG.version,
-        appVersion: '1.0.0',
+        appVersion: '1.2.0',
         path: '/tmp/model.gguf',
         size: 5_000_000,
         sha256: null,
