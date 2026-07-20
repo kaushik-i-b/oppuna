@@ -59,3 +59,9 @@ export {
   isModelReady,
   subscribeToModelState,
 } from '@/ai/modelManager';
+export { provisionBundledModel } from '@/ai/modelProvisioner';
+export type {
+  ProvisionModelDeps,
+  ProvisionOutcome,
+  ProvisionResult,
+} from '@/ai/modelProvisioner';

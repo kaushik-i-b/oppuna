@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { BrandSplash } from '@/app/BrandSplash';
 import { configureDefaultLocalLLMClient, getLocalLLMClient } from '@/ai/llmClient';
 import { initializeModelManager } from '@/ai/modelManager';
+import { provisionBundledModel } from '@/ai/modelProvisioner';
 import { initDatabase } from '@/database';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -24,6 +25,13 @@ export function AppBootstrap({ children }: { children: React.ReactNode }): React
       setStatus('loading');
       configureDefaultLocalLLMClient();
       await initDatabase();
+      // Copy the bundled Llama model into local storage (offline, idempotent)
+      // before the manager scans for it, so the on-device agent is available.
+      await provisionBundledModel().catch((error: unknown) => {
+        logger.warn('Model provisioning threw; continuing with guided responses', {
+          error: String(error),
+        });
+      });
       await initializeModelManager();
       const client = getLocalLLMClient();
       if (client.warmUp) {

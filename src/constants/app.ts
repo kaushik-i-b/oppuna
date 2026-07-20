@@ -34,13 +34,36 @@ export const SECURE_KEYS = {
 } as const;
 
 /**
- * On-device LLM configuration. Place a GGUF file at
- * `{documentDirectory}models/{storageFilename}` to enable the local model.
- * Production builds may also bundle the model under `assets/models/`.
+ * On-device LLM configuration for the Llama-powered mental-health agent.
+ *
+ * The agent runs fully on the device via `llama.rn`. For that, GGUF weights
+ * must exist at `{documentDirectory}models/{storageFilename}`. There are two
+ * fully-offline ways to get them there:
+ *
+ *   1. Bundle a Llama GGUF with the app (recommended for shipping). Drop the
+ *      file at `assets/models/oppuna-model.gguf` and point `bundledModelAsset`
+ *      at it with `require('../../assets/models/oppuna-model.gguf')`. On first
+ *      launch the model provisioner copies it into local storage — no network.
+ *   2. Side-load a `.gguf` into `{documentDirectory}models/` during dev.
+ *
+ * When no model is available the app still runs and gracefully uses the
+ * deterministic rule-based engine.
+ *
+ * A small, quantized instruction-tuned Llama build (e.g. Llama 3.2 1B Instruct
+ * at Q4_K_M) is a good fit for on-device chat.
  */
 export const LLM_CONFIG = {
   storageDir: 'models',
   storageFilename: 'oppuna-model.gguf',
+  /**
+   * Optional Llama GGUF bundled with the app. Set to
+   * `require('../../assets/models/oppuna-model.gguf')` once a model file is
+   * added under `assets/models/`. Left `null` here so the repo ships without a
+   * multi-hundred-MB binary; the provisioner no-ops until a model is supplied.
+   */
+  bundledModelAsset: null as number | null,
+  /** Human-readable label for the bundled/expected model, shown in logs. */
+  modelLabel: 'Llama (on-device)',
   contextSize: 2048,
   maxThreads: 4,
   /** GPU layers on iOS (Metal). Set to 0 for CPU-only on Android if needed. */
