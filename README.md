@@ -11,7 +11,8 @@ Oppuna is a fully offline, privacy-first mental wellness companion built with Re
 
 ## Features
 
-- **Offline AI companion** — a deterministic, on-device rule-based wellness engine (`src/services/offlineAI.ts`) with intent, mood, and crisis detection plus CBT-style, mindfulness, and grounding responses.
+- **On-device Llama mental-health agent** — an offline, Llama-powered chat companion (`src/ai/`) served locally through `llama.rn`. The orchestrator (`src/ai/engine.ts`) runs safety checks first, then the on-device Llama model (validated for safety), and gracefully falls back to the rule engine when no model is present. See [On-device Llama agent](#on-device-llama-agent).
+- **Offline AI fallback** — a deterministic, on-device rule-based wellness engine (`src/ai/fallbackEngine.ts`) with intent, mood, and crisis detection plus CBT-style, mindfulness, and grounding responses.
 - **Crisis safety flow** — detects suicide, self-harm, abuse, violence, medical emergencies, and severe panic, then stops normal coaching and shows a dedicated crisis support screen.
 - **Mood tracker** — mood, 1–10 intensity, notes, tags, history, and weekly insights with a local chart.
 - **Journal** — daily, gratitude, thought records, trigger reflections, and private notes with search and edit/delete.
@@ -106,11 +107,47 @@ Preferences (theme, language, onboarding/disclaimer flags, app-lock flag) are st
 - **Export** writes a local JSON file and uses the OS share sheet (user-controlled). **Delete all data** wipes every table and removes recorded voice files.
 - App-lock is included as a preference placeholder, ready for device biometrics in a future update.
 
+## On-device Llama agent
+
+The chat companion is a Llama model that runs **entirely on the device** via
+[`llama.rn`](https://github.com/mybigday/llama.rn) — no server, no network. The
+pipeline lives in `src/ai/`:
+
+- `engine.ts` — orchestrator called by the chat UI. Order per message: strict
+  safety/crisis detection → on-device Llama (streamed, timeout-guarded, and
+  checked by the response validator) → rule-based fallback → safe fallback.
+- `localLLMClient.ts` — `llama.rn` GGUF inference client.
+- `modelManager.ts` — discovers the GGUF in local storage and tracks lifecycle.
+- `modelProvisioner.ts` — copies a **bundled** GGUF into local storage on first
+  launch (offline, idempotent), so the agent is available without a download.
+- `promptBuilder.ts` — builds the guardrailed mental-health system prompt.
+- `responseValidator.ts` — rejects unsafe/off-policy generations.
+
+### Adding a model
+
+The repo ships without model weights (they are large). To enable the Llama
+agent in a build:
+
+1. Download a small, quantized instruction-tuned GGUF (e.g. **Llama 3.2 1B
+   Instruct, Q4_K_M**).
+2. Save it as `assets/models/oppuna-model.gguf`.
+3. Point the config at it in `src/constants/app.ts`:
+
+```ts
+// src/constants/app.ts
+bundledModelAsset: require('../../assets/models/oppuna-model.gguf'),
+```
+
+On first launch `provisionBundledModel()` copies it into
+`{documentDirectory}models/oppuna-model.gguf`, `llama.rn` loads it, and chat
+replies come from the on-device Llama agent (shown as `source: 'local-llm'` in
+the response metadata). For local development you can instead side-load a
+`.gguf` directly into that models directory.
+
 ## Roadmap-ready
 
 The architecture is intentionally ready to grow into:
 
-- an on-device LLM behind the same `offlineAI` interface,
 - on-device speech-to-text for voice mode,
 - encrypted local storage (SQLCipher / secure keys).
 
