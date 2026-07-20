@@ -13,7 +13,15 @@
  */
 
 import { logger } from '@/utils/logger';
-import type { AIChatResponse, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
+import type {
+  AIMessage,
+  AIChatResponse,
+  LLMTokenCallback,
+  LocalLLMClient,
+  Rng,
+  ValidationViolation,
+} from '@/ai/types';
+import { getAgent } from '@/ai/agents/registry';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
 import {
@@ -21,9 +29,7 @@ import {
   detectIntent,
   detectMood,
   SAFE_FALLBACK,
-  suggestionsFor,
 } from '@/ai/fallbackEngine';
-import { buildPrompt } from '@/ai/promptBuilder';
 import { generateStreamWithTimeout, generateWithTimeout, getLocalLLMClient, isLLMAvailable } from '@/ai/llmClient';
 import { validateResponse } from '@/ai/responseValidator';
 
@@ -37,6 +43,10 @@ export interface GenerateAIResponseInput {
   sessionId: string;
   /** Raw user message. */
   text: string;
+  /** Optional agent id — defaults to the mental health companion. */
+  agentId?: string;
+  /** Recent chat turns for Llama context (oldest first). */
+  recentMessages?: AIMessage[];
 }
 
 export interface GenerateAIResponseDeps {
@@ -54,6 +64,7 @@ export async function generateAIResponse(
 ): Promise<AIChatResponse> {
   const rng = deps.rng ?? Math.random;
   const client = deps.client ?? getLocalLLMClient();
+  const agent = getAgent(input.agentId);
   const text = input.text.trim();
   const memory = getConversationMemory(input.sessionId);
   const rejectedViolations: ValidationViolation[] = [];
@@ -69,6 +80,7 @@ export async function generateAIResponse(
       suggestions: [],
       meta: {
         source: 'safety',
+        agentId: agent.id,
         llmAvailable: false,
         rejectedCandidates: 0,
         safety: { crisis: safety.crisis, rejectedViolations: [] },
@@ -85,7 +97,13 @@ export async function generateAIResponse(
   const llmAvailable = await isLLMAvailable(client);
   if (llmAvailable) {
     try {
-      const prompt = buildPrompt({ userText: text, memory, intentHint: intent, moodHint: mood });
+      const prompt = agent.buildPrompt({
+        userText: text,
+        memory,
+        recentMessages: input.recentMessages,
+        intentHint: intent,
+        moodHint: mood,
+      });
       const completion = deps.onToken
         ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
         : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);
@@ -99,9 +117,10 @@ export async function generateAIResponse(
           intent,
           mood,
           crisis: null,
-          suggestions: suggestionsFor(intent),
+          suggestions: agent.suggestionsFor(intent),
           meta: {
             source: 'local-llm',
+            agentId: agent.id,
             llmAvailable,
             rejectedCandidates: 0,
             safety: { crisis: null, rejectedViolations: [] },
@@ -137,9 +156,10 @@ export async function generateAIResponse(
         intent,
         mood,
         crisis: null,
-        suggestions: suggestionsFor(intent),
+        suggestions: agent.suggestionsFor(intent),
         meta: {
           source: 'rule-engine',
+          agentId: agent.id,
           llmAvailable,
           rejectedCandidates,
           safety: { crisis: null, rejectedViolations },
@@ -158,9 +178,10 @@ export async function generateAIResponse(
     intent,
     mood,
     crisis: null,
-    suggestions: suggestionsFor('unknown'),
+    suggestions: agent.suggestionsFor('unknown'),
     meta: {
       source: 'safe-fallback',
+      agentId: agent.id,
       llmAvailable,
       rejectedCandidates,
       safety: { crisis: null, rejectedViolations },

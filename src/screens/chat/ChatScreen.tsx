@@ -8,6 +8,7 @@ import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { useTranslation } from '@/hooks/useTranslation';
 import { generateAIResponse, resetConversationMemory } from '@/ai';
+import { DEFAULT_AGENT_ID } from '@/ai/agents';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
@@ -105,8 +106,14 @@ export function ChatScreen(): React.ReactElement {
           scrollToEnd();
         }
 
+        const recentMessages = messages.map((message) => ({
+          role: message.role,
+          content: message.content,
+          createdAt: message.createdAt,
+        }));
+
         const response = await generateAIResponse(
-          { sessionId, text: trimmed },
+          { sessionId, text: trimmed, agentId: DEFAULT_AGENT_ID, recentMessages },
           streamId
             ? {
                 onToken: (token) => {
@@ -163,7 +170,7 @@ export function ChatScreen(): React.ReactElement {
         setSending(false);
       }
     },
-    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status],
+    [sessionId, sending, navigation, scrollToEnd, toast, modelState.status, messages],
   );
 
   const handleClear = useCallback(async () => {

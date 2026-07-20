@@ -40,12 +40,13 @@ export const en = {
     title: 'Companion',
     placeholder: 'Share what’s on your mind…',
     intro:
-      'Hey — this stays on your phone, completely private. What’s on your mind?',
+      'Hey — I’m your private mental health companion, powered on-device by Llama when a model is installed. Everything stays on your phone. What’s on your mind?',
     cleared: 'Conversation cleared',
     clear: 'Clear conversation',
-    modelLoading: 'Loading on-device assistant…',
-    modelReady: 'On-device assistant ready',
-    modelUnavailable: 'Guided responses — place a model in local storage to enable on-device AI',
+    modelLoading: 'Loading on-device mental health assistant…',
+    modelReady: 'Llama mental health assistant ready',
+    modelUnavailable:
+      'Guided responses — place a GGUF model in local storage to enable the on-device Llama assistant',
     modelError: 'On-device assistant unavailable — using guided responses',
   },
   mood: {
