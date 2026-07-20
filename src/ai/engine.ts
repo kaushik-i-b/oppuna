@@ -13,7 +13,14 @@
  */
 
 import { logger } from '@/utils/logger';
-import type { AIChatResponse, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
+import type {
+  AIChatResponse,
+  AIMessage,
+  LLMTokenCallback,
+  LocalLLMClient,
+  Rng,
+  ValidationViolation,
+} from '@/ai/types';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
 import {
@@ -23,8 +30,8 @@ import {
   SAFE_FALLBACK,
   suggestionsFor,
 } from '@/ai/fallbackEngine';
-import { buildPrompt } from '@/ai/promptBuilder';
-import { generateStreamWithTimeout, generateWithTimeout, getLocalLLMClient, isLLMAvailable } from '@/ai/llmClient';
+import { getLocalLLMClient, isLLMAvailable } from '@/ai/llmClient';
+import { generateMentalHealthAgentReply } from '@/ai/mentalHealthAgent';
 import { validateResponse } from '@/ai/responseValidator';
 
 /** Attempts at composing a non-repetitive rule-based reply before giving up. */
@@ -37,6 +44,8 @@ export interface GenerateAIResponseInput {
   sessionId: string;
   /** Raw user message. */
   text: string;
+  /** Optional chat context to help the local model respond to the conversation. */
+  recentMessages?: AIMessage[];
 }
 
 export interface GenerateAIResponseDeps {
@@ -69,6 +78,7 @@ export async function generateAIResponse(
       suggestions: [],
       meta: {
         source: 'safety',
+        agent: 'safety',
         llmAvailable: false,
         rejectedCandidates: 0,
         safety: { crisis: safety.crisis, rejectedViolations: [] },
@@ -85,12 +95,21 @@ export async function generateAIResponse(
   const llmAvailable = await isLLMAvailable(client);
   if (llmAvailable) {
     try {
-      const prompt = buildPrompt({ userText: text, memory, intentHint: intent, moodHint: mood });
-      const completion = deps.onToken
-        ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
-        : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);
-      const candidate = completion.text.trim();
-      const verdict = validateResponse(candidate, { recentReplies });
+      const { completion, candidate, verdict } = await generateMentalHealthAgentReply(
+        {
+          text,
+          memory,
+          intent,
+          mood,
+          recentMessages: input.recentMessages,
+        },
+        {
+          client,
+          timeoutMs: LLM_TIMEOUT_MS,
+          recentReplies,
+          onToken: deps.onToken,
+        },
+      );
 
       if (completion.finishReason === 'stop' && verdict.ok) {
         memory.recordTurn({ intent, mood, reply: candidate });
@@ -102,6 +121,7 @@ export async function generateAIResponse(
           suggestions: suggestionsFor(intent),
           meta: {
             source: 'local-llm',
+            agent: 'llama-mental-health',
             llmAvailable,
             rejectedCandidates: 0,
             safety: { crisis: null, rejectedViolations: [] },
@@ -140,6 +160,7 @@ export async function generateAIResponse(
         suggestions: suggestionsFor(intent),
         meta: {
           source: 'rule-engine',
+          agent: 'rule-based-fallback',
           llmAvailable,
           rejectedCandidates,
           safety: { crisis: null, rejectedViolations },
@@ -161,6 +182,7 @@ export async function generateAIResponse(
     suggestions: suggestionsFor('unknown'),
     meta: {
       source: 'safe-fallback',
+      agent: 'safe-fallback',
       llmAvailable,
       rejectedCandidates,
       safety: { crisis: null, rejectedViolations },

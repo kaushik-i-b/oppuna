@@ -4,6 +4,8 @@ import { ConversationMemory } from '@/ai/conversationMemory';
 describe('buildSystemPrompt', () => {
   it('encodes the hard guardrails', () => {
     const system = buildSystemPrompt();
+    expect(system).toMatch(/mental health agent/i);
+    expect(system).toMatch(/llama/i);
     expect(system).toMatch(/never diagnose/i);
     expect(system).toMatch(/medication/i);
     expect(system).toMatch(/not a therapist/i);

@@ -84,6 +84,11 @@ export function ChatScreen(): React.ReactElement {
           role: 'user',
           content: trimmed,
         });
+        const recentMessagesForAgent = [...messages, userMessage].map((message) => ({
+          role: message.role,
+          content: message.content,
+          createdAt: message.createdAt,
+        }));
         setMessages((prev) => [...prev, userMessage]);
         scrollToEnd();
 
@@ -106,7 +111,7 @@ export function ChatScreen(): React.ReactElement {
         }
 
         const response = await generateAIResponse(
-          { sessionId, text: trimmed },
+          { sessionId, text: trimmed, recentMessages: recentMessagesForAgent },
           streamId
             ? {
                 onToken: (token) => {

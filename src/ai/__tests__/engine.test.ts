@@ -15,6 +15,7 @@ describe('generateAIResponse — safety first', () => {
     expect(response.crisis).toBe('suicide');
     expect(response.suggestions).toHaveLength(0);
     expect(response.meta.source).toBe('safety');
+    expect(response.meta.agent).toBe('safety');
   });
 
   it('runs crisis detection even when an LLM is available', async () => {
@@ -25,6 +26,7 @@ describe('generateAIResponse — safety first', () => {
     );
     expect(response.crisis).toBe('medical_emergency');
     expect(response.meta.source).toBe('safety');
+    expect(response.meta.agent).toBe('safety');
     expect(response.reply).not.toBe('Everything is fine!');
   });
 });
@@ -36,6 +38,7 @@ describe('generateAIResponse — fallback engine path (default: no LLM)', () => 
       { rng: () => 0 },
     );
     expect(response.meta.source).toBe('rule-engine');
+    expect(response.meta.agent).toBe('rule-based-fallback');
     expect(response.meta.llmAvailable).toBe(false);
     expect(response.intent).toBe('anxiety');
     expect(response.crisis).toBeNull();
@@ -81,8 +84,35 @@ describe('generateAIResponse — LLM path', () => {
       { client },
     );
     expect(response.meta.source).toBe('local-llm');
+    expect(response.meta.agent).toBe('llama-mental-health');
     expect(response.meta.llmAvailable).toBe(true);
     expect(response.reply).toContain('What feels biggest right now?');
+  });
+
+  it('passes recent chat context to the mental health agent prompt', async () => {
+    let seenPromptText = '';
+    const client = new MockLocalLLMClient({
+      available: true,
+      reply: (prompt) => {
+        seenPromptText = prompt.turns.map((turn) => `${turn.role}:${turn.content}`).join('\n');
+        return 'I hear you. Let us take one slow breath together.';
+      },
+    });
+    const response = await generateAIResponse(
+      {
+        sessionId: freshSession(),
+        text: 'It feels loud in my head',
+        recentMessages: [
+          { role: 'user', content: 'I had a hard meeting' },
+          { role: 'assistant', content: 'That sounds draining. What happened next?' },
+        ],
+      },
+      { client },
+    );
+    expect(response.meta.source).toBe('local-llm');
+    expect(seenPromptText).toContain('user:I had a hard meeting');
+    expect(seenPromptText).toContain('assistant:That sounds draining. What happened next?');
+    expect(seenPromptText).toContain('user:It feels loud in my head');
   });
 
   it('rejects an unsafe LLM reply and falls back to the rule engine', async () => {
@@ -95,6 +125,7 @@ describe('generateAIResponse — LLM path', () => {
       { client, rng: () => 0 },
     );
     expect(response.meta.source).toBe('rule-engine');
+    expect(response.meta.agent).toBe('rule-based-fallback');
     expect(response.reply).not.toContain('medication');
     expect(response.meta.safety.rejectedViolations).toEqual(
       expect.arrayContaining(['medication_advice', 'medical_diagnosis']),
@@ -108,6 +139,7 @@ describe('generateAIResponse — LLM path', () => {
       { client, rng: () => 0 },
     );
     expect(response.meta.source).toBe('rule-engine');
+    expect(response.meta.agent).toBe('rule-based-fallback');
     expect(response.reply.length).toBeGreaterThan(0);
   });
 
@@ -122,6 +154,7 @@ describe('generateAIResponse — LLM path', () => {
       { client, onToken: (token) => tokens.push(token) },
     );
     expect(response.meta.source).toBe('local-llm');
+    expect(response.meta.agent).toBe('llama-mental-health');
     expect(tokens.length).toBeGreaterThan(0);
     expect(tokens.join('')).toBe(response.reply);
   });
