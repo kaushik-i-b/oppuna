@@ -92,6 +92,8 @@ export interface AIResponseMetadata {
   source: ResponseSource;
   /** Whether a local LLM was available for this turn. */
   llmAvailable: boolean;
+  /** On-device agent that produced the reply, when applicable. */
+  agentId?: string | null;
   /** Number of candidate replies rejected by the validator before success. */
   rejectedCandidates: number;
   safety: SafetyFlags;

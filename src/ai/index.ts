@@ -36,6 +36,13 @@ export {
 export type { GenerateOptions } from '@/ai/fallbackEngine';
 export { buildPrompt, buildSystemPrompt } from '@/ai/promptBuilder';
 export type { PromptInput } from '@/ai/promptBuilder';
+export {
+  MENTAL_HEALTH_AGENT,
+  buildMentalHealthAgentSystemPrompt,
+  getMentalHealthIntentGuidance,
+  getMentalHealthAgentGenerationParams,
+} from '@/ai/mentalHealthAgent';
+export type { MentalHealthAgentId } from '@/ai/mentalHealthAgent';
 export { validateResponse, similarity } from '@/ai/responseValidator';
 export type { ValidationContext } from '@/ai/responseValidator';
 export {

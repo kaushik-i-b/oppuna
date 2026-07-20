@@ -2,8 +2,9 @@ import { buildPrompt, buildSystemPrompt } from '@/ai/promptBuilder';
 import { ConversationMemory } from '@/ai/conversationMemory';
 
 describe('buildSystemPrompt', () => {
-  it('encodes the hard guardrails', () => {
+  it('encodes the mental health agent guardrails', () => {
     const system = buildSystemPrompt();
+    expect(system).toMatch(/mental health companion/i);
     expect(system).toMatch(/never diagnose/i);
     expect(system).toMatch(/medication/i);
     expect(system).toMatch(/not a therapist/i);
@@ -39,6 +40,13 @@ describe('buildPrompt', () => {
     const prompt = buildPrompt({ userText: 'hello', recentMessages });
     // 8 history turns + final user message.
     expect(prompt.turns).toHaveLength(9);
+    expect(prompt.turns[prompt.turns.length - 1]?.content).toBe('hello');
     expect(prompt.turns[0]?.content).toBe('turn 12');
+  });
+
+  it('injects intent-specific coaching guidance for the mental health agent', () => {
+    const prompt = buildPrompt({ userText: 'I feel anxious', intentHint: 'anxiety' });
+    const coaching = prompt.turns.find((turn) => turn.content.includes('Coaching note'));
+    expect(coaching?.content).toMatch(/anxious/i);
   });
 });

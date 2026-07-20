@@ -8,6 +8,7 @@ import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { useTranslation } from '@/hooks/useTranslation';
 import { generateAIResponse, resetConversationMemory } from '@/ai';
+import type { AIMessage } from '@/ai/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import type { ChatMessage } from '@/types';
@@ -16,6 +17,8 @@ import type { TranslationKey } from '@/i18n';
 
 function modelStatusLabel(status: ModelStatus, t: (key: TranslationKey) => string): string | null {
   switch (status) {
+    case 'ready':
+      return t('chat.modelReady');
     case 'checking':
     case 'loading':
       return t('chat.modelLoading');
@@ -47,6 +50,7 @@ export function ChatScreen(): React.ReactElement {
   const statusLabel = modelStatusLabel(modelState.status, t);
   const showStatusSpinner =
     modelState.status === 'checking' || modelState.status === 'loading';
+  const agentActive = modelState.status === 'ready';
 
   useEffect(() => {
     let active = true;
@@ -105,8 +109,18 @@ export function ChatScreen(): React.ReactElement {
           scrollToEnd();
         }
 
+        const historyForAI: AIMessage[] = [...messages, userMessage]
+          .filter((message) => message.role === 'user' || message.role === 'assistant')
+          .map((message) => ({
+            role: message.role as 'user' | 'assistant',
+            content: message.content,
+            intent: (message.intent as AIMessage['intent']) ?? null,
+            mood: message.mood,
+            createdAt: message.createdAt,
+          }));
+
         const response = await generateAIResponse(
-          { sessionId, text: trimmed },
+          { sessionId, text: trimmed, recentMessages: historyForAI },
           streamId
             ? {
                 onToken: (token) => {
@@ -182,7 +196,7 @@ export function ChatScreen(): React.ReactElement {
 
   return (
     <Screen
-      title={t('chat.title')}
+      title={agentActive ? t('chat.agentTitle') : t('chat.title')}
       padded={false}
       keyboardAvoiding
       headerRight={
@@ -213,7 +227,7 @@ export function ChatScreen(): React.ReactElement {
             {
               paddingHorizontal: theme.spacing.lg,
               paddingVertical: theme.spacing.sm,
-              backgroundColor: theme.colors.surfaceAlt,
+              backgroundColor: agentActive ? theme.colors.primaryMuted : theme.colors.surfaceAlt,
               borderBottomColor: theme.colors.border,
             },
           ]}
@@ -225,7 +239,7 @@ export function ChatScreen(): React.ReactElement {
           ) : null}
           <Text
             variant="caption"
-            color={modelState.status === 'error' ? 'danger' : 'textMuted'}
+            color={modelState.status === 'error' ? 'danger' : agentActive ? 'primary' : 'textMuted'}
             style={{ flex: 1 }}
           >
             {statusLabel}

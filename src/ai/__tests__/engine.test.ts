@@ -82,6 +82,7 @@ describe('generateAIResponse — LLM path', () => {
     );
     expect(response.meta.source).toBe('local-llm');
     expect(response.meta.llmAvailable).toBe(true);
+    expect(response.meta.agentId).toBe('mental-health-llama');
     expect(response.reply).toContain('What feels biggest right now?');
   });
 

@@ -38,13 +38,14 @@ export const en = {
   },
   chat: {
     title: 'Companion',
+    agentTitle: 'Mental Health Companion',
     placeholder: 'Share what’s on your mind…',
     intro:
       'Hey — this stays on your phone, completely private. What’s on your mind?',
     cleared: 'Conversation cleared',
     clear: 'Clear conversation',
-    modelLoading: 'Loading on-device assistant…',
-    modelReady: 'On-device assistant ready',
+    modelLoading: 'Loading mental health agent…',
+    modelReady: 'Mental health agent ready — powered by on-device Llama',
     modelUnavailable: 'Guided responses — place a model in local storage to enable on-device AI',
     modelError: 'On-device assistant unavailable — using guided responses',
   },

@@ -13,7 +13,15 @@
  */
 
 import { logger } from '@/utils/logger';
-import type { AIChatResponse, LLMTokenCallback, LocalLLMClient, Rng, ValidationViolation } from '@/ai/types';
+import type {
+  AIChatResponse,
+  AIMessage,
+  LLMTokenCallback,
+  LocalLLMClient,
+  Rng,
+  ValidationViolation,
+} from '@/ai/types';
+import { MENTAL_HEALTH_AGENT } from '@/ai/mentalHealthAgent';
 import { assessSafety, CRISIS_REPLY } from '@/ai/safetyEngine';
 import { getConversationMemory } from '@/ai/conversationMemory';
 import {
@@ -37,6 +45,8 @@ export interface GenerateAIResponseInput {
   sessionId: string;
   /** Raw user message. */
   text: string;
+  /** Recent chat turns for Llama context, oldest first. */
+  recentMessages?: AIMessage[];
 }
 
 export interface GenerateAIResponseDeps {
@@ -85,7 +95,13 @@ export async function generateAIResponse(
   const llmAvailable = await isLLMAvailable(client);
   if (llmAvailable) {
     try {
-      const prompt = buildPrompt({ userText: text, memory, intentHint: intent, moodHint: mood });
+      const prompt = buildPrompt({
+        userText: text,
+        memory,
+        intentHint: intent,
+        moodHint: mood,
+        recentMessages: input.recentMessages,
+      });
       const completion = deps.onToken
         ? await generateStreamWithTimeout(client, prompt, LLM_TIMEOUT_MS, deps.onToken)
         : await generateWithTimeout(client, prompt, LLM_TIMEOUT_MS);
@@ -103,6 +119,7 @@ export async function generateAIResponse(
           meta: {
             source: 'local-llm',
             llmAvailable,
+            agentId: MENTAL_HEALTH_AGENT.id,
             rejectedCandidates: 0,
             safety: { crisis: null, rejectedViolations: [] },
             generatedAt: Date.now(),
