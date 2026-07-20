@@ -17,8 +17,8 @@ This folder contains signed production Android builds.
 
 | File | Size | SHA-256 |
 | --- | ---: | --- |
-| `oppuna-1.0.0-production.apk` | 181 MB | `89e3e235d527ace8f786199d487edf44790f619795c37914a8682ab974ab0757` |
-| `oppuna-1.0.0-production.aab` | 99 MB | `03a517984365bf6bcac0c89a7af087b2b74939faa95293e21c4b65685e3004af` |
+| `oppuna-1.0.0-production.apk` | 181 MB | `0fc3c30152103ab73793d1cd590d6362b32caecdfa05f8e420c0d73bcd8e6604` |
+| `oppuna-1.0.0-production.aab` | 99 MB | `c778b108237aa665f9fd0908b3fdd6ccd961fbaefd9d2e1dbcfe574e312dd6a5` |
 
 ## ⚠️ Security — read this first
 
