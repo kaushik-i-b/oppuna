@@ -18,6 +18,7 @@ expo-env.d.ts
 # generated native projects (recreated by `expo prebuild`)
 /android/
 /ios/
+.android-sdk/
 
 # metro
 .metro-health-check*
