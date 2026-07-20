@@ -58,4 +58,17 @@ export {
   getModelsDirectory,
   isModelReady,
   subscribeToModelState,
+  installModelFromUri,
+  removeInstalledModel,
 } from '@/ai/modelManager';
+export type { InstallModelResult } from '@/ai/modelManager';
+export {
+  MENTAL_HEALTH_AGENT,
+  buildMentalHealthSystemPrompt,
+  describeAgent,
+  agentStatusFromModelStatus,
+} from '@/ai/mentalHealthAgent';
+export type {
+  MentalHealthAgentSnapshot,
+  MentalHealthAgentStatus,
+} from '@/ai/mentalHealthAgent';
