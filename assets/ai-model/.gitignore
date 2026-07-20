@@ -1,0 +1,11 @@
+# Place the production GGUF here before building a Play AAB:
+#   model.gguf
+#
+# This directory is copied into the install-time Play Asset Delivery pack
+# (`ai_model_asset_pack`) by the Expo config plugin during prebuild.
+#
+# Do NOT commit the binary. See docs/LOCAL_LLM_ANDROID.md.
+
+*
+!.gitignore
+!README.md

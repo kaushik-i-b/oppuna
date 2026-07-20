@@ -59,6 +59,7 @@
           "enableOpenCL": true
         }
       ],
+      "./plugins/withAiModelAssetPack.js",
       [
         "expo-splash-screen",
         {
@@ -76,7 +77,12 @@
       "expo-asset"
     ],
     "extra": {
-      "offlineOnly": true
+      "offlineOnly": true,
+      "localLlm": {
+        "provider": "llama.rn",
+        "assetPack": "ai_model_asset_pack",
+        "modelFile": "model.gguf"
+      }
     }
   }
 }

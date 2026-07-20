@@ -20,6 +20,12 @@ jest.mock('expo-file-system/legacy', () => ({
   copyAsync: jest.fn(async () => undefined),
 }));
 
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(async () => null),
+  setItem: jest.fn(async () => undefined),
+  removeItem: jest.fn(async () => undefined),
+}));
+
 jest.mock('llama.rn', () => ({
   initLlama: jest.fn(),
 }));

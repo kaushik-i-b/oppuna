@@ -1,3 +1,5 @@
+import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
+
 export const APP = {
   name: 'Oppuna',
   tagline: 'A private, offline journal, mood, and reflection companion.',
@@ -34,16 +36,17 @@ export const SECURE_KEYS = {
 } as const;
 
 /**
- * On-device LLM configuration. Place a GGUF file at
- * `{documentDirectory}models/{storageFilename}` to enable the local model.
- * Production builds may also bundle the model under `assets/models/`.
+ * On-device LLM configuration.
+ * Canonical source: `src/config/localModel.ts`.
+ * Development: place a GGUF at `{documentDirectory}models/model.gguf`.
+ * Production Android: install-time Play Asset Delivery pack.
  */
 export const LLM_CONFIG = {
   storageDir: 'models',
-  storageFilename: 'oppuna-model.gguf',
-  contextSize: 2048,
-  responseTimeoutMs: 6000,
+  storageFilename: LOCAL_MODEL_CONFIG.fileName,
+  contextSize: LOCAL_MODEL_CONFIG.contextSize,
+  responseTimeoutMs: LOCAL_MODEL_CONFIG.responseTimeoutMs,
   maxThreads: 4,
-  /** GPU layers on iOS (Metal). Set to 0 for CPU-only on Android if needed. */
-  gpuLayers: 99,
+  /** GPU layers — device capability service overrides at runtime. */
+  gpuLayers: 0,
 } as const;

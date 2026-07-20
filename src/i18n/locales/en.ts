@@ -40,14 +40,14 @@ export const en = {
     title: 'Companion',
     placeholder: 'Share what’s on your mind…',
     intro:
-      'Hey — I’m your private mental health companion, powered on-device by Llama when a model is installed. Everything stays on your phone. What’s on your mind?',
+      'Hey — I’m your private companion. Everything stays on your phone. What’s on your mind?',
     cleared: 'Conversation cleared',
     clear: 'Clear conversation',
-    modelLoading: 'Loading on-device mental health assistant…',
-    modelReady: 'Llama mental health assistant ready',
+    modelLoading: 'Preparing private AI…',
+    modelReady: 'Private AI ready',
     modelUnavailable:
-      'Guided responses — place a GGUF model in local storage to enable the on-device Llama assistant',
-    modelError: 'On-device assistant unavailable — using guided responses',
+      'Guided responses are available. Private on-device AI will activate when the model is installed with Oppuna.',
+    modelError: 'Private AI unavailable — using guided responses',
   },
   mood: {
     title: 'How are you?',
@@ -108,6 +108,7 @@ export const en = {
     themeLight: 'Light',
     themeDark: 'Dark',
     themeSystem: 'System',
+    developerDiagnostics: 'AI diagnostics (dev)',
   },
   lock: {
     title: 'Oppuna is locked',

@@ -4,7 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 
 import { BrandSplash } from '@/app/BrandSplash';
 import { configureDefaultLocalLLMClient, getLocalLLMClient } from '@/ai/llmClient';
-import { initializeModelManager } from '@/ai/modelManager';
+import { initializeModel } from '@/ai/modelManager';
 import { initDatabase } from '@/database';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -24,10 +24,25 @@ export function AppBootstrap({ children }: { children: React.ReactNode }): React
       setStatus('loading');
       configureDefaultLocalLLMClient();
       await initDatabase();
-      await initializeModelManager();
+
+      // Model init must not block the rest of the app if it fails.
+      // Kick it off, await briefly for happy path, but never crash bootstrap.
+      const modelInit = initializeModel().catch((error: unknown) => {
+        logger.warn('On-device model initialization failed; guided responses will be used', {
+          error: String(error),
+        });
+      });
+
+      // Prefer finishing DB first; model warm-up continues without blocking UI forever.
+      await Promise.race([
+        modelInit,
+        new Promise<void>((resolve) => setTimeout(resolve, 2500)),
+      ]);
+
       const client = getLocalLLMClient();
       if (client.warmUp) {
-        await client.warmUp().catch((error: unknown) => {
+        // Fire-and-forget remaining warm-up — UI is already usable with fallbacks.
+        void client.warmUp().catch((error: unknown) => {
           logger.warn('On-device model warm-up failed; guided responses will be used', {
             error: String(error),
           });
