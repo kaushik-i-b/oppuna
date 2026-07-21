@@ -17,6 +17,7 @@ import * as modelAssetService from '@/services/modelAssetService';
 
 jest.mock('@/services/modelAssetService', () => {
   const actual = jest.requireActual('@/services/modelAssetService');
+  const { LOCAL_MODEL_CONFIG } = jest.requireActual('@/config/localModel');
   return {
     ...actual,
     getInstalledModelPath: jest.fn(),
@@ -24,12 +25,12 @@ jest.mock('@/services/modelAssetService', () => {
     clearStoredVerification: jest.fn(async () => undefined),
     getDevModelsDirectory: jest.fn(() => 'file:///mock-documents/models/'),
     getModelMetadata: jest.fn(() => ({
-      modelName: 'oppuna-local-v1',
-      version: '1',
-      sha256: '',
-      expectedSize: 0,
-      fileName: 'model.gguf',
-      assetPackName: 'ai_model_asset_pack',
+      modelName: LOCAL_MODEL_CONFIG.id,
+      version: LOCAL_MODEL_CONFIG.version,
+      sha256: LOCAL_MODEL_CONFIG.sha256,
+      expectedSize: LOCAL_MODEL_CONFIG.expectedSize,
+      fileName: LOCAL_MODEL_CONFIG.fileName,
+      assetPackName: LOCAL_MODEL_CONFIG.assetPackName,
     })),
   };
 });

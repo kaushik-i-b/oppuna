@@ -1,6 +1,14 @@
-import { getDeviceCapability } from '@/services/deviceCapabilityService';
+import {
+  getDeviceCapability,
+  setCachedTotalMemoryBytesForTests,
+  warmDeviceMemoryEstimate,
+} from '@/services/deviceCapabilityService';
 
 describe('deviceCapabilityService', () => {
+  afterEach(() => {
+    setCachedTotalMemoryBytesForTests(undefined);
+  });
+
   it('disables local model on web', () => {
     const cap = getDeviceCapability({ platform: 'web' });
     expect(cap.canRunLocalModel).toBe(false);
@@ -35,5 +43,17 @@ describe('deviceCapabilityService', () => {
       totalMemoryBytes: 12 * 1024 * 1024 * 1024,
     });
     expect(cap.recommendedGpuLayers).toBeGreaterThan(0);
+  });
+
+  it('uses warmed native memory when available', async () => {
+    setCachedTotalMemoryBytesForTests(3 * 1024 * 1024 * 1024);
+    const cap = getDeviceCapability({ platform: 'android' });
+    expect(cap.tier).toBe('low');
+    expect(cap.totalMemory).toBe(3 * 1024 * 1024 * 1024);
+  });
+
+  it('warmDeviceMemoryEstimate is safe when native module is missing', async () => {
+    const result = await warmDeviceMemoryEstimate();
+    expect(result === null || typeof result === 'number').toBe(true);
   });
 });

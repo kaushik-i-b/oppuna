@@ -26,7 +26,7 @@ export interface ChatAgent {
   readonly id: string;
   readonly name: string;
   readonly description: string;
-  /** System instructions tuned for the on-device Llama model. */
+  /** System instructions tuned for the on-device Gemma model. */
   buildSystemPrompt(): string;
   /** Build the full prompt for one generation call. */
   buildPrompt(input: AgentPromptInput): LLMPrompt;

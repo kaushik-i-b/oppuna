@@ -40,9 +40,10 @@ describe('modelAssetService', () => {
   });
 
   it('accepts a plausible file and stores trusted verification', async () => {
+    const expectedSize = LOCAL_MODEL_CONFIG.expectedSize || 5_000_000;
     (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({
       exists: true,
-      size: 5_000_000,
+      size: expectedSize,
     });
 
     const first = await verifyModelIntegrity({ path: '/tmp/model.gguf', forceFull: true });
@@ -56,8 +57,8 @@ describe('modelAssetService', () => {
         modelVersion: LOCAL_MODEL_CONFIG.version,
         appVersion: '1.2.0',
         path: '/tmp/model.gguf',
-        size: 5_000_000,
-        sha256: null,
+        size: expectedSize,
+        sha256: LOCAL_MODEL_CONFIG.sha256 || null,
         verifiedAt: Date.now(),
       }),
     );

@@ -177,6 +177,7 @@ export function buildContext(input: ContextBuilderInput): BuiltContext {
   const prompt: LLMPrompt = {
     system,
     turns: promptTurns,
+    messages,
     params: {
       maxTokens: maxGenerationTokens,
       temperature: LOCAL_MODEL_CONFIG.temperature,

@@ -67,13 +67,14 @@ export function LocalAIDiagnosticsScreen(): React.ReactElement {
 
       <Card>
         <Row label="Model" value={model.status.toUpperCase()} />
+        <Row label="Display name" value={LOCAL_MODEL_CONFIG.displayName} />
         <Row label="Model id" value={model.modelId ?? meta.modelName} />
         <Row label="Model version" value={meta.version} />
         <Row
           label="Model size"
           value={
             LOCAL_MODEL_CONFIG.expectedSize > 0
-              ? `${LOCAL_MODEL_CONFIG.expectedSize} bytes (expected)`
+              ? `${(LOCAL_MODEL_CONFIG.expectedSize / (1024 * 1024)).toFixed(0)} MB (expected)`
               : 'not configured'
           }
         />
