@@ -108,8 +108,12 @@ export class LlamaRnLocalLLMClient implements LocalLLMClient {
 
     try {
       const params = prompt.params ?? {};
+      const messages =
+        prompt.messages && prompt.messages.length > 0
+          ? prompt.messages
+          : promptToMessages(prompt);
       const text = await generate(
-        promptToMessages(prompt),
+        messages,
         {
           maxTokens: params.maxTokens ?? LOCAL_MODEL_CONFIG.maxGenerationTokens,
           temperature: params.temperature ?? LOCAL_MODEL_CONFIG.temperature,

@@ -192,6 +192,11 @@ export interface LLMPrompt {
   system: string;
   /** Recent conversation turns, oldest first, ending with the user message. */
   turns: AIMessage[];
+  /**
+   * Pre-built chat messages from `buildContext` (system + turns).
+   * Prefer this when calling LocalLLMProvider so the adapter does not rebuild.
+   */
+  messages?: { role: 'system' | 'user' | 'assistant'; content: string }[];
   params?: LLMGenerationParams;
 }
 

@@ -6,6 +6,7 @@ import { BrandSplash } from '@/app/BrandSplash';
 import { configureDefaultLocalLLMClient, getLocalLLMClient } from '@/ai/llmClient';
 import { initializeModel } from '@/ai/modelManager';
 import { initDatabase } from '@/database';
+import { warmDeviceMemoryEstimate } from '@/services/deviceCapabilityService';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettingsStore } from '@/store/settingsStore';
 import { logger } from '@/utils/logger';
@@ -23,6 +24,8 @@ export function AppBootstrap({ children }: { children: React.ReactNode }): React
     try {
       setStatus('loading');
       configureDefaultLocalLLMClient();
+      // Probe RAM before model init so tier/context/GPU knobs are accurate.
+      await warmDeviceMemoryEstimate();
       await initDatabase();
 
       // Model init must not block the rest of the app if it fails.

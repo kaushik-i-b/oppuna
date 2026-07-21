@@ -23,7 +23,7 @@ describe('mentalHealthAgent', () => {
     expect(last).toEqual({ role: 'user', content: 'I feel anxious' });
   });
 
-  it('includes recent chat history for Llama context', () => {
+  it('includes recent chat history for Gemma context', () => {
     const recentMessages = [
       { role: 'user' as const, content: 'I had a rough day' },
       { role: 'assistant' as const, content: 'That sounds heavy.' },

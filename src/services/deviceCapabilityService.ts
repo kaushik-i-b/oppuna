@@ -5,9 +5,10 @@
  * maximum context / GPU offload. Never crashes the app.
  */
 
-import { Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
+import { logger } from '@/utils/logger';
 
 export type DeviceTier = 'low' | 'medium' | 'high';
 
@@ -31,20 +32,67 @@ interface CapabilityOverrides {
   platform?: typeof Platform.OS;
 }
 
+interface OppunaModelAssetMemoryModule {
+  getTotalMemoryBytes?: () => Promise<number>;
+}
+
 /** Rough RAM tiers commonly seen on Android phones Oppuna targets. */
 const LOW_RAM_BYTES = 4 * 1024 * 1024 * 1024;
 const MEDIUM_RAM_BYTES = 6 * 1024 * 1024 * 1024;
 const HIGH_RAM_BYTES = 8 * 1024 * 1024 * 1024;
 
 /**
+ * Cached native RAM reading. `undefined` = not yet probed;
+ * `null` = probe failed / unavailable.
+ */
+let cachedTotalMemoryBytes: number | null | undefined;
+
+/**
+ * Probe Android ActivityManager for total device RAM (best-effort).
+ * Call once at app bootstrap so sync `getDeviceCapability()` can use it.
+ */
+export async function warmDeviceMemoryEstimate(): Promise<number | null> {
+  if (Platform.OS !== 'android') {
+    cachedTotalMemoryBytes = cachedTotalMemoryBytes ?? null;
+    return cachedTotalMemoryBytes;
+  }
+
+  try {
+    const mod = NativeModules.OppunaModelAsset as OppunaModelAssetMemoryModule | undefined;
+    if (!mod?.getTotalMemoryBytes) {
+      cachedTotalMemoryBytes = null;
+      return null;
+    }
+    const bytes = await mod.getTotalMemoryBytes();
+    if (typeof bytes === 'number' && Number.isFinite(bytes) && bytes > 0) {
+      cachedTotalMemoryBytes = bytes;
+      return bytes;
+    }
+    cachedTotalMemoryBytes = null;
+    return null;
+  } catch (error) {
+    logger.warn('Unable to read device total memory', { error: String(error) });
+    cachedTotalMemoryBytes = null;
+    return null;
+  }
+}
+
+/** Test-only: clear / set the cached RAM probe. */
+export function setCachedTotalMemoryBytesForTests(value: number | null | undefined): void {
+  cachedTotalMemoryBytes = value;
+}
+
+/**
  * Estimate total device memory.
- * React Native does not expose a reliable cross-platform RAM API without
- * extra native modules, so we default to a conservative medium-tier assumption
- * on native and low on web.
+ * Prefer a warmed native reading; otherwise use a conservative medium-tier
+ * assumption on native and null on web.
  */
 function estimateTotalMemoryBytes(platform: typeof Platform.OS): number | null {
   if (platform === 'web') return null;
-  // Conservative default: treat unknown devices as ~6 GB class.
+  if (cachedTotalMemoryBytes !== undefined) {
+    return cachedTotalMemoryBytes ?? MEDIUM_RAM_BYTES;
+  }
+  // Conservative default before/without a native probe: ~6 GB class.
   return MEDIUM_RAM_BYTES;
 }
 

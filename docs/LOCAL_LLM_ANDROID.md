@@ -103,15 +103,19 @@ Delivery mode: **install-time** — Google Play installs the model with the app.
 
    ```ts
    export const LOCAL_MODEL_CONFIG = {
-     id: 'oppuna-local-v1',
+     id: 'oppuna-gemma3-1b-it-q4km',
+     displayName: 'Gemma 3 1B Instruct (Q4_K_M)',
      fileName: 'model.gguf',
-     version: '1',
+     version: '2',
      sha256: '<hex digest>',
      expectedSize: <bytes>,
      contextSize: 4096,
      // ...
    };
    ```
+
+   Current production choice: **Gemma 3 1B Instruct Q4_K_M** (~769 MB) so the
+   install-time Play Asset Delivery pack stays under the 1 GB limit.
 
 5. Do **not** commit the GGUF (`*.gguf` is gitignored).
 
@@ -145,6 +149,11 @@ The JS layer always receives a path (or `file://` URI) that llama.rn can open �
 - GPU layers (Android defaults to **0** — OpenCL varies widely)
 - max generation tokens
 - thread count
+
+On Android, bootstrap calls `warmDeviceMemoryEstimate()` which reads total RAM
+via `OppunaModelAsset.getTotalMemoryBytes` (ActivityManager) so tiers reflect
+the real device. Until that probe runs (or if it fails), Oppuna assumes a
+conservative ~6 GB medium tier.
 
 Failed loads never crash the app; the UI shows a friendly “guided responses” state.
 

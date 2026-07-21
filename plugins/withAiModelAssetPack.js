@@ -147,6 +147,8 @@ assetPack {
         path.join(javaPackagePath, 'OppunaModelAssetModule.kt'),
         `package com.oppuna.app
 
+import android.app.ActivityManager
+import android.content.Context
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -161,6 +163,18 @@ class OppunaModelAssetModule(
 ) : ReactContextBaseJavaModule(reactContext) {
 
   override fun getName(): String = "OppunaModelAsset"
+
+  @ReactMethod
+  fun getTotalMemoryBytes(promise: Promise) {
+    try {
+      val am = reactContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+      val info = ActivityManager.MemoryInfo()
+      am.getMemoryInfo(info)
+      promise.resolve(info.totalMem.toDouble())
+    } catch (error: Exception) {
+      promise.reject("MEMORY_ERROR", error.message, error)
+    }
+  }
 
   @ReactMethod
   fun getInstalledModelPath(packName: String, fileName: String, promise: Promise) {
