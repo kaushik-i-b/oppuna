@@ -35,6 +35,7 @@ const INITIAL_STATE: LocalModelState = {
   deviceTier: null,
   providerId: null,
   contextSize: null,
+  fallbackActive: true,
 };
 
 let state: LocalModelState = { ...INITIAL_STATE };
@@ -106,6 +107,19 @@ function createProvider(modelPath: string): LocalLLMProvider {
   });
 }
 
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new LocalLLMProviderError(`${label} timed out after ${timeoutMs}ms`, 'timeout')),
+      timeoutMs,
+    );
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  });
+}
+
 async function runInitialization(): Promise<LocalModelState> {
   if (Platform.OS === 'web') {
     setState({
@@ -127,11 +141,12 @@ async function runInitialization(): Promise<LocalModelState> {
 
   if (!capability.canRunLocalModel) {
     setState({
-      status: 'unavailable',
+      status: 'unsupported-device',
       error: capability.reason,
       modelPath: null,
       modelId: null,
       loadedAt: null,
+      fallbackActive: true,
     });
     return state;
   }
@@ -147,6 +162,7 @@ async function runInitialization(): Promise<LocalModelState> {
         error: null,
         loadedAt: null,
         providerId: null,
+        fallbackActive: true,
       });
       return state;
     }
@@ -159,10 +175,15 @@ async function runInitialization(): Promise<LocalModelState> {
 
     const integrity = await verifyModelIntegrity({ path: modelPath });
     if (!integrity.ok) {
+      const isCorrupt =
+        integrity.error?.includes('SHA-256') ||
+        integrity.error?.includes('size mismatch') ||
+        integrity.error?.includes('suspiciously small');
       setState({
-        status: 'failed',
+        status: isCorrupt ? 'corrupted' : 'failed',
         error: integrity.error ?? 'Model verification failed',
         loadedAt: null,
+        fallbackActive: true,
       });
       return state;
     }
@@ -176,7 +197,11 @@ async function runInitialization(): Promise<LocalModelState> {
     }
 
     const provider = createProvider(modelPath);
-    await provider.initialize();
+    await withTimeout(
+      provider.initialize(),
+      LOCAL_MODEL_CONFIG.initTimeoutMs,
+      'Model initialization',
+    );
     activeProvider = provider;
 
     setState({
@@ -189,6 +214,7 @@ async function runInitialization(): Promise<LocalModelState> {
         provider instanceof LlamaRnProvider
           ? provider.getContextSize()
           : capability.recommendedContextSize,
+      fallbackActive: false,
     });
     logger.info('On-device model ready', {
       modelId: state.modelId,
@@ -210,6 +236,7 @@ async function runInitialization(): Promise<LocalModelState> {
       error: message,
       loadedAt: null,
       providerId: null,
+      fallbackActive: true,
     });
     return state;
   }
@@ -302,6 +329,7 @@ export async function unloadModel(): Promise<void> {
     loadedAt: null,
     providerId: null,
     error: null,
+    fallbackActive: true,
   });
 }
 

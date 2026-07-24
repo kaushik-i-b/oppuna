@@ -25,14 +25,14 @@ Your mind deserves a private space. Oppuna is a fully offline mental wellness co
 
 A companion that never phones home
 
-Oppuna's on-device wellness engine understands your mood, recognises when you need grounding, and responds with calm, evidence-based prompts — all without a single byte leaving your phone. It works in airplane mode, on a remote mountain, or anywhere your signal doesn't reach.
+Oppuna's on-device wellness engine combines a local language model with safety checks and guided offline fallbacks. It understands mood and distress signals and responds with calm, evidence-informed prompts — all without a single byte leaving your phone. It works in airplane mode, on a remote mountain, or anywhere your signal doesn't reach.
 
 ---
 
 Features
 
 Offline AI companion
-Chat with a gentle, rule-based wellness engine that detects mood, intent, and distress, and replies with CBT-style, mindfulness, and grounding techniques — processed entirely on your device.
+Chat with an on-device AI companion (Gemma 3 1B) with safety checks and guided offline fallbacks — processed entirely on your device.
 
 Crisis safety
 Oppuna recognises signs of severe distress and stops normal coaching to show dedicated crisis support resources. Your safety is never routed through a server.

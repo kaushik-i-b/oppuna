@@ -4,6 +4,7 @@ import { AppState, type AppStateStatus, StyleSheet, View } from 'react-native';
 import { Button, Text } from '@/components';
 import { useTranslation } from '@/hooks/useTranslation';
 import { authenticate } from '@/services/appLock';
+import { useSecureScreen } from '@/hooks/useSecureScreen';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -16,6 +17,8 @@ export function AppLockGate({ children }: { children: React.ReactNode }): React.
   const theme = useTheme();
   const { t } = useTranslation();
   const appLockEnabled = useSettingsStore((s) => s.appLockEnabled);
+
+  useSecureScreen(appLockEnabled);
 
   const [locked, setLocked] = useState(appLockEnabled);
   const [authenticating, setAuthenticating] = useState(false);

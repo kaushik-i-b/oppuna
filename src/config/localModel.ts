@@ -43,6 +43,8 @@ export const LOCAL_MODEL_CONFIG = {
   topP: 0.9,
   /** Generation wall-clock timeout (ms) so chat never hangs. */
   responseTimeoutMs: 60_000,
+  /** Model load wall-clock timeout (ms) — avoids indefinite startup hangs. */
+  initTimeoutMs: 120_000,
 } as const;
 
 export type LocalModelConfig = typeof LOCAL_MODEL_CONFIG;

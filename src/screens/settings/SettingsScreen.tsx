@@ -6,7 +6,9 @@ import { useToast } from '@/components/feedback/ToastProvider';
 import { APP } from '@/constants/app';
 import { LANGUAGES } from '@/i18n';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
+import { useModelStatus } from '@/hooks/useModelStatus';
 import { useTranslation } from '@/hooks/useTranslation';
+import { getModelDiagnosticStatus } from '@/services/modelDiagnosticService';
 import { authenticate, getAppLockCapability } from '@/services/appLock';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -23,6 +25,8 @@ export function SettingsScreen(): React.ReactElement {
   const { t, language } = useTranslation();
   const toast = useToast();
   const navigation = useAppNavigation();
+  const modelState = useModelStatus();
+  const aiStatus = getModelDiagnosticStatus();
 
   const themeMode = useSettingsStore((s) => s.themeMode);
   const setThemeMode = useSettingsStore((s) => s.setThemeMode);
@@ -71,25 +75,40 @@ export function SettingsScreen(): React.ReactElement {
 
   return (
     <Screen title={t('settings.title')} scroll>
-      <SectionHeader title={t('settings.appearance')} />
+      <SectionHeader title={t('settings.aiEngine')} />
       <Card>
-        <Text variant="bodyStrong" style={{ marginBottom: theme.spacing.md }}>
-          {t('settings.theme')}
+        <Text variant="bodyStrong">{aiStatus.title}</Text>
+        <Text variant="caption" color="textMuted" style={{ marginTop: theme.spacing.xs }}>
+          {aiStatus.subtitle}
         </Text>
-        <View style={styles.themeRow}>
-          {THEME_OPTIONS.map((option) => (
-            <Chip
-              key={option.mode}
-              label={t(option.labelKey)}
-              selected={themeMode === option.mode}
-              onPress={() => setThemeMode(option.mode)}
-            />
-          ))}
-        </View>
+        {__DEV__ && modelState.error ? (
+          <Text variant="caption" color="textFaint" style={{ marginTop: theme.spacing.sm }}>
+            {modelState.error}
+          </Text>
+        ) : null}
       </Card>
 
       <View style={{ marginTop: theme.spacing.lg }}>
-        <SectionHeader title="Preferences" />
+        <SectionHeader title={t('settings.appearance')} />
+        <Card>
+          <Text variant="bodyStrong" style={{ marginBottom: theme.spacing.md }}>
+            {t('settings.theme')}
+          </Text>
+          <View style={styles.themeRow}>
+            {THEME_OPTIONS.map((option) => (
+              <Chip
+                key={option.mode}
+                label={t(option.labelKey)}
+                selected={themeMode === option.mode}
+                onPress={() => setThemeMode(option.mode)}
+              />
+            ))}
+          </View>
+        </Card>
+      </View>
+
+      <View style={{ marginTop: theme.spacing.lg }}>
+        <SectionHeader title={t('settings.preferences')} />
         <View style={{ gap: theme.spacing.sm }}>
           <ListItem
             leadingEmoji="🌐"
@@ -120,7 +139,7 @@ export function SettingsScreen(): React.ReactElement {
       </View>
 
       <View style={{ marginTop: theme.spacing.lg }}>
-        <SectionHeader title="Privacy & data" />
+        <SectionHeader title={t('settings.legal')} />
         <View style={{ gap: theme.spacing.sm }}>
           <ListItem
             leadingEmoji="🔒"
@@ -128,15 +147,27 @@ export function SettingsScreen(): React.ReactElement {
             onPress={() => navigation.navigate('Privacy', { fromSettings: true })}
           />
           <ListItem
-            leadingEmoji="⚕️"
-            title={t('settings.disclaimer')}
-            onPress={() => navigation.navigate('Disclaimer', { fromSettings: true })}
-          />
-          <ListItem
             leadingEmoji="📄"
             title={t('settings.terms')}
             onPress={() => navigation.navigate('Terms')}
           />
+          <ListItem
+            leadingEmoji="📚"
+            title={t('settings.thirdPartyLicenses')}
+            subtitle={t('settings.thirdPartyLicensesSubtitle')}
+            onPress={() => navigation.navigate('ThirdPartyLicenses')}
+          />
+          <ListItem
+            leadingEmoji="⚕️"
+            title={t('settings.disclaimer')}
+            onPress={() => navigation.navigate('Disclaimer', { fromSettings: true })}
+          />
+        </View>
+      </View>
+
+      <View style={{ marginTop: theme.spacing.lg }}>
+        <SectionHeader title={t('settings.privacyData')} />
+        <View style={{ gap: theme.spacing.sm }}>
           <ListItem
             leadingEmoji="📤"
             title={t('settings.exportData')}
@@ -152,7 +183,7 @@ export function SettingsScreen(): React.ReactElement {
       </View>
 
       <View style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing.xl }}>
-        <SectionHeader title="About" />
+        <SectionHeader title={t('settings.aboutSection')} />
         <ListItem
           leadingEmoji="🌿"
           title={t('settings.about')}
@@ -160,12 +191,20 @@ export function SettingsScreen(): React.ReactElement {
           onPress={() => navigation.navigate('About')}
         />
         {__DEV__ ? (
-          <ListItem
-            leadingEmoji="🛠️"
-            title={t('settings.developerDiagnostics')}
-            subtitle="Local model status"
-            onPress={() => navigation.navigate('LocalAIDiagnostics')}
-          />
+          <>
+            <ListItem
+              leadingEmoji="🛠️"
+              title={t('settings.developerDiagnostics')}
+              subtitle="Local model status"
+              onPress={() => navigation.navigate('LocalAIDiagnostics')}
+            />
+            <ListItem
+              leadingEmoji="✅"
+              title={t('settings.productionReadiness')}
+              subtitle="Local self-check (dev only)"
+              onPress={() => navigation.navigate('ProductionReadiness')}
+            />
+          </>
         ) : null}
       </View>
     </Screen>

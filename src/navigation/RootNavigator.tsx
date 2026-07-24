@@ -23,8 +23,10 @@ import { SelfCareScreen } from '@/screens/selfcare/SelfCareScreen';
 import { DataExportScreen } from '@/screens/settings/DataExportScreen';
 import { DeleteDataScreen } from '@/screens/settings/DeleteDataScreen';
 import { TermsScreen } from '@/screens/settings/TermsScreen';
+import { ThirdPartyLicensesScreen } from '@/screens/settings/ThirdPartyLicensesScreen';
 import { AboutScreen } from '@/screens/settings/AboutScreen';
 import { LocalAIDiagnosticsScreen } from '@/screens/settings/LocalAIDiagnosticsScreen';
+import { ProductionReadinessScreen } from '@/screens/settings/ProductionReadinessScreen';
 import { CrisisScreen } from '@/screens/crisis/CrisisScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -60,9 +62,13 @@ export function RootNavigator(): React.ReactElement {
             <Stack.Screen name="DataExport" component={DataExportScreen} />
             <Stack.Screen name="DeleteData" component={DeleteDataScreen} />
             <Stack.Screen name="Terms" component={TermsScreen} />
+            <Stack.Screen name="ThirdPartyLicenses" component={ThirdPartyLicensesScreen} />
             <Stack.Screen name="About" component={AboutScreen} />
             {__DEV__ ? (
-              <Stack.Screen name="LocalAIDiagnostics" component={LocalAIDiagnosticsScreen} />
+              <>
+                <Stack.Screen name="LocalAIDiagnostics" component={LocalAIDiagnosticsScreen} />
+                <Stack.Screen name="ProductionReadiness" component={ProductionReadinessScreen} />
+              </>
             ) : null}
             <Stack.Screen name="Language" component={LanguageScreen} />
             <Stack.Screen name="Privacy" component={PrivacyScreen} />

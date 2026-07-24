@@ -7,6 +7,7 @@ import { configureDefaultLocalLLMClient, getLocalLLMClient } from '@/ai/llmClien
 import { initializeModel } from '@/ai/modelManager';
 import { initDatabase } from '@/database';
 import { warmDeviceMemoryEstimate } from '@/services/deviceCapabilityService';
+import { cleanupStaleExportFiles } from '@/services/dataExport';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettingsStore } from '@/store/settingsStore';
 import { logger } from '@/utils/logger';
@@ -27,6 +28,7 @@ export function AppBootstrap({ children }: { children: React.ReactNode }): React
       // Probe RAM before model init so tier/context/GPU knobs are accurate.
       await warmDeviceMemoryEstimate();
       await initDatabase();
+      void cleanupStaleExportFiles().catch(() => undefined);
 
       // Model init must not block the rest of the app if it fails.
       // Kick it off, await briefly for happy path, but never crash bootstrap.

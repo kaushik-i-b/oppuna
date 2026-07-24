@@ -90,6 +90,10 @@ function installXhrGuard(): void {
 
 let installed = false;
 
+export function __resetNetworkGuardForTests(): void {
+  installed = false;
+}
+
 export function installNetworkGuard(): void {
   if (installed) return;
   installed = true;

@@ -137,7 +137,13 @@ export type LocalModelStatus =
   | 'ready'
   | 'generating'
   | 'failed'
-  | 'unavailable';
+  | 'unavailable'
+  | 'unsupported-device'
+  | 'corrupted'
+  | 'fallback-mode';
+
+/** User-facing AI engine mode derived from lifecycle state. */
+export type AIEngineMode = 'on-device' | 'guided-offline' | 'initializing';
 
 /** @deprecated Use LocalModelStatus */
 export type ModelStatus = LocalModelStatus;
@@ -162,6 +168,8 @@ export interface LocalModelState {
   providerId: string | null;
   /** Effective n_ctx used by the provider. */
   contextSize: number | null;
+  /** Whether guided offline responses are active (model not ready). */
+  fallbackActive: boolean;
 }
 
 /** @deprecated Use LocalModelState */

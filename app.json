@@ -27,6 +27,7 @@
     "android": {
       "package": "com.oppuna.app",
       "versionCode": 4,
+      "allowBackup": false,
       "userInterfaceStyle": "automatic",
       "adaptiveIcon": {
         "backgroundColor": "#0E7C66",
@@ -60,6 +61,7 @@
         }
       ],
       "./plugins/withAiModelAssetPack.js",
+      "./plugins/withAndroidPrivacy.js",
       [
         "expo-splash-screen",
         {

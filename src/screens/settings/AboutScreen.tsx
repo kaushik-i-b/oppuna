@@ -39,6 +39,17 @@ export function AboutScreen({ navigation }: Props): React.ReactElement {
       </Card>
 
       <Card style={{ marginTop: theme.spacing.md }}>
+        <Text variant="bodyStrong" style={{ marginBottom: theme.spacing.sm }}>
+          On-device AI
+        </Text>
+        <Text variant="body" color="textMuted">
+          Oppuna uses an on-device AI model with safety checks and guided offline fallbacks.
+          Processing happens locally on your device. AI outputs may be inaccurate and are not
+          medical advice or emergency care.
+        </Text>
+      </Card>
+
+      <Card style={{ marginTop: theme.spacing.md }}>
         <Text variant="bodyStrong" color="danger" style={{ marginBottom: theme.spacing.sm }}>
           Important
         </Text>

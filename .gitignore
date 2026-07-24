@@ -9,7 +9,16 @@ expo-env.d.ts
 
 # native
 *.orig.*
+*.keystore
 *.jks
+keystore-credentials.txt
+**/keystore-credentials.*
+**/signing-credentials.*
+**/*-upload-key.*
+release/*.apk
+release/*.aab
+release/*.keystore
+release/*.jks
 *.p8
 *.p12
 *.key
