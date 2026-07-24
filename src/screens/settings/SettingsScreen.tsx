@@ -86,6 +86,22 @@ export function SettingsScreen(): React.ReactElement {
             {modelState.error}
           </Text>
         ) : null}
+        {aiStatus.engineMode === 'guided-offline' ? (
+          <View style={{ marginTop: theme.spacing.md }}>
+            <ListItem
+              leadingEmoji="♻️"
+              title="Retry AI setup"
+              subtitle="Try preparing the on-device model again"
+              onPress={() => {
+                void (async () => {
+                  const { retryModelInitialization } = await import('@/ai/modelManager');
+                  toast.show('Retrying on-device AI setup…', 'info');
+                  await retryModelInitialization();
+                })();
+              }}
+            />
+          </View>
+        ) : null}
       </Card>
 
       <View style={{ marginTop: theme.spacing.lg }}>

@@ -63,6 +63,7 @@ class OppunaModelAssetModule(
     expectedSize: Double,
     expectedSha256: String,
     forceRecopy: Boolean,
+    skipFullSha: Boolean,
     promise: Promise
   ) {
     executor.execute {
@@ -71,7 +72,8 @@ class OppunaModelAssetModule(
           assetFileName,
           expectedSize.toLong(),
           expectedSha256.lowercase(),
-          forceRecopy
+          forceRecopy,
+          skipFullSha
         )
         promise.resolve(result)
       } catch (error: InsufficientStorageException) {
@@ -124,7 +126,8 @@ class OppunaModelAssetModule(
     assetFileName: String,
     expectedSize: Long,
     expectedSha256: String,
-    forceRecopy: Boolean
+    forceRecopy: Boolean,
+    skipFullSha: Boolean
   ): WritableMap {
     val dir = modelDirectory()
     if (!dir.exists()) dir.mkdirs()
@@ -135,9 +138,20 @@ class OppunaModelAssetModule(
     if (!forceRecopy && modelFile.exists()) {
       val existingSize = modelFile.length()
       if (existingSize == expectedSize && isValidGgufFile(modelFile)) {
+        // Trusted JS verification metadata may authorize skipping a full ~806 MB rehash.
+        if (skipFullSha) {
+          return resultMap(
+            modelFile.absolutePath,
+            false,
+            existingSize,
+            expectedSha256,
+            true,
+            true
+          )
+        }
         val existingSha = computeSha256Hex(modelFile)
         if (expectedSha256.isEmpty() || existingSha == expectedSha256) {
-          return resultMap(modelFile.absolutePath, false, existingSize, existingSha, true)
+          return resultMap(modelFile.absolutePath, false, existingSize, existingSha, true, false)
         }
       }
       modelFile.delete()
@@ -155,6 +169,7 @@ class OppunaModelAssetModule(
       )
     }
 
+    // First install / repair always performs a full SHA of the temp copy.
     copyAssetToFile(assetFileName, tempFile)
 
     if (tempFile.length() != expectedSize) {
@@ -181,7 +196,7 @@ class OppunaModelAssetModule(
       throw IllegalStateException("Final model failed post-move verification.")
     }
 
-    return resultMap(modelFile.absolutePath, true, modelFile.length(), sha, true)
+    return resultMap(modelFile.absolutePath, true, modelFile.length(), sha, true, false)
   }
 
   /**
@@ -270,7 +285,8 @@ class OppunaModelAssetModule(
     copied: Boolean,
     size: Long,
     sha256: String,
-    verified: Boolean
+    verified: Boolean,
+    shaSkipped: Boolean = false
   ): WritableMap {
     val map = Arguments.createMap()
     map.putString("path", path)
@@ -278,6 +294,7 @@ class OppunaModelAssetModule(
     map.putDouble("size", size.toDouble())
     map.putString("sha256", sha256)
     map.putBoolean("verified", verified)
+    map.putBoolean("shaSkipped", shaSkipped)
     return map
   }
 

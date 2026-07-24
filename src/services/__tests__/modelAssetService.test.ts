@@ -55,9 +55,12 @@ describe('modelAssetService', () => {
 
     (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
       JSON.stringify({
+        schemaVersion: 1,
         modelId: LOCAL_MODEL_CONFIG.id,
         modelVersion: LOCAL_MODEL_CONFIG.version,
         appVersion: '1.2.0',
+        expectedSize,
+        expectedSha256: LOCAL_MODEL_CONFIG.sha256,
         path: '/tmp/model.gguf',
         size: expectedSize,
         sha256: LOCAL_MODEL_CONFIG.sha256 || null,

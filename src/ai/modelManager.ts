@@ -16,6 +16,7 @@ import {
   getDevModelsDirectory,
   getInstalledModelPath,
   getModelMetadata,
+  requestUserModelPreparationRetry,
   verifyModelIntegrity,
 } from '@/services/modelAssetService';
 import type { ChatMessage, GenerationOptions, LocalLLMProvider, TokenCallback } from '@/ai/providers';
@@ -356,6 +357,8 @@ export async function retryModelInitialization(): Promise<LocalModelState> {
     await activeProvider.unload().catch(() => undefined);
     activeProvider = null;
   }
+  // User-triggered retry: clear preparation backoff so one controlled attempt may run.
+  await requestUserModelPreparationRetry().catch(() => undefined);
   if (state.status === 'failed' || state.status === 'corrupted') {
     await clearStoredVerification().catch(() => undefined);
   }

@@ -55,12 +55,34 @@ describe('verify-model modes', () => {
     const terms = path.join(ROOT, 'assets', 'licenses', 'GEMMA-TERMS-OF-USE.txt');
     const text = fs.readFileSync(terms, 'utf8');
     if (!/BLOCKING TODO|PLACEHOLDER/i.test(text)) {
-      // Authoritative terms already present.
       return;
     }
     const result = run({ OPPUNA_PRODUCTION_VALIDATE: '1' }, '--production');
     expect(result.code).not.toBe(0);
     expect(result.out).toMatch(/authoritative Gemma Terms|not authoritative/i);
+  });
+
+  it('requires the exact Gemma Notice sentence', () => {
+    const notice = fs.readFileSync(
+      path.join(ROOT, 'assets', 'licenses', 'GEMMA-NOTICE.txt'),
+      'utf8',
+    );
+    expect(notice).toContain(
+      'Gemma is provided under and subject to the Gemma Terms of Use found at ai.google.dev/gemma/terms',
+    );
+  });
+
+  it('fails production when required Notice sentence is missing', () => {
+    const noticePath = path.join(ROOT, 'assets', 'licenses', 'GEMMA-NOTICE.txt');
+    const original = fs.readFileSync(noticePath, 'utf8');
+    try {
+      fs.writeFileSync(noticePath, 'Wrong notice without required sentence.\n', 'utf8');
+      const result = run({ OPPUNA_PRODUCTION_VALIDATE: '1' }, '--production');
+      expect(result.code).not.toBe(0);
+      expect(result.out).toMatch(/required Gemma Notice sentence/i);
+    } finally {
+      fs.writeFileSync(noticePath, original, 'utf8');
+    }
   });
 });
 

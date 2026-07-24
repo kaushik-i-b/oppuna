@@ -285,10 +285,45 @@ async function main() {
         fail(`Package ID missing or incorrect (expected ${expectedPackage})`);
         failures.push('packageId');
       } else {
-        pass(`Package ID = ${expectedPackage}`);
+        pass(`Package ID (artifact) = ${expectedPackage}`);
       }
+
+      const actualVersionCodeMatch = manifestXml.match(
+        /android:versionCode\s*=\s*"?(\d+)"?/,
+      );
+      const actualVersionNameMatch = manifestXml.match(
+        /android:versionName\s*=\s*"([^"]+)"/,
+      );
+      if (!actualVersionCodeMatch) {
+        blocked('android:versionCode not found in decoded AAB manifest');
+        blocks.push('versionCode');
+      } else {
+        const actualVersionCode = Number(actualVersionCodeMatch[1]);
+        if (actualVersionCode !== Number(expectedVersionCode)) {
+          fail(
+            `versionCode mismatch: AAB has ${actualVersionCode}, app.json expects ${expectedVersionCode}`,
+          );
+          failures.push('versionCode');
+        } else {
+          pass(`versionCode (artifact) = ${actualVersionCode}`);
+        }
+      }
+      if (!actualVersionNameMatch) {
+        blocked('android:versionName not found in decoded AAB manifest');
+        blocks.push('versionName');
+      } else {
+        const actualVersionName = actualVersionNameMatch[1];
+        if (actualVersionName !== String(expectedVersionName)) {
+          fail(
+            `versionName mismatch: AAB has "${actualVersionName}", app.json expects "${expectedVersionName}"`,
+          );
+          failures.push('versionName');
+        } else {
+          pass(`versionName (artifact) = ${actualVersionName}`);
+        }
+      }
+
       if (/android\.permission\.INTERNET/.test(manifestXml) && !/tools:node="remove"/.test(manifestXml)) {
-        // Presence of INTERNET without remove is a fail; with remove is OK.
         const internetLines = manifestXml
           .split('\n')
           .filter((l) => l.includes('android.permission.INTERNET'));
@@ -313,21 +348,21 @@ async function main() {
       const sdkMatch = manifestXml.match(/android:targetSdkVersion\s*=\s*"?(\d+)"?/);
       if (sdkMatch) {
         const sdk = Number(sdkMatch[1]);
-        console.log(`INFO targetSdkVersion=${sdk}`);
         if (sdk < 34) {
           fail(`targetSdkVersion ${sdk} is below expected (>=34)`);
           failures.push('targetSdk');
         } else {
-          pass(`targetSdkVersion=${sdk}`);
+          pass(`targetSdkVersion (artifact) = ${sdk}`);
         }
       } else {
         blocked('targetSdkVersion not found in decoded manifest');
         blocks.push('targetSdk');
       }
-      console.log(
-        `INFO versionName=${expectedVersionName} versionCode=${expectedVersionCode} (from app.json; verify Play Console matches)`,
-      );
     } else {
+      blocked(
+        'bundletool or equivalent manifest inspection unavailable — cannot verify artifact versionCode/versionName/package from AAB',
+      );
+      blocks.push('manifest');
       const binaryManifest = inspectManifestViaUnzip(aabPath, tmpDir);
       if (binaryManifest) {
         const strings = extractStringsFromBinary(binaryManifest);
@@ -338,26 +373,15 @@ async function main() {
           failures.push('packageId');
         }
         if (strings.includes('android.permission.INTERNET')) {
-          // Binary may still contain the string even when removed — weak signal.
-          console.log(
-            'INFO binary manifest contains INTERNET string — confirm with bundletool dump',
-          );
           blocked('INTERNET permission cannot be conclusively verified without bundletool');
           blocks.push('INTERNET');
         } else {
           pass('INTERNET permission string absent from binary manifest');
         }
-        if (strings.some((s) => s.includes('allowBackup')) || binaryManifest.includes(Buffer.from('allowBackup'))) {
-          // Weak check
-          console.log('INFO allowBackup referenced in binary manifest');
-        }
         blocked(
-          'Full manifest checks (allowBackup/targetSdk) require bundletool — install bundletool for conclusive PASS',
+          'Full manifest checks (versionCode/versionName/allowBackup/targetSdk) require bundletool',
         );
         blocks.push('manifest details');
-      } else {
-        blocked('Could not decode AndroidManifest (bundletool unavailable)');
-        blocks.push('manifest');
       }
     }
 

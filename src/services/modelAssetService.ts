@@ -19,7 +19,11 @@ export { requiredPrivateModelStorageBytes };
 
 const VERIFICATION_STORAGE_KEY = 'oppuna.localModel.verification.v1';
 const RECOPY_ATTEMPTS_KEY = 'oppuna.localModel.recopyAttempts.v1';
+const PREP_FAILURE_KEY = 'oppuna.localModel.prepFailure.v1';
 const MAX_RECOPY_ATTEMPTS = 1;
+/** After this many consecutive automatic preparation failures, suppress auto-copy. */
+const MAX_AUTO_PREP_FAILURES = 2;
+const VERIFICATION_SCHEMA_VERSION = 1;
 const DEV_MODELS_DIR = `${FileSystem.documentDirectory ?? ''}models/`;
 
 export interface ModelMetadata {
@@ -47,16 +51,30 @@ export interface PrepareModelResult {
   size: number;
   sha256: string | null;
   verified: boolean;
+  shaSkipped?: boolean;
+  suppressed?: boolean;
 }
 
 interface StoredVerification {
+  schemaVersion: number;
   modelId: string;
   modelVersion: string;
   appVersion: string;
+  expectedSize: number;
+  expectedSha256: string;
   path: string;
   size: number;
   sha256: string | null;
   verifiedAt: number;
+}
+
+interface PrepFailureState {
+  consecutiveFailures: number;
+  lastCategory: string;
+  lastFailureAt: number;
+  modelId: string;
+  modelVersion: string;
+  appVersion: string;
 }
 
 interface PrepareLocalModelNativeResult {
@@ -65,6 +83,7 @@ interface PrepareLocalModelNativeResult {
   size: number;
   sha256: string;
   verified: boolean;
+  shaSkipped?: boolean;
 }
 
 interface OppunaModelAssetNativeModule {
@@ -73,6 +92,7 @@ interface OppunaModelAssetNativeModule {
     expectedSize: number,
     expectedSha256: string,
     forceRecopy: boolean,
+    skipFullSha: boolean,
   ) => Promise<PrepareLocalModelNativeResult>;
   sha256File?: (path: string) => Promise<string>;
   validateGgufHeader?: (path: string) => Promise<boolean>;
@@ -162,31 +182,156 @@ async function writeRecopyAttempts(count: number): Promise<void> {
   await AsyncStorage.setItem(RECOPY_ATTEMPTS_KEY, String(count));
 }
 
+async function readPrepFailure(): Promise<PrepFailureState | null> {
+  try {
+    const raw = await AsyncStorage.getItem(PREP_FAILURE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as PrepFailureState;
+  } catch {
+    return null;
+  }
+}
+
+async function writePrepFailure(state: PrepFailureState): Promise<void> {
+  await AsyncStorage.setItem(PREP_FAILURE_KEY, JSON.stringify(state));
+}
+
+export async function clearPreparationFailureState(): Promise<void> {
+  await AsyncStorage.removeItem(PREP_FAILURE_KEY);
+}
+
+export async function getPreparationFailureState(): Promise<PrepFailureState | null> {
+  return readPrepFailure();
+}
+
+/**
+ * True when automatic ~806 MB copies should be suppressed after persistent failures.
+ * Resets when model/app version changes.
+ */
+export async function shouldSuppressAutomaticPreparation(): Promise<boolean> {
+  const state = await readPrepFailure();
+  if (!state) return false;
+  if (state.modelId !== LOCAL_MODEL_CONFIG.id) return false;
+  if (state.modelVersion !== LOCAL_MODEL_CONFIG.version) return false;
+  if (state.appVersion !== APP.version) return false;
+  return state.consecutiveFailures >= MAX_AUTO_PREP_FAILURES;
+}
+
+export async function recordPreparationFailure(category: string): Promise<void> {
+  const previous = await readPrepFailure();
+  const sameConfig =
+    previous &&
+    previous.modelId === LOCAL_MODEL_CONFIG.id &&
+    previous.modelVersion === LOCAL_MODEL_CONFIG.version &&
+    previous.appVersion === APP.version;
+  const consecutiveFailures = sameConfig ? previous.consecutiveFailures + 1 : 1;
+  await writePrepFailure({
+    consecutiveFailures,
+    lastCategory: category,
+    lastFailureAt: Date.now(),
+    modelId: LOCAL_MODEL_CONFIG.id,
+    modelVersion: LOCAL_MODEL_CONFIG.version,
+    appVersion: APP.version,
+  });
+}
+
+/** User-triggered "Retry AI setup" — clears backoff so one controlled attempt may run. */
+export async function requestUserModelPreparationRetry(): Promise<void> {
+  await clearPreparationFailureState();
+  await clearRecopyAttemptCounter();
+}
+
+/**
+ * Whether trusted verification metadata authorizes skipping a full SHA rehash.
+ */
+export async function hasTrustedVerificationForPath(path: string): Promise<boolean> {
+  const stored = await readStoredVerification();
+  if (!stored) return false;
+  if (stored.schemaVersion !== VERIFICATION_SCHEMA_VERSION) return false;
+  if (stored.path !== path) return false;
+  if (stored.modelId !== LOCAL_MODEL_CONFIG.id) return false;
+  if (stored.modelVersion !== LOCAL_MODEL_CONFIG.version) return false;
+  if (stored.appVersion !== APP.version) return false;
+  if (stored.expectedSize !== LOCAL_MODEL_CONFIG.expectedSize) return false;
+  if (stored.size !== LOCAL_MODEL_CONFIG.expectedSize) return false;
+  if (
+    stored.expectedSha256.toLowerCase() !== LOCAL_MODEL_CONFIG.sha256.toLowerCase()
+  ) {
+    return false;
+  }
+  if (
+    stored.sha256 &&
+    stored.sha256.toLowerCase() !== LOCAL_MODEL_CONFIG.sha256.toLowerCase()
+  ) {
+    return false;
+  }
+  return true;
+}
+
 /**
  * Copy install-time bundled asset into private storage (Android production path).
  */
 export async function prepareBundledModel(options: {
   forceRecopy?: boolean;
+  forceFullSha?: boolean;
+  userInitiated?: boolean;
 } = {}): Promise<PrepareModelResult | null> {
   if (Platform.OS !== 'android') return null;
   const native = getNativeModule();
   if (!native?.prepareLocalModel) return null;
 
   const forceRecopy = options.forceRecopy === true;
+  const userInitiated = options.userInitiated === true;
+
+  if (!forceRecopy && !userInitiated && (await shouldSuppressAutomaticPreparation())) {
+    logger.info('Automatic model preparation suppressed (persistent failures)');
+    return { path: '', copied: false, size: 0, sha256: null, verified: false, suppressed: true };
+  }
+
   try {
+    // Peek whether we already have trusted metadata for the expected private path.
+    const expectedPrivatePath = `${toAbsolutePath(
+      // filesDir not available in JS — native returns path; use stored path when present.
+      (await readStoredVerification())?.path ?? '',
+    )}`;
+    const skipFullSha =
+      options.forceFullSha !== true &&
+      !forceRecopy &&
+      expectedPrivatePath.length > 0 &&
+      (await hasTrustedVerificationForPath(expectedPrivatePath));
+
     const result = await native.prepareLocalModel(
       LOCAL_MODEL_CONFIG.fileName,
       LOCAL_MODEL_CONFIG.expectedSize,
       LOCAL_MODEL_CONFIG.sha256,
       forceRecopy,
+      skipFullSha,
     );
     if (!result?.path) {
       logger.warn('Bundled model preparation returned no path');
+      await recordPreparationFailure('empty_result');
       return null;
     }
-    logger.info('Bundled model prepared', { copied: result.copied, verified: result.verified });
+    logger.info('Bundled model prepared', {
+      copied: result.copied,
+      verified: result.verified,
+      shaSkipped: result.shaSkipped === true,
+    });
     if (result.verified) {
       await clearRecopyAttemptCounter().catch(() => undefined);
+      await clearPreparationFailureState().catch(() => undefined);
+      await writeStoredVerification({
+        schemaVersion: VERIFICATION_SCHEMA_VERSION,
+        modelId: LOCAL_MODEL_CONFIG.id,
+        modelVersion: LOCAL_MODEL_CONFIG.version,
+        appVersion: APP.version,
+        expectedSize: LOCAL_MODEL_CONFIG.expectedSize,
+        expectedSha256: LOCAL_MODEL_CONFIG.sha256,
+        path: toAbsolutePath(result.path),
+        size: result.size,
+        sha256: result.sha256 || LOCAL_MODEL_CONFIG.sha256,
+        verifiedAt: Date.now(),
+      });
     }
     return {
       path: result.path,
@@ -194,13 +339,16 @@ export async function prepareBundledModel(options: {
       size: result.size,
       sha256: result.sha256 ?? null,
       verified: result.verified,
+      shaSkipped: result.shaSkipped === true,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (/INSUFFICIENT_STORAGE/i.test(message)) {
+      await recordPreparationFailure('insufficient_storage');
       throw new Error('Not enough storage for the on-device AI model.');
     }
     logger.warn('Bundled model preparation failed', { error: message });
+    await recordPreparationFailure('prepare_error');
     return null;
   }
 }
@@ -214,6 +362,7 @@ export async function getInstalledModelPath(): Promise<string | null> {
   if (Platform.OS === 'android') {
     try {
       const prepared = await prepareBundledModel();
+      if (prepared?.suppressed) return null;
       if (prepared?.path) return toAbsolutePath(prepared.path);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -270,11 +419,14 @@ export async function getRecopyAttemptCount(): Promise<number> {
 
 function needsFullVerification(stored: StoredVerification | null, path: string, size: number): boolean {
   if (!stored) return true;
+  if (stored.schemaVersion !== VERIFICATION_SCHEMA_VERSION) return true;
   if (stored.path !== path) return true;
   if (stored.size !== size) return true;
   if (stored.modelId !== LOCAL_MODEL_CONFIG.id) return true;
   if (stored.modelVersion !== LOCAL_MODEL_CONFIG.version) return true;
   if (stored.appVersion !== APP.version) return true;
+  if (stored.expectedSize !== LOCAL_MODEL_CONFIG.expectedSize) return true;
+  if (stored.expectedSha256.toLowerCase() !== LOCAL_MODEL_CONFIG.sha256.toLowerCase()) return true;
   return false;
 }
 
@@ -398,9 +550,12 @@ export async function verifyModelIntegrity(options: {
   }
 
   await writeStoredVerification({
+    schemaVersion: VERIFICATION_SCHEMA_VERSION,
     modelId: LOCAL_MODEL_CONFIG.id,
     modelVersion: LOCAL_MODEL_CONFIG.version,
     appVersion: APP.version,
+    expectedSize: LOCAL_MODEL_CONFIG.expectedSize,
+    expectedSha256: LOCAL_MODEL_CONFIG.sha256,
     path,
     size,
     sha256,
@@ -438,9 +593,11 @@ export async function attemptModelRecopy(): Promise<boolean> {
   const prepared = await prepareBundledModel({ forceRecopy: true });
   if (prepared?.verified) {
     await clearRecopyAttemptCounter();
+    await clearPreparationFailureState();
     return true;
   }
   // Leave counter elevated — no immediate infinite repair loop.
+  await recordPreparationFailure('recopy_failed');
   return false;
 }
 
@@ -449,4 +606,4 @@ export function getDevModelsDirectory(): string {
   return DEV_MODELS_DIR;
 }
 
-export { MAX_RECOPY_ATTEMPTS };
+export { MAX_RECOPY_ATTEMPTS, MAX_AUTO_PREP_FAILURES, VERIFICATION_SCHEMA_VERSION };
