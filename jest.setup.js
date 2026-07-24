@@ -14,10 +14,19 @@ jest.mock('expo-haptics', () => ({
 
 jest.mock('expo-file-system/legacy', () => ({
   documentDirectory: 'file:///mock-documents/',
+  cacheDirectory: 'file:///mock-cache/',
+  EncodingType: { UTF8: 'utf8' },
   getInfoAsync: jest.fn(async () => ({ exists: false })),
   makeDirectoryAsync: jest.fn(async () => undefined),
   readDirectoryAsync: jest.fn(async () => []),
   copyAsync: jest.fn(async () => undefined),
+  writeAsStringAsync: jest.fn(async () => undefined),
+  deleteAsync: jest.fn(async () => undefined),
+}));
+
+jest.mock('expo-sharing', () => ({
+  isAvailableAsync: jest.fn(async () => true),
+  shareAsync: jest.fn(async () => undefined),
 }));
 
 jest.mock('@react-native-async-storage/async-storage', () => ({

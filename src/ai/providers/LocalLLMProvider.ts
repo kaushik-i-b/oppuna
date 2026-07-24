@@ -82,7 +82,8 @@ export class LocalLLMProviderError extends Error {
       | 'oom'
       | 'init_failed'
       | 'generation_failed'
-      | 'unavailable',
+      | 'unavailable'
+      | 'timeout',
     readonly cause?: unknown,
   ) {
     super(message);

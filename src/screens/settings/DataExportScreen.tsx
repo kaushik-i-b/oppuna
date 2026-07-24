@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { Button, Card, Screen, Text } from '@/components';
+import { Button, Card, ConfirmDialog, Screen, Text } from '@/components';
 import { useToast } from '@/components/feedback/ToastProvider';
-import { exportData } from '@/services/dataExport';
+import { EXPORT_WARNING, exportData } from '@/services/dataExport';
+import { authenticate } from '@/services/appLock';
+import { useSecureScreen } from '@/hooks/useSecureScreen';
+import { useSettingsStore } from '@/store/settingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { RootStackParamList } from '@/navigation/types';
@@ -15,36 +18,76 @@ export function DataExportScreen({ navigation }: Props): React.ReactElement {
   const theme = useTheme();
   const { t } = useTranslation();
   const toast = useToast();
+  const appLockEnabled = useSettingsStore((s) => s.appLockEnabled);
   const [busy, setBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const handleExport = async (): Promise<void> => {
+  useSecureScreen(true);
+
+  const runExport = useCallback(async (): Promise<void> => {
     setBusy(true);
-    const result = await exportData();
-    setBusy(false);
-    if (result.ok) {
-      toast.show('Export ready. Choose where to save it.', 'success');
-    } else {
-      toast.show(result.error.message, 'error');
+    try {
+      if (appLockEnabled) {
+        const verified = await authenticate({
+          promptMessage: t('lock.exportPrompt'),
+          cancelLabel: t('common.cancel'),
+        });
+        if (!verified) {
+          toast.show(t('settings.appLockNotVerified'), 'info');
+          return;
+        }
+      }
+
+      const result = await exportData();
+      if (result.ok) {
+        toast.show(t('settings.exportReady'), 'success');
+      } else {
+        toast.show(result.error.message, 'error');
+      }
+    } finally {
+      setBusy(false);
+      setConfirmOpen(false);
     }
-  };
+  }, [appLockEnabled, t, toast]);
 
   return (
     <Screen title={t('settings.exportData')} onBack={() => navigation.goBack()} scroll>
       <Card>
-        <Text variant="subtitle">📤 Take your data with you</Text>
+        <Text variant="subtitle">📤 {t('settings.exportTitle')}</Text>
         <Text variant="body" color="textMuted" style={{ marginVertical: theme.spacing.sm }}>
-          This creates a single JSON file containing your moods, journal entries, conversations,
-          breathing sessions, and voice note references.
+          {t('settings.exportDescription')}
         </Text>
         <Text variant="caption" color="textFaint">
-          The file is created on your device. Sharing it afterward is entirely your choice and is
-          handled by your phone — Oppuna never uploads anything.
+          {t('settings.exportPrivacyNote')}
+        </Text>
+      </Card>
+
+      <Card style={{ marginTop: theme.spacing.md, backgroundColor: theme.colors.dangerMuted }}>
+        <Text variant="bodyStrong" style={{ marginBottom: theme.spacing.sm }}>
+          {t('common.confirm')}
+        </Text>
+        <Text variant="body" color="textMuted">
+          {EXPORT_WARNING}
         </Text>
       </Card>
 
       <View style={{ marginTop: theme.spacing.xl }}>
-        <Button label={busy ? 'Preparing…' : 'Export as JSON'} onPress={() => void handleExport()} loading={busy} />
+        <Button
+          label={busy ? t('settings.exportPreparing') : t('settings.exportAction')}
+          onPress={() => setConfirmOpen(true)}
+          loading={busy}
+        />
       </View>
+
+      <ConfirmDialog
+        visible={confirmOpen}
+        title={t('settings.exportData')}
+        message={EXPORT_WARNING}
+        confirmLabel={t('settings.exportAction')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={() => void runExport()}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </Screen>
   );
 }

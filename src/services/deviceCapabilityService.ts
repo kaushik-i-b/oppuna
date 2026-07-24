@@ -36,6 +36,8 @@ interface OppunaModelAssetMemoryModule {
   getTotalMemoryBytes?: () => Promise<number>;
 }
 
+/** Devices below this threshold cannot reliably load Gemma 3 1B Q4_K_M. */
+const UNSUPPORTED_RAM_BYTES = 3 * 1024 * 1024 * 1024;
 /** Rough RAM tiers commonly seen on Android phones Oppuna targets. */
 const LOW_RAM_BYTES = 4 * 1024 * 1024 * 1024;
 const MEDIUM_RAM_BYTES = 6 * 1024 * 1024 * 1024;
@@ -128,6 +130,19 @@ export function getDeviceCapability(overrides: CapabilityOverrides = {}): Device
   }
 
   const tier = tierFromMemory(totalMemory);
+
+  if (totalMemory !== null && totalMemory < UNSUPPORTED_RAM_BYTES) {
+    return {
+      tier: 'low',
+      totalMemory,
+      recommendedContextSize: 512,
+      recommendedGpuLayers: 0,
+      maxGenerationTokens: 64,
+      recommendedThreads: 1,
+      canRunLocalModel: false,
+      reason: 'This device does not have enough memory for the on-device AI model.',
+    };
+  }
 
   if (tier === 'low') {
     return {

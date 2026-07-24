@@ -117,7 +117,7 @@ describe('modelManager lifecycle', () => {
     });
 
     const result = await initializeModel();
-    expect(result.status).toBe('failed');
+    expect(result.status).toBe('corrupted');
     expect(result.error).toMatch(/suspiciously small/i);
   });
 

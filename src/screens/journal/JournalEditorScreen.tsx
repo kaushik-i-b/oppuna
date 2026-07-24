@@ -7,6 +7,7 @@ import { useToast } from '@/components/feedback/ToastProvider';
 import { journalRepository } from '@/database';
 import { isJournalEntryValid } from '@/database/repositories/journalRepository';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSecureScreen } from '@/hooks/useSecureScreen';
 import { randomPrompt } from '@/services/offlineAI';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
@@ -27,6 +28,7 @@ export function JournalEditorScreen({ navigation, route }: Props): React.ReactEl
   const theme = useTheme();
   const { t } = useTranslation();
   const toast = useToast();
+  useSecureScreen(true);
 
   const editingId = route.params?.id;
   const [kind, setKind] = useState<JournalKind>(route.params?.kind ?? 'daily');

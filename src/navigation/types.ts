@@ -32,8 +32,10 @@ export type RootStackParamList = {
   DeleteData: undefined;
   Disclaimer: { fromSettings?: boolean } | undefined;
   Terms: undefined;
+  ThirdPartyLicenses: undefined;
   About: undefined;
   LocalAIDiagnostics: undefined;
+  ProductionReadiness: undefined;
 
   // Safety
   Crisis: { category?: SafetyCategory } | undefined;

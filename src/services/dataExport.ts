@@ -15,6 +15,12 @@ import { logger } from '@/utils/logger';
 import { ok, err } from '@/types';
 import type { Result } from '@/types';
 
+export const EXPORT_WARNING =
+  'This export may contain private journal, mood, and conversation data. Anyone with access to the exported file may be able to read it.';
+
+const EXPORT_PREFIX = 'oppuna-export-';
+const EXPORT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
 export interface ExportBundle {
   app: string;
   version: string;
@@ -53,16 +59,66 @@ async function buildBundle(): Promise<ExportBundle> {
   };
 }
 
+function exportDirectory(): string {
+  return FileSystem.cacheDirectory ?? FileSystem.documentDirectory ?? '';
+}
+
+export function isExportFileName(name: string): boolean {
+  return name.startsWith(EXPORT_PREFIX) && name.endsWith('.json');
+}
+
+/** Removes stale export JSON files from cache/document storage. */
+export async function cleanupStaleExportFiles(now = Date.now()): Promise<number> {
+  const dir = exportDirectory();
+  if (!dir) return 0;
+
+  let removed = 0;
+  try {
+    const entries = await FileSystem.readDirectoryAsync(dir);
+    for (const name of entries) {
+      if (!isExportFileName(name)) continue;
+      const uri = `${dir}${name}`;
+      const info = await FileSystem.getInfoAsync(uri);
+      const mtime =
+        info.exists && 'modificationTime' in info && typeof info.modificationTime === 'number'
+          ? info.modificationTime * 1000
+          : 0;
+      if (mtime > 0 && now - mtime > EXPORT_MAX_AGE_MS) {
+        await FileSystem.deleteAsync(uri, { idempotent: true });
+        removed += 1;
+      }
+    }
+  } catch (error) {
+    logger.warn('Export cleanup scan failed', { error: String(error) });
+  }
+  return removed;
+}
+
+export async function deleteExportFile(fileUri: string): Promise<void> {
+  try {
+    await FileSystem.deleteAsync(fileUri, { idempotent: true });
+  } catch (error) {
+    logger.warn('Export file deletion failed', { error: String(error) });
+  }
+}
+
 /**
- * Writes all local data to a JSON file in the app's document directory and
- * opens the native share sheet so the user can save it where they choose.
- * Nothing is uploaded — sharing is a local OS action controlled by the user.
+ * Writes wellness data to a temporary JSON file and opens the system share sheet.
+ * The export is never uploaded automatically.
  */
 export async function exportData(): Promise<Result<string>> {
+  let fileUri: string | null = null;
   try {
+    await cleanupStaleExportFiles();
+
     const bundle = await buildBundle();
     const json = JSON.stringify(bundle, null, 2);
-    const fileUri = `${FileSystem.documentDirectory}oppuna-export-${Date.now()}.json`;
+    const dir = exportDirectory();
+    if (!dir) {
+      return err({ code: 'export_failed', message: 'Could not access local storage for export.' });
+    }
+
+    fileUri = `${dir}${EXPORT_PREFIX}${Date.now()}.json`;
     await FileSystem.writeAsStringAsync(fileUri, json, {
       encoding: FileSystem.EncodingType.UTF8,
     });
@@ -75,15 +131,20 @@ export async function exportData(): Promise<Result<string>> {
       });
     }
 
-    logger.info('Data export written', { fileUri });
+    logger.info('Data export prepared');
     return ok(fileUri);
   } catch (cause) {
     logger.error('Data export failed', { cause: String(cause) });
     return err({ code: 'export_failed', message: 'Could not export your data.', cause });
+  } finally {
+    if (fileUri) {
+      // Best-effort immediate cleanup after share sheet returns.
+      await deleteExportFile(fileUri);
+    }
   }
 }
 
-/** Deletes every piece of local data: database rows and recorded voice files. */
+/** Deletes every piece of local wellness data (not the bundled Gemma model). */
 export async function deleteAllData(): Promise<Result<true>> {
   try {
     const notes = await voiceNoteRepository.list(10000);
@@ -92,6 +153,7 @@ export async function deleteAllData(): Promise<Result<true>> {
         FileSystem.deleteAsync(note.uri, { idempotent: true }).catch(() => undefined),
       ),
     );
+    await cleanupStaleExportFiles();
     await wipeAllTables();
     logger.info('All local data deleted');
     return ok(true);

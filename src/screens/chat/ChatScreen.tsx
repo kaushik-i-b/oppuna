@@ -15,6 +15,7 @@ import { chatRepository, safetyRepository } from '@/database';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSecureScreen } from '@/hooks/useSecureScreen';
 import { cancelGeneration, generateAIResponse, resetConversationMemory } from '@/ai';
 import { DEFAULT_AGENT_ID } from '@/ai/agents';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -35,6 +36,9 @@ function modelStatusLabel(
     case 'loading':
       return t('chat.modelLoading');
     case 'unavailable':
+    case 'unsupported-device':
+    case 'corrupted':
+    case 'fallback-mode':
       return t('chat.modelUnavailable');
     case 'failed':
       return t('chat.modelError');
@@ -55,6 +59,7 @@ export function ChatScreen(): React.ReactElement {
   const theme = useTheme();
   const { t } = useTranslation();
   const toast = useToast();
+  useSecureScreen(true);
   const navigation = useAppNavigation();
   const modelState = useModelStatus();
 

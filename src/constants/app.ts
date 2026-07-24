@@ -2,7 +2,8 @@ import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
 
 export const APP = {
   name: 'Oppuna',
-  tagline: 'A private, offline journal, mood, and reflection companion.',
+  tagline:
+    'A private, offline journal, mood, and reflection companion with on-device AI and guided safety fallbacks.',
   version: '1.2.0',
 } as const;
 
@@ -14,15 +15,19 @@ export const MEDICAL_DISCLAIMER =
 
 export const TERMS_OF_USE =
   'By using Oppuna you agree to these terms. Oppuna is provided “as is,” for ' +
-  'personal wellbeing and self-reflection only. It is not a medical device and ' +
-  'does not provide medical, psychological, legal, or emergency advice. You are ' +
-  'responsible for how you use the app and for seeking qualified professional ' +
-  'help when you need it. Because Oppuna stores everything only on your device ' +
-  'and never sends data anywhere, you are solely responsible for backing up or ' +
-  'exporting your data; uninstalling the app or clearing its storage will ' +
-  'permanently erase it. The app is offered without warranties of any kind, and ' +
-  'to the fullest extent permitted by law the developer is not liable for any ' +
-  'loss arising from its use.';
+  'personal wellbeing and self-reflection only. Oppuna may use an on-device language ' +
+  'model (Gemma 3 1B) with safety checks and guided offline fallbacks. AI inference ' +
+  'happens locally on your device; outputs may be inaccurate and are not medical ' +
+  'diagnosis, treatment, professional therapy, or emergency care. Safety systems may ' +
+  'replace or override model responses. Applicable third-party model terms (including ' +
+  'Google Gemma Terms of Use) apply. Oppuna is not a medical device and does not ' +
+  'provide medical, psychological, legal, or emergency advice. You are responsible for ' +
+  'how you use the app and for seeking qualified professional help when you need it. ' +
+  'Because Oppuna stores everything only on your device and never sends data anywhere, ' +
+  'you are solely responsible for backing up or exporting your data; uninstalling the ' +
+  'app or clearing its storage will permanently erase it. The app is offered without ' +
+  'warranties of any kind, and to the fullest extent permitted by law the developer is ' +
+  'not liable for any loss arising from its use.';
 
 export const PRIVACY_STATEMENT =
   'Everything you write, record, and track in Oppuna stays on this device. ' +
