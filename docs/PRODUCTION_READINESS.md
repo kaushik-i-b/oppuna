@@ -13,11 +13,23 @@ This document tracks software production-readiness work for the offline-first Op
 
 ## Automated release gates
 
-Run locally or in CI:
+### Pull requests / ordinary CI
+
+```bash
+npm run verify:ci
+```
+
+May report `SKIPPED` for the large GGUF binary and authoritative Gemma terms when those artifacts are intentionally unavailable in Git/CI. `SKIPPED` is not `PASS`.
+
+### Release machines (strict — no skips)
 
 ```bash
 npm run verify:production
+OPPUNA_PRODUCTION_VALIDATE=1 npm run verify:model
+npm run verify:aab -- path/to/fresh-release.aab
 ```
+
+`verify:production` requires the real `assets/ai-model/model.gguf`, matching size/SHA/GGUF header, and authoritative `GEMMA-TERMS-OF-USE.txt`.
 
 Individual checks:
 
@@ -29,8 +41,13 @@ Individual checks:
 | `npm run verify:secrets` | No committed keystores/passwords |
 | `npm run verify:offline` | Offline-only app configuration |
 | `npm run verify:privacy-config` | Android backup disabled |
-| `npm run verify:model` | Gemma / PAD / license assets |
+| `npm run verify:model` | Gemma / PAD / license assets (strict by default) |
+| `npm run verify:aab` | Inspect a built AAB artifact |
 | `npm run inspect:android-release` | SDK targets, package id, manifest |
+| `npm run verify:ci` | PR/CI pipeline (skips allowed) |
+| `npm run verify:production` | Strict release pipeline (no skips) |
+
+Model metadata source of truth: `config/local-model.json`
 
 ## Key documentation
 

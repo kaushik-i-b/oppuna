@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * STRICT production validation.
- * Never skips model binary, SHA, size, GGUF, or legal file checks.
- * Do NOT set OPPUNA_CI=1 here.
+ * CI / PR source validation.
+ * May SKIP large unavailable artifacts (model binary, authoritative Gemma terms).
+ * Never calls SKIPPED a PASS.
  */
 
 const { execSync } = require('child_process');
@@ -17,11 +17,7 @@ const STEPS = [
   ['verify:secrets', 'node scripts/verify-secrets.js', {}],
   ['verify:offline', 'node scripts/verify-offline.js', {}],
   ['verify:privacy-config', 'node scripts/verify-privacy-config.js', {}],
-  [
-    'verify:model (STRICT)',
-    'node scripts/verify-model.js --production',
-    { OPPUNA_PRODUCTION_VALIDATE: '1', OPPUNA_CI: '' },
-  ],
+  ['verify:model (CI)', 'node scripts/verify-model.js --ci', { OPPUNA_CI: '1' }],
   ['inspect:android-release', 'node scripts/inspect-android-release.js', {}],
 ];
 
@@ -36,16 +32,16 @@ function run(label, command, extraEnv) {
 }
 
 function main() {
-  console.log('Production validation (STRICT — no skips)\n');
+  console.log('CI validation (skips allowed for unavailable release artifacts)\n');
   for (const [label, command, extraEnv] of STEPS) {
     try {
       run(label, command, extraEnv);
     } catch {
-      console.error(`\nProduction validation FAILED at: ${label}`);
+      console.error(`\nCI validation FAILED at: ${label}`);
       process.exit(1);
     }
   }
-  console.log('\nAll production validation gates passed.');
+  console.log('\nCI validation passed (SKIPPED items are not PASS).');
 }
 
 main();

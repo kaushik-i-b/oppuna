@@ -3,6 +3,9 @@
  *
  * Model discovery, integrity, and lifecycle orchestration live in modelManager.
  * This class must not call cloud APIs, Ollama, or perform network I/O.
+ *
+ * Initialization uses an attempt ID so timed-out / canceled loads never assign
+ * a late native context (orphaned llama.cpp contexts are released immediately).
  */
 
 import { Platform } from 'react-native';
@@ -66,6 +69,8 @@ export class LlamaRnProvider implements LocalLLMProvider {
   private initPromise: Promise<void> | null = null;
   private generating = false;
   private cancelRequested = false;
+  private initAttemptId = 0;
+  private initCanceled = false;
 
   constructor(options: LlamaRnProviderOptions) {
     const capability = getDeviceCapability();
@@ -92,6 +97,11 @@ export class LlamaRnProvider implements LocalLLMProvider {
     return this.modelPath;
   }
 
+  /** @internal Test/diagnostic accessor for active init attempt. */
+  getInitAttemptId(): number {
+    return this.initAttemptId;
+  }
+
   async initialize(): Promise<void> {
     if (Platform.OS === 'web') {
       this.status = 'failed';
@@ -102,12 +112,15 @@ export class LlamaRnProvider implements LocalLLMProvider {
       return;
     }
 
+    // Single-flight: concurrent callers share the same native load.
     if (this.initPromise) {
       return this.initPromise;
     }
 
+    const attemptId = ++this.initAttemptId;
+    this.initCanceled = false;
     this.status = 'initializing';
-    this.initPromise = this.loadContext();
+    this.initPromise = this.loadContext(attemptId);
     try {
       await this.initPromise;
     } finally {
@@ -116,9 +129,22 @@ export class LlamaRnProvider implements LocalLLMProvider {
     }
   }
 
-  private async loadContext(): Promise<void> {
+  private isInitAttemptCurrent(attemptId: number): boolean {
+    return !this.initCanceled && attemptId === this.initAttemptId;
+  }
+
+  private async releaseContextQuietly(context: LlamaContext): Promise<void> {
     try {
-      const context = await initLlama({
+      await context.release();
+    } catch (error) {
+      logger.warn('Failed to release stale llama.rn context', { error: String(error) });
+    }
+  }
+
+  private async loadContext(attemptId: number): Promise<void> {
+    let context: LlamaContext | null = null;
+    try {
+      context = await initLlama({
         model: toFileUri(this.modelPath),
         use_mmap: true,
         use_mlock: this.useMlock,
@@ -126,16 +152,32 @@ export class LlamaRnProvider implements LocalLLMProvider {
         n_threads: this.nThreads,
         n_gpu_layers: this.nGpuLayers,
       });
+
+      if (!this.isInitAttemptCurrent(attemptId)) {
+        await this.releaseContextQuietly(context);
+        this.context = null;
+        if (this.status === 'initializing') {
+          this.status = 'failed';
+        }
+        throw new LocalLLMProviderError('Initialization cancelled (stale attempt)', 'cancelled');
+      }
+
       this.context = context;
       this.status = 'ready';
       logger.info('llama.rn context ready', {
         contextSize: this.contextSize,
         gpuLayers: this.nGpuLayers,
         gpu: context.gpu,
+        attemptId,
       });
     } catch (error) {
-      this.context = null;
-      this.status = 'failed';
+      if (context && this.context !== context) {
+        // Already released above, or never assigned.
+      }
+      if (this.isInitAttemptCurrent(attemptId)) {
+        this.context = null;
+        this.status = 'failed';
+      }
       throw mapNativeError(error, 'init_failed');
     }
   }
@@ -204,6 +246,9 @@ export class LlamaRnProvider implements LocalLLMProvider {
   }
 
   async unload(): Promise<void> {
+    // Invalidate any in-flight initialization so a late initLlama result is released.
+    this.initCanceled = true;
+    this.initAttemptId += 1;
     this.cancelRequested = true;
     this.initPromise = null;
     if (this.context) {

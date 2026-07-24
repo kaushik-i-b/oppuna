@@ -1,40 +1,50 @@
 /**
  * Central configuration for the on-device GGUF model.
  *
+ * Release-critical metadata (size, SHA-256, pack name) lives in
+ * config/local-model.json — the single machine-readable source of truth
+ * shared with verify-model, verify-aab, and the asset-pack plugin.
+ *
  * Production model: Google Gemma 3 1B Instruct (Q4_K_M), ~769 MB — fits under
  * Google Play's 1 GB install-time asset pack limit.
- *
- * Do not scatter model constants elsewhere. Update SHA-256 / size here when
- * swapping the production model used in the Play Asset Delivery pack.
  *
  * The GGUF binary itself must NOT be committed to git — see docs/LOCAL_LLM_ANDROID.md.
  */
 
+import localModelJson from '../../config/local-model.json';
+
 export const LOCAL_MODEL_CONFIG = {
   /** Stable identifier for verification metadata and diagnostics. */
-  id: 'oppuna-gemma3-1b-it-q4km',
+  id: localModelJson.modelId,
   /** Human-readable label for diagnostics / settings. */
-  displayName: 'Gemma 3 1B Instruct (Q4_K_M)',
+  displayName: localModelJson.displayName,
   /** Upstream Hugging Face GGUF source (developer reference only — not fetched at runtime). */
-  sourceRepo: 'bartowski/google_gemma-3-1b-it-GGUF',
-  sourceFile: 'google_gemma-3-1b-it-Q4_K_M.gguf',
+  sourceRepo: localModelJson.sourceRepo,
+  sourceFile: localModelJson.sourceFile,
   /** Filename inside the install-time Play Asset Delivery pack. */
-  fileName: 'model.gguf',
+  fileName: localModelJson.fileName,
   /** Bump when the shipped GGUF changes so integrity re-runs. */
-  version: '2',
+  version: String(localModelJson.version),
   /**
    * Expected SHA-256 hex digest of the GGUF file.
    * Computed from assets/ai-model/model.gguf (Gemma 3 1B Instruct Q4_K_M).
    */
-  sha256: '12bf0fff8815d5f73a3c9b586bd8fee8e7b248c935de70dec367679873d0f29d' as string,
+  sha256: localModelJson.sha256 as string,
   /**
    * Expected byte size. When > 0, size checks reject obviously corrupt files.
    */
-  expectedSize: 806_058_496 as number,
+  expectedSize: localModelJson.expectedSize as number,
   /** Absolute minimum plausible GGUF size (guards empty / truncated files). */
-  minPlausibleSizeBytes: 1_000_000,
+  minPlausibleSizeBytes: localModelJson.minPlausibleSizeBytes as number,
   /** Play Asset Delivery pack name (must match the Gradle asset pack). */
-  assetPackName: 'ai_model_asset_pack',
+  assetPackName: localModelJson.assetPackName,
+  /** Install-time delivery (must match Gradle assetPack.dynamicDelivery). */
+  deliveryType: localModelJson.deliveryType as 'install-time',
+  /**
+   * Extra free bytes beyond one private model copy for filesystem overhead
+   * and normal app operation. Formula: expectedSize + storageHeadroomBytes.
+   */
+  storageHeadroomBytes: localModelJson.storageHeadroomBytes as number,
   /** Default context window; device capability service may lower this. */
   contextSize: 4096,
   /** Hard cap on generated tokens per turn. */
@@ -48,6 +58,18 @@ export const LOCAL_MODEL_CONFIG = {
 } as const;
 
 export type LocalModelConfig = typeof LOCAL_MODEL_CONFIG;
+
+/**
+ * Free space required to prepare a private copy of the bundled model.
+ * One temp/private copy (+ headroom). Temp is atomically renamed to final,
+ * so we do not need 2× model size free.
+ */
+export function requiredPrivateModelStorageBytes(
+  expectedSize: number = LOCAL_MODEL_CONFIG.expectedSize,
+  headroomBytes: number = LOCAL_MODEL_CONFIG.storageHeadroomBytes,
+): number {
+  return expectedSize + headroomBytes;
+}
 
 /**
  * Stop sequences for Gemma (and common chat templates).
