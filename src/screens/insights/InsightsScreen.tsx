@@ -1,16 +1,18 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { Card, EmptyState, Loading, MoodBarChart, Screen, SectionHeader, Text } from '@/components';
+import { Button, Loading, MoodBarChart, Screen, Text } from '@/components';
 import { MOOD_TAGS } from '@/constants/moods';
 import { breathingRepository, journalRepository, moodRepository } from '@/database';
 import { computeWeeklyInsights, type WeeklyInsight } from '@/database/repositories/moodRepository';
+import { useSaveCelebration } from '@/hooks/useSaveCelebration';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useTheme } from '@/theme/ThemeProvider';
-import { logger } from '@/utils/logger';
 import type { RootStackParamList } from '@/navigation/types';
+import { useTheme } from '@/theme/ThemeProvider';
+import { CareHero, FadeInView, Icon, SectionLabel, type OppunaIconName } from '@/ui';
+import { logger } from '@/utils/logger';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Insights'>;
 
@@ -20,27 +22,27 @@ interface Stats {
   breathingCount: number;
 }
 
+interface MetricCard {
+  label: string;
+  value: string;
+  icon: OppunaIconName;
+  hint: string;
+}
+
 function tagLabel(key: string): string {
   return MOOD_TAGS.find((t) => t.key === key)?.label ?? key;
 }
 
-function StatTile({ value, label }: { value: string; label: string }): React.ReactElement {
-  return (
-    <Card style={styles.tile}>
-      <Text variant="title" color="primary">
-        {value}
-      </Text>
-      <Text variant="caption" color="textMuted" center>
-        {label}
-      </Text>
-    </Card>
-  );
+function statsSignature(stats: Stats): string {
+  return `${stats.insight.entryCount}:${stats.journalCount}:${stats.breathingCount}:${stats.insight.averageScore ?? 'x'}`;
 }
 
 export function InsightsScreen({ navigation }: Props): React.ReactElement {
   const theme = useTheme();
   const { t } = useTranslation();
+  const { celebrate, celebration } = useSaveCelebration();
   const [stats, setStats] = useState<Stats | null>(null);
+  const lastSignature = useRef<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -49,11 +51,28 @@ export function InsightsScreen({ navigation }: Props): React.ReactElement {
         journalRepository.count(),
         breathingRepository.count(),
       ]);
-      setStats({ insight: computeWeeklyInsights(moods), journalCount, breathingCount });
+      const next: Stats = {
+        insight: computeWeeklyInsights(moods),
+        journalCount,
+        breathingCount,
+      };
+      const sig = statsSignature(next);
+      const hasData =
+        next.insight.entryCount > 0 || next.journalCount > 0 || next.breathingCount > 0;
+
+      if (hasData && lastSignature.current !== null && lastSignature.current !== sig) {
+        void celebrate({
+          kind: 'insight',
+          message: 'Your insights updated',
+          detail: 'A quiet look at how you have been showing up — only on this device.',
+        });
+      }
+      lastSignature.current = sig;
+      setStats(next);
     } catch (error) {
       logger.error('Insights load failed', { error: String(error) });
     }
-  }, []);
+  }, [celebrate]);
 
   useFocusEffect(
     useCallback(() => {
@@ -63,63 +82,300 @@ export function InsightsScreen({ navigation }: Props): React.ReactElement {
 
   if (!stats) {
     return (
-      <Screen title={t('home.insights')} onBack={() => navigation.goBack()}>
-        <Loading label={t('common.loading')} />
-      </Screen>
+      <>
+        <Screen title={t('home.insights')} onBack={() => navigation.goBack()}>
+          <Loading label={t('common.loading')} />
+        </Screen>
+        {celebration}
+      </>
     );
   }
 
   const { insight } = stats;
-  const hasData = insight.entryCount > 0;
+  const hasData =
+    insight.entryCount > 0 || stats.journalCount > 0 || stats.breathingCount > 0;
+
+  if (!hasData) {
+    return (
+      <>
+        <Screen title={t('home.insights')} onBack={() => navigation.goBack()}>
+          <View style={styles.empty}>
+            <CareHero
+              leafVariant="outline"
+              leafSize={72}
+              title={t('mood.noData')}
+              body="Check in a few times this week and your patterns will appear here — privately, on your device."
+            />
+            <View style={{ alignSelf: 'stretch', paddingHorizontal: theme.spacing.lg }}>
+              <Button
+                label="Check in now"
+                onPress={() => navigation.navigate('Main', { screen: 'Mood' })}
+              />
+            </View>
+          </View>
+        </Screen>
+        {celebration}
+      </>
+    );
+  }
+
+  const metrics: MetricCard[] = [];
+  if (insight.entryCount > 0) {
+    metrics.push({
+      label: 'Check-ins',
+      value: String(insight.entryCount),
+      icon: 'mood',
+      hint: 'This week',
+    });
+    if (insight.averageScore != null) {
+      metrics.push({
+        label: 'Avg mood',
+        value: `${insight.averageScore}/5`,
+        icon: 'insights',
+        hint: 'Weekly average',
+      });
+    }
+  }
+  if (stats.journalCount > 0) {
+    metrics.push({
+      label: 'Journal',
+      value: String(stats.journalCount),
+      icon: 'journal',
+      hint: 'Entries saved',
+    });
+  }
+  if (stats.breathingCount > 0) {
+    metrics.push({
+      label: 'Calm',
+      value: String(stats.breathingCount),
+      icon: 'breathe',
+      hint: 'Breath sessions',
+    });
+  }
+
+  const maxTagCount = Math.max(1, ...insight.topTags.map((tag) => tag.count));
 
   return (
-    <Screen title={t('home.insights')} onBack={() => navigation.goBack()} scroll>
-      <View style={styles.statRow}>
-        <StatTile
-          value={insight.averageScore != null ? `${insight.averageScore}/5` : '—'}
-          label={t('mood.average')}
-        />
-        <StatTile value={`${insight.entryCount}`} label="Check-ins" />
-      </View>
-      <View style={[styles.statRow, { marginTop: theme.spacing.md }]}>
-        <StatTile value={`${stats.journalCount}`} label="Journal entries" />
-        <StatTile value={`${stats.breathingCount}`} label="Calm sessions" />
-      </View>
+    <>
+      <Screen title={t('home.insights')} onBack={() => navigation.goBack()} scroll>
+        <FadeInView delay={0} preset="fade">
+          <CareHero
+            leafVariant="celebrate"
+            leafSize={64}
+            title="Your week, quietly"
+            body="Gentle patterns from check-ins and care — private, on this device only."
+          />
+        </FadeInView>
 
-      <View style={{ marginTop: theme.spacing.xl }}>
-        <SectionHeader title={t('mood.weekly')} />
-        <Card>
-          {hasData ? (
-            <MoodBarChart data={insight.dailyScores} />
-          ) : (
-            <EmptyState emoji="📈" title={t('mood.noData')} />
-          )}
-        </Card>
-      </View>
-
-      {insight.topTags.length > 0 ? (
-        <View style={{ marginTop: theme.spacing.xl }}>
-          <SectionHeader title="Most common themes" />
-          <Card>
-            <View style={{ gap: theme.spacing.sm }}>
-              {insight.topTags.map((tag) => (
-                <View key={tag.tag} style={styles.tagRow}>
-                  <Text variant="body">{tagLabel(tag.tag)}</Text>
-                  <Text variant="bodyStrong" color="primary">
-                    {tag.count}
+        <FadeInView delay={80}>
+          <SectionLabel>AT A GLANCE</SectionLabel>
+          <View style={[styles.metrics, { gap: theme.spacing.md, marginBottom: theme.spacing.xl }]}>
+            {metrics.map((metric, index) => (
+              <FadeInView
+                key={metric.label}
+                delay={100 + index * 40}
+                preset="soft"
+                style={styles.metricGrow}
+              >
+                <View
+                  style={[
+                    styles.metricCard,
+                    {
+                      backgroundColor: theme.colors.surface,
+                      borderRadius: theme.radius.lg,
+                      paddingVertical: theme.spacing.lg,
+                      paddingRight: theme.spacing.lg,
+                      paddingLeft: theme.spacing.lg + 8,
+                    },
+                  ]}
+                >
+                  <View
+                    style={[styles.accentBar, { backgroundColor: theme.colors.primaryMuted }]}
+                  />
+                  <View
+                    style={[
+                      styles.metricIcon,
+                      { backgroundColor: theme.colors.primaryMuted },
+                    ]}
+                  >
+                    <Icon name={metric.icon} size={18} color={theme.colors.primary} />
+                  </View>
+                  <Text variant="label" color="textFaint" style={{ marginTop: theme.spacing.sm }}>
+                    {metric.label.toUpperCase()}
+                  </Text>
+                  <Text variant="title" color="primary" style={{ marginTop: 2 }}>
+                    {metric.value}
+                  </Text>
+                  <Text variant="caption" color="textMuted" style={{ marginTop: 2 }}>
+                    {metric.hint}
                   </Text>
                 </View>
-              ))}
+              </FadeInView>
+            ))}
+          </View>
+        </FadeInView>
+
+        {insight.entryCount > 0 ? (
+          <FadeInView delay={160}>
+            <SectionLabel>{t('mood.weekly').toUpperCase()}</SectionLabel>
+            <View
+              style={[
+                {
+                  backgroundColor: theme.colors.primaryMuted,
+                  borderRadius: theme.radius.xl,
+                  padding: theme.spacing.lg,
+                  marginBottom: theme.spacing.xl,
+                },
+              ]}
+            >
+              <Text
+                variant="caption"
+                color="textMuted"
+                style={{ letterSpacing: 0.6, marginBottom: theme.spacing.md }}
+              >
+                MOOD OVER THE WEEK
+              </Text>
+              <View
+                style={{
+                  backgroundColor: theme.colors.surface,
+                  borderRadius: theme.radius.lg,
+                  padding: theme.spacing.md,
+                }}
+              >
+                <MoodBarChart data={insight.dailyScores} />
+              </View>
             </View>
-          </Card>
-        </View>
-      ) : null}
-    </Screen>
+          </FadeInView>
+        ) : null}
+
+        {insight.topTags.length > 0 ? (
+          <FadeInView delay={220}>
+            <SectionLabel>MOST COMMON THEMES</SectionLabel>
+            <View style={{ gap: theme.spacing.sm, marginBottom: theme.spacing.xl }}>
+              {insight.topTags.map((tag, index) => {
+                const ratio = tag.count / maxTagCount;
+                return (
+                  <FadeInView key={tag.tag} delay={240 + index * 40} preset="soft">
+                    <View
+                      style={[
+                        styles.tagCard,
+                        {
+                          backgroundColor: theme.colors.surface,
+                          borderRadius: theme.radius.lg,
+                          paddingVertical: theme.spacing.lg,
+                          paddingRight: theme.spacing.lg,
+                          paddingLeft: theme.spacing.lg + 8,
+                        },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.accentBar,
+                          { backgroundColor: theme.colors.primaryMuted },
+                        ]}
+                      />
+                      <View style={styles.tagHeader}>
+                        <Text variant="bodyStrong" style={{ flex: 1 }}>
+                          {tagLabel(tag.tag)}
+                        </Text>
+                        <Text variant="bodyStrong" color="primary">
+                          {tag.count}
+                        </Text>
+                      </View>
+                      <View
+                        style={[
+                          styles.tagTrack,
+                          { backgroundColor: theme.colors.border, marginTop: theme.spacing.sm },
+                        ]}
+                      >
+                        <View
+                          style={[
+                            styles.tagFill,
+                            {
+                              width: `${Math.max(0.12, ratio) * 100}%`,
+                              backgroundColor: theme.colors.primary,
+                            },
+                          ]}
+                        />
+                      </View>
+                    </View>
+                  </FadeInView>
+                );
+              })}
+            </View>
+          </FadeInView>
+        ) : null}
+
+        <FadeInView delay={280}>
+          <View
+            style={[
+              styles.privacyNote,
+              {
+                backgroundColor: theme.colors.surfaceAlt,
+                borderRadius: theme.radius.lg,
+                padding: theme.spacing.lg,
+                marginBottom: theme.spacing.xl,
+              },
+            ]}
+          >
+            <Icon name="shield" size={20} color={theme.colors.primary} />
+            <Text
+              variant="caption"
+              color="textMuted"
+              style={{ flex: 1, marginLeft: theme.spacing.md }}
+            >
+              These insights never leave your phone. Oppuna does not sync or analyze them in the
+              cloud.
+            </Text>
+          </View>
+        </FadeInView>
+      </Screen>
+      {celebration}
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  statRow: { flexDirection: 'row', gap: 12 },
-  tile: { flex: 1, alignItems: 'center', gap: 4 },
-  tagRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  metrics: { flexDirection: 'row', flexWrap: 'wrap' },
+  metricGrow: { flexGrow: 1, flexBasis: '45%', minWidth: 140 },
+  metricCard: {
+    overflow: 'hidden',
+    minHeight: 120,
+  },
+  metricIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  accentBar: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
+  },
+  tagCard: {
+    overflow: 'hidden',
+  },
+  tagHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  tagTrack: {
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  tagFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  privacyNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });

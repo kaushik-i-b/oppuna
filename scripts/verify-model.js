@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Validates Gemma GGUF + model configuration.
+ * Validates on-device GGUF + model configuration.
  *
  * Modes:
- *   --ci / OPPUNA_CI=1          : may SKIP unavailable model binary / placeholder terms
+ *   --ci / OPPUNA_CI=1          : may SKIP unavailable model binary
  *   --production / OPPUNA_PRODUCTION_VALIDATE=1 : STRICT — never skip
  *   default                     : STRICT (same as production)
  */
@@ -20,6 +20,9 @@ const APP_JSON = path.join(ROOT, 'app.json');
 const ASSET_PACK_PLUGIN = path.join(ROOT, 'plugins', 'withAiModelAssetPack.js');
 const LICENSES = path.join(ROOT, 'assets', 'licenses');
 const GGUF_MAGIC = Buffer.from('GGUF', 'ascii');
+
+/** Google Play install-time asset pack hard limit (1 GiB). */
+const PLAY_INSTALL_TIME_PACK_MAX_BYTES = 1073741824;
 
 const CI_MODE = process.env.OPPUNA_CI === '1' || process.argv.includes('--ci');
 const PRODUCTION_MODE =
@@ -64,7 +67,7 @@ function skipped(line) {
   console.log(`SKIPPED ${line}`);
 }
 
-function isPlaceholderTerms(text) {
+function isPlaceholderLicense(text) {
   return (
     /BLOCKING TODO/i.test(text) ||
     /PLACEHOLDER/i.test(text) ||
@@ -82,11 +85,24 @@ async function main() {
   console.log(`Expected size: ${config.expectedSize}`);
   console.log(`Model ID: ${config.modelId}\n`);
 
-  if (config.expectedSize !== 806058496) {
-    // Guard against accidental truncation in the shared config itself.
-    failures.push(`expectedSize must be 806058496, got ${config.expectedSize}`);
+  if (config.expectedSize < config.minPlausibleSizeBytes) {
+    failures.push(
+      `expectedSize ${config.expectedSize} is below minPlausibleSizeBytes ${config.minPlausibleSizeBytes}`,
+    );
+    fail('expectedSize plausible');
   } else {
     pass(`shared config expectedSize = ${config.expectedSize}`);
+  }
+
+  if (config.expectedSize >= PLAY_INSTALL_TIME_PACK_MAX_BYTES) {
+    failures.push(
+      `expectedSize ${config.expectedSize} exceeds Play install-time pack limit ${PLAY_INSTALL_TIME_PACK_MAX_BYTES}`,
+    );
+    fail('Play install-time pack size limit');
+  } else {
+    pass(
+      `expectedSize under Play install-time pack limit (${config.expectedSize} < ${PLAY_INSTALL_TIME_PACK_MAX_BYTES})`,
+    );
   }
 
   const app = JSON.parse(read(APP_JSON));
@@ -110,13 +126,13 @@ async function main() {
   }
 
   const requiredLicenses = [
-    'GEMMA-NOTICE.txt',
-    'GEMMA-TERMS-OF-USE.txt',
+    'QWEN-NOTICE.txt',
+    'QWEN-LICENSE.txt',
     'llama-rn-MIT.txt',
     'llama-cpp-MIT.txt',
   ];
   const REQUIRED_NOTICE =
-    'Gemma is provided under and subject to the Gemma Terms of Use found at ai.google.dev/gemma/terms';
+    'Qwen is provided under and subject to the Apache License, Version 2.0';
   for (const file of requiredLicenses) {
     const full = path.join(LICENSES, file);
     if (!fs.existsSync(full)) {
@@ -125,28 +141,22 @@ async function main() {
       continue;
     }
     pass(`${file} exists`);
-    if (file === 'GEMMA-NOTICE.txt') {
+    if (file === 'QWEN-NOTICE.txt') {
       const text = read(full);
       if (!text.includes(REQUIRED_NOTICE)) {
-        failures.push('GEMMA-NOTICE.txt missing required Gemma Notice sentence');
-        fail('required Gemma Notice sentence');
+        failures.push('QWEN-NOTICE.txt missing required Qwen Notice sentence');
+        fail('required Qwen Notice sentence');
       } else {
-        pass('required Gemma Notice sentence present');
+        pass('required Qwen Notice sentence present');
       }
     }
-    if (file === 'GEMMA-TERMS-OF-USE.txt') {
+    if (file === 'QWEN-LICENSE.txt') {
       const text = read(full);
-      if (isPlaceholderTerms(text)) {
-        if (CI_MODE && !PRODUCTION_MODE) {
-          skipped('authoritative Gemma terms unavailable in CI');
-        } else {
-          failures.push(
-            'GEMMA-TERMS-OF-USE.txt is not authoritative — replace before production',
-          );
-          fail('authoritative Gemma Terms of Use');
-        }
+      if (isPlaceholderLicense(text) || !/Apache License/i.test(text)) {
+        failures.push('QWEN-LICENSE.txt must contain the Apache License, Version 2.0 text');
+        fail('authoritative Qwen / Apache-2.0 license');
       } else {
-        pass('authoritative Gemma Terms of Use');
+        pass('authoritative Qwen / Apache-2.0 license');
       }
     }
   }
@@ -168,6 +178,15 @@ async function main() {
       fail(`actual size = expected size (${stat.size} vs ${config.expectedSize})`);
     } else {
       pass(`actual size = expected size (${stat.size})`);
+    }
+
+    if (stat.size >= PLAY_INSTALL_TIME_PACK_MAX_BYTES) {
+      failures.push(
+        `model.gguf size ${stat.size} exceeds Play install-time pack limit ${PLAY_INSTALL_TIME_PACK_MAX_BYTES}`,
+      );
+      fail('model.gguf under Play pack limit');
+    } else {
+      pass('model.gguf under Play pack limit');
     }
 
     if (!checkGgufHeader(MODEL_PATH)) {

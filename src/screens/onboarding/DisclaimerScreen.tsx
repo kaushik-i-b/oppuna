@@ -2,12 +2,13 @@ import React from 'react';
 import { View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { Button, Card, Screen, Text } from '@/components';
+import { Button, Screen, Text } from '@/components';
 import { MEDICAL_DISCLAIMER } from '@/constants/app';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { RootStackParamList } from '@/navigation/types';
+import { Icon } from '@/ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Disclaimer'>;
 
@@ -37,21 +38,41 @@ export function DisclaimerScreen({ navigation, route }: Props): React.ReactEleme
         {t('disclaimerScreen.title')}
       </Text>
 
-      <Card style={{ backgroundColor: theme.colors.dangerMuted }}>
-        <Text variant="bodyStrong" color="danger" style={{ marginBottom: theme.spacing.sm }}>
-          Please read carefully
-        </Text>
+      <View
+        style={{
+          backgroundColor: theme.colors.warningMuted,
+          borderRadius: theme.radius.md,
+          padding: theme.spacing.lg,
+          gap: theme.spacing.sm,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}>
+          <Icon name="warning" size={20} color={theme.colors.warning} />
+          <Text variant="bodyStrong" style={{ color: theme.colors.warning }}>
+            Please read carefully
+          </Text>
+        </View>
         <Text variant="body" color="text">
           {MEDICAL_DISCLAIMER}
         </Text>
-      </Card>
+      </View>
 
-      <Card style={{ marginTop: theme.spacing.md }}>
-        <Text variant="body" color="textMuted">
-          If you are ever in crisis or danger, Oppuna will pause and guide you toward emergency
-          services and people you trust. It will never try to handle an emergency on its own.
-        </Text>
-      </Card>
+      <View
+        style={{
+          marginTop: theme.spacing.md,
+          backgroundColor: theme.colors.surfaceAlt,
+          borderRadius: theme.radius.md,
+          padding: theme.spacing.lg,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: theme.spacing.sm }}>
+          <Icon name="shield" size={20} color={theme.colors.textMuted} />
+          <Text variant="body" color="textMuted" style={{ flex: 1 }}>
+            If you are ever in crisis or danger, Oppuna will pause and guide you toward emergency
+            services and people you trust. It will never try to handle an emergency on its own.
+          </Text>
+        </View>
+      </View>
 
       {!fromSettings ? (
         <View style={{ marginTop: theme.spacing.xl }}>

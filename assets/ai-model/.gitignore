@@ -9,3 +9,4 @@
 *
 !.gitignore
 !README.md
+# model.gguf stays gitignored (root *.gguf). EAS still uploads it via .easignore.

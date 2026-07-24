@@ -34,6 +34,7 @@ export type RootStackParamList = {
   Terms: undefined;
   ThirdPartyLicenses: undefined;
   About: undefined;
+  HowOppunaHelps: undefined;
   LocalAIDiagnostics: undefined;
   ProductionReadiness: undefined;
 

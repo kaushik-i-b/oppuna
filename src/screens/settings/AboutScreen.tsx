@@ -2,10 +2,11 @@ import React from 'react';
 import { View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { Card, Screen, Text } from '@/components';
+import { Button, Card, Screen, Text } from '@/components';
 import { APP, MEDICAL_DISCLAIMER } from '@/constants/app';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { RootStackParamList } from '@/navigation/types';
+import { Icon, LivingLeaf } from '@/ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'About'>;
 
@@ -15,7 +16,7 @@ export function AboutScreen({ navigation }: Props): React.ReactElement {
   return (
     <Screen title={`About ${APP.name}`} onBack={() => navigation.goBack()} scroll>
       <View style={{ alignItems: 'center', marginVertical: theme.spacing.lg }}>
-        <Text variant="display">🌿</Text>
+        <LivingLeaf size={72} variant="greet" />
         <Text variant="title" style={{ marginTop: theme.spacing.sm }}>
           {APP.name}
         </Text>
@@ -28,13 +29,22 @@ export function AboutScreen({ navigation }: Props): React.ReactElement {
         <Text variant="body">{APP.tagline}</Text>
       </Card>
 
+      <View style={{ marginTop: theme.spacing.md }}>
+        <Button
+          label="How Oppuna helps"
+          variant="secondary"
+          onPress={() => navigation.navigate('HowOppunaHelps')}
+        />
+      </View>
+
       <Card style={{ marginTop: theme.spacing.md }}>
         <Text variant="bodyStrong" style={{ marginBottom: theme.spacing.sm }}>
           What Oppuna is for
         </Text>
         <Text variant="body" color="textMuted">
-          Oppuna offers gentle, everyday wellness support — a calm space to reflect, breathe, and
-          notice how you feel. It runs entirely on your device.
+          Oppuna offers gentle, everyday wellness support using CBT-inspired tools — a calm space
+          to notice thoughts, reflect, breathe, and track how you feel. It runs entirely on your
+          device.
         </Text>
       </Card>
 
@@ -49,14 +59,24 @@ export function AboutScreen({ navigation }: Props): React.ReactElement {
         </Text>
       </Card>
 
-      <Card style={{ marginTop: theme.spacing.md }}>
-        <Text variant="bodyStrong" color="danger" style={{ marginBottom: theme.spacing.sm }}>
-          Important
-        </Text>
+      <View
+        style={{
+          marginTop: theme.spacing.md,
+          backgroundColor: theme.colors.warningMuted,
+          borderRadius: theme.radius.md,
+          padding: theme.spacing.lg,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, marginBottom: theme.spacing.sm }}>
+          <Icon name="warning" size={18} color={theme.colors.warning} />
+          <Text variant="bodyStrong" style={{ color: theme.colors.warning }}>
+            Important
+          </Text>
+        </View>
         <Text variant="body" color="textMuted">
           {MEDICAL_DISCLAIMER}
         </Text>
-      </Card>
+      </View>
 
       <Text variant="caption" color="textFaint" center style={{ marginTop: theme.spacing.xl }}>
         Built to work offline. No account, no cloud, no tracking.

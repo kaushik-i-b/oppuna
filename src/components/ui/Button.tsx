@@ -1,8 +1,8 @@
 import React from 'react';
 import {
   ActivityIndicator,
-  Pressable,
   StyleSheet,
+  View,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
@@ -10,6 +10,7 @@ import {
 import { Text } from '@/components/ui/Typography';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useTheme } from '@/theme/ThemeProvider';
+import { PRESS_SCALE_SOFT, PressableScale } from '@/ui';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'md' | 'lg';
@@ -27,6 +28,19 @@ interface Props {
   style?: StyleProp<ViewStyle>;
 }
 
+type Tone = {
+  bg: string;
+  fg: string;
+  /** Soft outer glow — tinted, not Material elevation. */
+  glow?: string;
+  /** Quiet top sheen for primary only. */
+  sheen?: string;
+};
+
+/**
+ * Oppuna care CTA — soft sage / warm sand, not a generic kit button.
+ * Letter-spaced label, muted secondary & danger, no hairline “outline” look.
+ */
 export function Button({
   label,
   onPress,
@@ -42,53 +56,113 @@ export function Button({
   const theme = useTheme();
   const { selection } = useHaptics();
   const isDisabled = disabled || loading;
+  const isDark = theme.mode === 'dark';
+  const tall = size === 'lg';
 
-  const palette: Record<ButtonVariant, { bg: string; fg: string; border?: string }> = {
-    primary: { bg: theme.colors.primary, fg: theme.colors.onPrimary },
-    secondary: { bg: theme.colors.surfaceAlt, fg: theme.colors.text, border: theme.colors.border },
-    ghost: { bg: 'transparent', fg: theme.colors.primary },
-    danger: { bg: theme.colors.danger, fg: theme.colors.onDanger },
+  const tones: Record<ButtonVariant, Tone> = {
+    primary: {
+      bg: theme.colors.primary,
+      fg: theme.colors.onPrimary,
+      glow: theme.colors.primary,
+      sheen: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,252,248,0.18)',
+    },
+    secondary: {
+      bg: theme.colors.primaryMuted,
+      fg: theme.colors.primary,
+    },
+    ghost: {
+      bg: 'transparent',
+      fg: theme.colors.textMuted,
+    },
+    danger: {
+      bg: theme.colors.dangerMuted,
+      fg: theme.colors.danger,
+    },
   };
-  const colors = palette[variant];
+  const tone = tones[variant];
+  const isPrimary = variant === 'primary';
+  const isGhost = variant === 'ghost';
 
   return (
-    <Pressable
+    <PressableScale
       onPress={() => {
         if (isDisabled) return;
         if (haptic) selection();
         onPress();
       }}
       disabled={isDisabled}
+      scaleTo={PRESS_SCALE_SOFT}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
-      style={({ pressed }) => [
+      style={[
         styles.base,
         {
-          backgroundColor: colors.bg,
-          borderColor: colors.border ?? 'transparent',
-          borderWidth: colors.border ? StyleSheet.hairlineWidth * 2 : 0,
-          borderRadius: theme.radius.md,
-          paddingVertical: size === 'lg' ? 16 : 12,
-          opacity: isDisabled ? 0.5 : pressed ? 0.85 : 1,
+          backgroundColor: tone.bg,
+          borderRadius: theme.radius.lg,
+          paddingVertical: isGhost ? (tall ? 14 : 10) : tall ? 17 : 13,
+          paddingHorizontal: theme.spacing.xl,
+          minHeight: isGhost ? 44 : tall ? 54 : 46,
+          opacity: isDisabled ? 0.45 : 1,
+          ...(isPrimary && !isDisabled
+            ? {
+                shadowColor: tone.glow,
+                shadowOpacity: isDark ? 0.35 : 0.22,
+                shadowRadius: 14,
+                shadowOffset: { width: 0, height: 6 },
+                elevation: 0,
+              }
+            : null),
         },
         fullWidth && styles.fullWidth,
         style,
       ]}
     >
+      {isPrimary && tone.sheen ? (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.sheen,
+            {
+              backgroundColor: tone.sheen,
+              borderTopLeftRadius: theme.radius.lg,
+              borderTopRightRadius: theme.radius.lg,
+            },
+          ]}
+        />
+      ) : null}
+
       {loading ? (
-        <ActivityIndicator color={colors.fg} />
+        <ActivityIndicator color={tone.fg} />
       ) : (
-        <Text variant="bodyStrong" style={{ color: colors.fg }}>
+        <Text
+          variant="bodyStrong"
+          style={{
+            color: tone.fg,
+            letterSpacing: isGhost ? 0.8 : 0.55,
+            fontWeight: isGhost ? '500' : '600',
+            fontSize: tall ? theme.fontSize.md : theme.fontSize.sm,
+          }}
+        >
           {label}
         </Text>
       )}
-    </Pressable>
+    </PressableScale>
   );
 }
 
 const styles = StyleSheet.create({
-  base: { alignItems: 'center', justifyContent: 'center', minHeight: 48 },
+  base: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   fullWidth: { alignSelf: 'stretch' },
+  sheen: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '42%',
+  },
 });

@@ -18,11 +18,11 @@ export const MEDICAL_DISCLAIMER =
 export const TERMS_OF_USE =
   'By using Oppuna you agree to these terms. Oppuna is provided “as is,” for ' +
   'personal wellbeing and self-reflection only. Oppuna includes an on-device language ' +
-  'model (Gemma 3 1B) with safety checks and guided offline fallbacks. AI inference ' +
+  'model (Qwen2.5 1.5B Instruct) with safety checks and guided offline fallbacks. AI inference ' +
   'happens locally on your device; outputs may be inaccurate and are not medical ' +
   'diagnosis, treatment, professional therapy, or emergency care. You must comply with ' +
-  'applicable Gemma Terms of Use and use restrictions (see Settings → Legal → Third-Party ' +
-  'Licenses) and must not use Gemma-powered features for prohibited uses. Safety systems ' +
+  'the Apache License, Version 2.0 for the bundled model (see Settings → Legal → Third-Party ' +
+  'Licenses). Safety systems ' +
   'may block, replace, or override model responses. Oppuna is not a medical device and does not ' +
   'provide medical, psychological, legal, or emergency advice. You are responsible for ' +
   'how you use the app and for seeking qualified professional help when you need it. ' +

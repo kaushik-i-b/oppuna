@@ -32,7 +32,7 @@ Oppuna's on-device wellness engine combines a local language model with safety c
 Features
 
 Offline AI companion
-Chat with an on-device AI companion (Gemma 3 1B) with safety checks and guided offline fallbacks — processed entirely on your device.
+Chat with an on-device AI companion (Qwen2.5 1.5B) with safety checks and guided offline fallbacks — processed entirely on your device.
 
 Crisis safety
 Oppuna recognises signs of severe distress and stops normal coaching to show dedicated crisis support resources. Your safety is never routed through a server.

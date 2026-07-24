@@ -13,16 +13,16 @@ export interface LicenseAsset {
 /** Bundled offline license assets under assets/licenses/. */
 export const LICENSE_ASSETS: LicenseAsset[] = [
   {
-    id: 'gemma-notice',
-    title: 'Gemma model notice',
-    module: require('../../assets/licenses/GEMMA-NOTICE.txt'),
-    filename: 'GEMMA-NOTICE.txt',
+    id: 'qwen-notice',
+    title: 'Qwen model notice',
+    module: require('../../assets/licenses/QWEN-NOTICE.txt'),
+    filename: 'QWEN-NOTICE.txt',
   },
   {
-    id: 'gemma-terms',
-    title: 'Gemma Terms of Use',
-    module: require('../../assets/licenses/GEMMA-TERMS-OF-USE.txt'),
-    filename: 'GEMMA-TERMS-OF-USE.txt',
+    id: 'qwen-license',
+    title: 'Qwen License (Apache-2.0)',
+    module: require('../../assets/licenses/QWEN-LICENSE.txt'),
+    filename: 'QWEN-LICENSE.txt',
   },
   {
     id: 'llama-rn',

@@ -21,31 +21,32 @@ const COPIES = [
   },
 ];
 
-const REQUIRED_GEMMA_NOTICE_SENTENCE =
-  'Gemma is provided under and subject to the Gemma Terms of Use found at ai.google.dev/gemma/terms';
+const REQUIRED_QWEN_NOTICE_SENTENCE =
+  'Qwen is provided under and subject to the Apache License, Version 2.0';
 
-const GEMMA_NOTICE = `Gemma model notice — Oppuna
+const QWEN_NOTICE = `Qwen model notice — Oppuna
 ================================
 
-${REQUIRED_GEMMA_NOTICE_SENTENCE}
+${REQUIRED_QWEN_NOTICE_SENTENCE}
 
-Oppuna distributes a quantized on-device language model derived from Google's Gemma family.
+Oppuna distributes a quantized on-device language model derived from Alibaba Cloud's Qwen2.5 family.
 
 Bundled model (production Android):
-  Name: Google Gemma 3 1B Instruct
+  Name: Qwen2.5 1.5B Instruct
   Format: GGUF (Q4_K_M quantization)
-  Identifier: oppuna-gemma3-1b-it-q4km
+  Identifier: oppuna-qwen25-1_5b-instruct-q4km
+  Upstream GGUF: bartowski/Qwen2.5-1.5B-Instruct-GGUF
   Delivery: Install-time Google Play Asset Delivery pack (ai_model_asset_pack)
 
-By using Oppuna you agree to comply with the Gemma Terms of Use in addition to Oppuna's Terms of Use.
+By using Oppuna you agree to comply with the Apache License, Version 2.0 in addition to Oppuna's Terms of Use.
 
-Oppuna-specific notes (the official Gemma terms control):
-  - The model runs entirely on your device; Oppuna does not send prompts or outputs to Google.
-  - Gemma outputs may be inaccurate and must not be treated as medical or professional advice.
-  - Redistribution of the model weights outside Oppuna is governed by Google's terms.
+Oppuna-specific notes:
+  - The model runs entirely on your device; Oppuna does not send prompts or outputs to any cloud AI service.
+  - Model outputs may be inaccurate and must not be treated as medical or professional advice.
+  - Redistribution of the model weights outside Oppuna is governed by the Apache License, Version 2.0.
   - Oppuna safety and guided offline fallbacks may block, replace, or override generative responses.
 
-For the full Gemma Terms of Use text, see assets/licenses/GEMMA-TERMS-OF-USE.txt
+For the full Apache License, Version 2.0 text, see assets/licenses/QWEN-LICENSE.txt
 `;
 
 function ensureDir(dir) {
@@ -71,13 +72,16 @@ function main() {
     }
   }
 
-  fs.writeFileSync(path.join(OUT, 'GEMMA-NOTICE.txt'), GEMMA_NOTICE, 'utf8');
-  console.log('[sync-licenses] Wrote GEMMA-NOTICE.txt');
-  const termsPath = path.join(OUT, 'GEMMA-TERMS-OF-USE.txt');
-  if (!fs.existsSync(termsPath)) {
+  fs.writeFileSync(path.join(OUT, 'QWEN-NOTICE.txt'), QWEN_NOTICE, 'utf8');
+  console.log('[sync-licenses] Wrote QWEN-NOTICE.txt');
+
+  const licensePath = path.join(OUT, 'QWEN-LICENSE.txt');
+  if (!fs.existsSync(licensePath)) {
     console.warn(
-      '[sync-licenses] GEMMA-TERMS-OF-USE.txt is missing — add authoritative Google Gemma terms before production.',
+      '[sync-licenses] QWEN-LICENSE.txt is missing — add the Apache License, Version 2.0 text before production.',
     );
+  } else {
+    console.log('[sync-licenses] QWEN-LICENSE.txt present');
   }
 }
 

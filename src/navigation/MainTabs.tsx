@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 
-import { Text } from '@/components/ui/Typography';
+import { Icon, type OppunaIconName } from '@/ui/Icon';
+import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTheme } from '@/theme/ThemeProvider';
+import { softSpring } from '@/ui/motion';
 import { HomeScreen } from '@/screens/home/HomeScreen';
 import { ChatScreen } from '@/screens/chat/ChatScreen';
 import { MoodScreen } from '@/screens/mood/MoodScreen';
@@ -13,13 +21,47 @@ import type { MainTabParamList } from '@/navigation/types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-const ICONS: Record<keyof MainTabParamList, string> = {
-  Home: '🏠',
-  Chat: '💬',
-  Mood: '🌤️',
-  Journal: '📓',
-  Settings: '⚙️',
+const ICONS: Record<keyof MainTabParamList, OppunaIconName> = {
+  Home: 'home',
+  Chat: 'chat',
+  Mood: 'mood',
+  Journal: 'journal',
+  Settings: 'settings',
 };
+
+function TabIcon({
+  name,
+  focused,
+  color,
+}: {
+  name: OppunaIconName;
+  focused: boolean;
+  color: string;
+}): React.ReactElement {
+  const reduceMotion = useReduceMotion();
+  const scale = useSharedValue(focused ? 1.1 : 1);
+  const lift = useSharedValue(focused ? -1 : 0);
+
+  useEffect(() => {
+    if (reduceMotion) {
+      scale.value = 1;
+      lift.value = 0;
+      return;
+    }
+    scale.value = withSpring(focused ? 1.12 : 1, softSpring);
+    lift.value = withSpring(focused ? -1.5 : 0, softSpring);
+  }, [focused, reduceMotion, scale, lift]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: lift.value }, { scale: scale.value }],
+  }));
+
+  return (
+    <Animated.View style={[{ alignItems: 'center', justifyContent: 'center' }, animatedStyle]}>
+      <Icon name={name} size={22} color={color} filled={focused} />
+    </Animated.View>
+  );
+}
 
 export function MainTabs(): React.ReactElement {
   const theme = useTheme();
@@ -31,19 +73,31 @@ export function MainTabs(): React.ReactElement {
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.textFaint,
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '600',
+          marginBottom: 2,
+        },
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.border,
+          borderTopWidth: StyleSheetHairline,
+          height: 58,
+          paddingTop: 4,
         },
-        tabBarIcon: ({ focused }) => (
-          <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.6 }}>
-            {ICONS[route.name]}
-          </Text>
+        tabBarIcon: ({ focused, color }) => (
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <TabIcon name={ICONS[route.name]} focused={focused} color={color} />
+          </View>
         ),
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: t('tabs.home') }} />
-      <Tab.Screen name="Chat" component={ChatScreen} options={{ tabBarLabel: t('tabs.chat') }} />
+      <Tab.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{ tabBarLabel: t('tabs.chat'), tabBarHideOnKeyboard: true }}
+      />
       <Tab.Screen name="Mood" component={MoodScreen} options={{ tabBarLabel: t('tabs.mood') }} />
       <Tab.Screen
         name="Journal"
@@ -58,3 +112,5 @@ export function MainTabs(): React.ReactElement {
     </Tab.Navigator>
   );
 }
+
+const StyleSheetHairline = 0.5;

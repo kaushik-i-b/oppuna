@@ -6,25 +6,24 @@ Please read these terms carefully before using Oppuna. By downloading, installin
 
 ## 1. What Oppuna is
 
-Oppuna is a private, offline wellness and journaling companion. It provides a calm space to journal, track moods, breathe, and reflect, with an on-device AI companion (Gemma 3 1B via llama.rn) plus safety-checked guided offline fallbacks.
+Oppuna is a private, offline wellness and journaling companion. It provides a calm space to journal, track moods, breathe, and reflect, with an on-device AI companion (Qwen2.5 1.5B Instruct via llama.rn) plus safety-checked guided offline fallbacks.
 
 ## 2. On-device AI
 
-Oppuna may use an **on-device language model** (Google Gemma 3 1B Instruct, quantized) for conversational support. **AI inference happens locally on your device.** Model outputs may be inaccurate and must not be treated as medical diagnosis, treatment, professional therapy, or emergency care. Oppuna's safety and guided fallback systems may replace or override model responses. Use of the Gemma model is also subject to **Google's Gemma Terms of Use** (see Settings → Legal → Third-Party Licenses).
+Oppuna may use an **on-device language model** (Qwen2.5 1.5B Instruct, quantized) for conversational support. **AI inference happens locally on your device.** Model outputs may be inaccurate and must not be treated as medical diagnosis, treatment, professional therapy, or emergency care. Oppuna's safety and guided fallback systems may replace or override model responses. The bundled Qwen model is licensed under the **Apache License, Version 2.0** (see Settings → Legal → Third-Party Licenses).
 
 ## 2A. On-Device AI and Third-Party Model Restrictions
 
-Oppuna includes an on-device Gemma model for conversational features. AI inference occurs locally on your device and is not sent to Oppuna or Google for remote processing.
+Oppuna includes an on-device Qwen model for conversational features. AI inference occurs locally on your device and is not sent to Oppuna or any cloud AI service for remote processing.
 
-When you use Gemma-powered functionality you agree that:
+When you use on-device AI functionality you agree that:
 
-1. You will comply with the applicable **Gemma Terms of Use** and **Gemma Notice** bundled in the app (Settings → Legal → Third-Party Licenses), and with applicable laws.
-2. You will not use Gemma-powered features for any use prohibited by the applicable Gemma terms or use policy.
-3. AI output may be inaccurate, incomplete, or inappropriate for your situation.
-4. Oppuna is **not** diagnosis, treatment, professional therapy, or emergency care.
-5. Oppuna safety systems may block, replace, or override generative responses (including crisis responses and guided offline fallbacks).
+1. You will comply with the **Apache License, Version 2.0** and the **Qwen Notice** bundled in the app (Settings → Legal → Third-Party Licenses), and with applicable laws.
+2. AI output may be inaccurate, incomplete, or inappropriate for your situation.
+3. Oppuna is **not** diagnosis, treatment, professional therapy, or emergency care.
+4. Oppuna safety systems may block, replace, or override generative responses (including crisis responses and guided offline fallbacks).
 
-The authoritative Gemma agreement, when bundled, is provided separately as `GEMMA-TERMS-OF-USE.txt`. Oppuna's own terms do not replace Google's Gemma Terms of Use.
+The Apache License text is provided separately as `QWEN-LICENSE.txt`.
 
 ## 3. Not a medical or emergency service
 

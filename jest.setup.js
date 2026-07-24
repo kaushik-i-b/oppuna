@@ -1,5 +1,81 @@
 /* Minimal mocks so unit tests for pure services run without native modules. */
 
+jest.mock('react-native-worklets', () => ({
+  __esModule: true,
+  createSerializable: (value) => value,
+  isWorkletFunction: () => false,
+  createWorkletRuntime: jest.fn(),
+  runOnJS: (fn) => fn,
+  runOnUI: (fn) => fn,
+  executeOnUIRuntimeSync: (fn) => fn(),
+  scheduleOnRN: (fn) => fn,
+}));
+
+jest.mock('react-native-reanimated', () => {
+  const RN = require('react-native');
+  const Animated = {
+    View: RN.View,
+    Text: RN.Text,
+    Image: RN.Image,
+    ScrollView: RN.ScrollView,
+    FlatList: RN.FlatList,
+    createAnimatedComponent: (Component) => Component,
+    call: () => undefined,
+  };
+
+  const noopEntering = {
+    duration: () => noopEntering,
+    delay: () => noopEntering,
+    springify: () => noopEntering,
+    damping: () => noopEntering,
+    stiffness: () => noopEntering,
+    mass: () => noopEntering,
+    withInitialValues: () => noopEntering,
+    build: () => () => ({ animations: {}, initialValues: {} }),
+  };
+
+  return {
+    __esModule: true,
+    default: Animated,
+    ...Animated,
+    useSharedValue: (init) => ({ value: init }),
+    useAnimatedStyle: (fn) => fn(),
+    useDerivedValue: (fn) => ({ value: fn() }),
+    useAnimatedProps: (fn) => fn(),
+    useAnimatedRef: () => ({ current: null }),
+    withTiming: (toValue) => toValue,
+    withSpring: (toValue) => toValue,
+    withDelay: (_delay, anim) => anim,
+    withSequence: (...anims) => anims[anims.length - 1],
+    withRepeat: (anim) => anim,
+    Easing: {
+      linear: (t) => t,
+      ease: (t) => t,
+      quad: (t) => t,
+      cubic: (t) => t,
+      sin: (t) => t,
+      out: (fn) => fn,
+      in: (fn) => fn,
+      inOut: (fn) => fn,
+      back: () => (t) => t,
+    },
+    FadeIn: noopEntering,
+    FadeOut: noopEntering,
+    FadeInDown: noopEntering,
+    FadeInUp: noopEntering,
+    FadeInLeft: noopEntering,
+    FadeInRight: noopEntering,
+    LinearTransition: noopEntering,
+    Layout: noopEntering,
+    Extrapolation: { CLAMP: 'clamp', EXTEND: 'extend', IDENTITY: 'identity' },
+    interpolate: (value, _input, output) => output?.[0] ?? value,
+    runOnJS: (fn) => fn,
+    runOnUI: (fn) => fn,
+    cancelAnimation: jest.fn(),
+    measure: jest.fn(),
+  };
+});
+
 jest.mock('expo-sqlite', () => ({
   openDatabaseAsync: jest.fn(),
 }));
@@ -38,4 +114,17 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 
 jest.mock('llama.rn', () => ({
   initLlama: jest.fn(),
+}));
+
+jest.mock('expo-notifications', () => ({
+  setNotificationHandler: jest.fn(),
+  setNotificationChannelAsync: jest.fn(async () => undefined),
+  getPermissionsAsync: jest.fn(async () => ({ granted: false, status: 'undetermined' })),
+  requestPermissionsAsync: jest.fn(async () => ({ granted: false, status: 'denied' })),
+  cancelScheduledNotificationAsync: jest.fn(async () => undefined),
+  getAllScheduledNotificationsAsync: jest.fn(async () => []),
+  scheduleNotificationAsync: jest.fn(async () => 'mock-id'),
+  AndroidImportance: { DEFAULT: 3 },
+  IosAuthorizationStatus: { PROVISIONAL: 2 },
+  SchedulableTriggerInputTypes: { DAILY: 'daily', TIME_INTERVAL: 'timeInterval' },
 }));

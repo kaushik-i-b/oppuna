@@ -99,22 +99,20 @@ Delivery mode: **install-time** — Google Play installs the model with the app.
    stat -c%s assets/ai-model/model.gguf
    ```
 
-4. Update `src/config/localModel.ts`:
+4. Update `config/local-model.json` (source of truth for size/SHA/id):
 
-   ```ts
-   export const LOCAL_MODEL_CONFIG = {
-     id: 'oppuna-gemma3-1b-it-q4km',
-     displayName: 'Gemma 3 1B Instruct (Q4_K_M)',
-     fileName: 'model.gguf',
-     version: '2',
-     sha256: '<hex digest>',
-     expectedSize: <bytes>,
-     contextSize: 4096,
-     // ...
-   };
+   ```json
+   {
+     "modelId": "oppuna-qwen25-1_5b-instruct-q4km",
+     "displayName": "Qwen2.5 1.5B Instruct (Q4_K_M)",
+     "fileName": "model.gguf",
+     "version": "3",
+     "sha256": "<hex digest>",
+     "expectedSize": 986048768
+   }
    ```
 
-   Current production choice: **Gemma 3 1B Instruct Q4_K_M** (~769 MB) so the
+   Current production choice: **Qwen2.5 1.5B Instruct Q4_K_M** (~941 MB) so the
    install-time Play Asset Delivery pack stays under the 1 GB limit.
 
 5. Do **not** commit the GGUF (`*.gguf` is gitignored).

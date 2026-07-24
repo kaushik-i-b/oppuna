@@ -144,7 +144,7 @@ export async function exportData(): Promise<Result<string>> {
   }
 }
 
-/** Deletes every piece of local wellness data (not the bundled Gemma model). */
+/** Deletes every piece of local wellness data (not the bundled on-device model). */
 export async function deleteAllData(): Promise<Result<true>> {
   try {
     const notes = await voiceNoteRepository.list(10000);

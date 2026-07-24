@@ -19,7 +19,7 @@ Use this checklist before promoting a build to production. **Do not invent bench
 - [ ] Data Safety form reviewed (no collection declared)
 - [ ] Health Apps declaration reviewed (wellness, not medical device)
 
-## AI / Gemma
+## AI / Qwen
 
 - [ ] Production AAB includes install-time asset pack with `model.gguf`
 - [ ] `npm run verify:model` passes (SHA-256 + size configured)
@@ -43,7 +43,7 @@ Use this checklist before promoting a build to production. **Do not invent bench
 - [ ] Screenshots / description match on-device AI (not “rule-based only”)
 - [ ] `docs/APP_STORE.md` copy reviewed
 - [ ] Privacy policy URL works (web) + in-app Privacy Policy works offline
-- [ ] Terms and Gemma notices accessible offline
+- [ ] Terms and Qwen notices accessible offline
 - [ ] `npm run inspect:android-release` passes (target SDK, package id)
 
 ## Build verification

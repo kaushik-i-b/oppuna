@@ -1,0 +1,23 @@
+Qwen model notice — Oppuna
+================================
+
+Qwen is provided under and subject to the Apache License, Version 2.0
+
+Oppuna distributes a quantized on-device language model derived from Alibaba Cloud's Qwen2.5 family.
+
+Bundled model (production Android):
+  Name: Qwen2.5 1.5B Instruct
+  Format: GGUF (Q4_K_M quantization)
+  Identifier: oppuna-qwen25-1_5b-instruct-q4km
+  Upstream GGUF: bartowski/Qwen2.5-1.5B-Instruct-GGUF
+  Delivery: Install-time Google Play Asset Delivery pack (ai_model_asset_pack)
+
+By using Oppuna you agree to comply with the Apache License, Version 2.0 in addition to Oppuna's Terms of Use.
+
+Oppuna-specific notes:
+  - The model runs entirely on your device; Oppuna does not send prompts or outputs to any cloud AI service.
+  - Model outputs may be inaccurate and must not be treated as medical or professional advice.
+  - Redistribution of the model weights outside Oppuna is governed by the Apache License, Version 2.0.
+  - Oppuna safety and guided offline fallbacks may block, replace, or override generative responses.
+
+For the full Apache License, Version 2.0 text, see assets/licenses/QWEN-LICENSE.txt

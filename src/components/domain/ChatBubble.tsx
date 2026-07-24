@@ -1,63 +1,90 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { Text } from '@/components/ui/Typography';
+import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { useTheme } from '@/theme/ThemeProvider';
-import { formatTime } from '@/utils/date';
+import { enter } from '@/ui/motion';
 import type { ChatMessage } from '@/types';
 
 interface Props {
   message: ChatMessage;
+  /** Hide timestamp for denser modern chat feel */
+  showTime?: boolean;
 }
 
-export function ChatBubble({ message }: Props): React.ReactElement {
+export function ChatBubble({ message, showTime = false }: Props): React.ReactElement {
   const theme = useTheme();
+  const reduceMotion = useReduceMotion();
   const isUser = message.role === 'user';
+  const empty = !message.content;
 
   return (
-    <View
+    <Animated.View
+      entering={reduceMotion ? undefined : enter.soft()}
       style={[
         styles.row,
-        { justifyContent: isUser ? 'flex-end' : 'flex-start', marginVertical: theme.spacing.xs },
+        { justifyContent: isUser ? 'flex-end' : 'flex-start', marginVertical: 6 },
       ]}
     >
       <View
         style={[
           styles.bubble,
           {
-            backgroundColor: isUser ? theme.colors.primary : theme.colors.surface,
+            backgroundColor: isUser
+              ? theme.colors.chatUserBubble
+              : theme.colors.chatAssistantBubble,
             borderColor: theme.colors.border,
-            borderWidth: isUser ? 0 : 1,
+            borderWidth: isUser ? 0 : StyleSheet.hairlineWidth,
             borderRadius: theme.radius.lg,
-            borderBottomRightRadius: isUser ? 4 : theme.radius.lg,
-            borderBottomLeftRadius: isUser ? theme.radius.lg : 4,
-            padding: theme.spacing.md,
+            borderBottomRightRadius: isUser ? 6 : theme.radius.lg,
+            borderBottomLeftRadius: isUser ? theme.radius.lg : 6,
+            paddingHorizontal: theme.spacing.md,
+            paddingVertical: theme.spacing.md,
+            maxWidth: '84%',
           },
         ]}
+        accessibilityRole="text"
+        accessibilityLabel={
+          empty
+            ? 'Oppuna is thinking'
+            : `${isUser ? 'You' : 'Oppuna'}: ${message.content}`
+        }
       >
-        <Text
-          variant="body"
-          style={{ color: isUser ? theme.colors.onPrimary : theme.colors.text }}
-        >
-          {message.content}
-        </Text>
-        <Text
-          variant="label"
-          style={{
-            color: isUser ? theme.colors.onPrimary : theme.colors.textFaint,
-            opacity: 0.7,
-            marginTop: 4,
-            textAlign: 'right',
-          }}
-        >
-          {formatTime(message.createdAt)}
-        </Text>
+        {empty ? (
+          <Text variant="body" color="textMuted">
+            …
+          </Text>
+        ) : (
+          <Text
+            variant="body"
+            style={{
+              color: isUser ? theme.colors.textPrimary : theme.colors.textPrimary,
+              lineHeight: theme.fontSize.md * 1.45,
+            }}
+          >
+            {message.content}
+          </Text>
+        )}
+        {showTime ? (
+          <Text
+            variant="label"
+            color="textFaint"
+            style={{ marginTop: 4, textAlign: 'right' }}
+          >
+            {new Date(message.createdAt).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </Text>
+        ) : null}
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row' },
-  bubble: { maxWidth: '82%' },
+  bubble: {},
 });

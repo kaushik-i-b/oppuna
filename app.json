@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0E7C66"
+      "backgroundColor": "#3D6B5A"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -26,20 +26,28 @@
     },
     "android": {
       "package": "com.oppuna.app",
-      "versionCode": 5,
+      "versionCode": 7,
       "allowBackup": false,
+      "softwareKeyboardLayoutMode": "resize",
       "userInterfaceStyle": "automatic",
       "adaptiveIcon": {
-        "backgroundColor": "#0E7C66",
+        "backgroundColor": "#3D6B5A",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "permissions": [
         "android.permission.RECORD_AUDIO",
-        "android.permission.VIBRATE"
+        "android.permission.VIBRATE",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.SCHEDULE_EXACT_ALARM"
       ],
       "blockedPermissions": [
+        "android.permission.INTERNET",
         "android.permission.INTERNET"
       ]
     },
@@ -65,7 +73,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0E7C66",
+          "backgroundColor": "#3D6B5A",
           "image": "./assets/splash-icon.png",
           "imageWidth": 180
         }
@@ -76,17 +84,37 @@
           "microphonePermission": "Oppuna records private voice notes that never leave your device."
         }
       ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/android-icon-monochrome.png",
+          "color": "#3D6B5A",
+          "defaultChannel": "oppuna-care-reminders",
+          "sounds": [],
+          "enableBackgroundRemoteNotifications": false
+        }
+      ],
       "expo-asset"
     ],
     "extra": {
       "offlineOnly": true,
       "localLlm": {
         "provider": "llama.rn",
-        "modelId": "oppuna-gemma3-1b-it-q4km",
-        "displayName": "Gemma 3 1B Instruct (Q4_K_M)",
+        "modelId": "oppuna-qwen25-1_5b-instruct-q4km",
+        "displayName": "Qwen2.5 1.5B Instruct (Q4_K_M)",
         "assetPack": "ai_model_asset_pack",
         "modelFile": "model.gguf"
+      },
+      "eas": {
+        "projectId": "0e59d96f-8d41-4a4d-98d2-9e6d26dbadef"
       }
+    },
+    "owner": "oppuna",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/0e59d96f-8d41-4a4d-98d2-9e6d26dbadef"
     }
   }
 }

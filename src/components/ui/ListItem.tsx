@@ -1,9 +1,10 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/ui/Typography';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useTheme } from '@/theme/ThemeProvider';
+import { PRESS_SCALE_SOFT, PressableScale } from '@/ui';
 
 interface Props {
   title: string;
@@ -57,18 +58,18 @@ export function ListItem({
   if (!onPress) return content;
 
   return (
-    <Pressable
+    <PressableScale
       onPress={() => {
         selection();
         onPress();
       }}
+      scaleTo={PRESS_SCALE_SOFT}
       accessibilityRole="button"
       accessibilityLabel={title}
       accessibilityHint={accessibilityHint}
-      style={({ pressed }) => [pressed && { opacity: 0.85 }]}
     >
       {content}
-    </Pressable>
+    </PressableScale>
   );
 }
 

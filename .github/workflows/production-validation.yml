@@ -22,6 +22,6 @@ jobs:
 
       - name: CI validation (skips unavailable release artifacts)
         run: npm run verify:ci
-        # Release machines with the real model.gguf and authoritative Gemma terms
+        # Release machines with the real model.gguf and Qwen license assets
         # must additionally run: npm run verify:production
         # Then: npm run verify:aab -- path/to/release.aab

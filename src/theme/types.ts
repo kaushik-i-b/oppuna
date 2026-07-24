@@ -1,10 +1,12 @@
-import type { ColorScheme } from '@/theme/colors';
+import type { ColorPaletteId, ColorScheme } from '@/theme/colors';
 import type { duration, fontSize, fontWeight, radius, spacing } from '@/theme/tokens';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
+export type { ColorPaletteId };
 
 export interface Theme {
   mode: 'light' | 'dark';
+  palette: ColorPaletteId;
   colors: ColorScheme;
   spacing: typeof spacing;
   radius: typeof radius;

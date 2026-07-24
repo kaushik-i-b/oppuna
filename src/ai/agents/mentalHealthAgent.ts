@@ -1,7 +1,7 @@
 /**
  * Mental health companion agent — Oppuna's default chat persona.
  *
- * Uses a Gemma-optimised system prompt for on-device inference via llama.rn.
+ * Uses a small-model system prompt for on-device inference via llama.rn (Qwen2.5).
  * When no model is available the orchestrator falls back to the rule engine
  * with the same intent routing and safety pipeline.
  */
@@ -40,12 +40,12 @@ function contextSummary(input: AgentPromptInput): string | null {
 }
 
 /**
- * System prompt tuned for small on-device Gemma instruct models.
+ * System prompt tuned for small on-device instruct models (Qwen2.5 1.5B).
  * Keeps instructions concrete and short so quantized models follow them reliably.
  */
 export function buildMentalHealthSystemPrompt(): string {
   return [
-    'You are Oppuna, a warm mental wellness companion powered by a local Gemma model running entirely on the user’s mobile device.',
+    'You are Oppuna, a warm mental wellness companion powered by a local on-device model running entirely on the user’s mobile device.',
     'Your role: listen, validate feelings, and offer gentle coping ideas — not clinical care.',
     'You are NOT a therapist, doctor, or crisis service. Say so clearly if asked.',
     '',
@@ -71,7 +71,7 @@ export const mentalHealthAgent: ChatAgent = {
   id: 'mental-health',
   name: 'Mental Health Companion',
   description:
-    'A private, on-device wellness companion powered by Gemma. Listens, validates, and offers gentle coping support.',
+    'A private, on-device wellness companion. Listens, validates, and offers gentle coping support.',
 
   buildSystemPrompt: buildMentalHealthSystemPrompt,
 

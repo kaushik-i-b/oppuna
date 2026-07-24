@@ -76,6 +76,37 @@ const MIGRATIONS: ((db: SQLiteDatabase) => Promise<void>)[] = [
       );
     `);
   },
+  async (db) => {
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS care_activities (
+        id TEXT PRIMARY KEY NOT NULL,
+        kind TEXT NOT NULL,
+        local_date TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_care_activities_date ON care_activities (local_date);
+      CREATE INDEX IF NOT EXISTS idx_care_activities_kind ON care_activities (kind, local_date);
+
+      CREATE TABLE IF NOT EXISTS care_streak (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        current_streak INTEGER NOT NULL DEFAULT 0,
+        longest_streak INTEGER NOT NULL DEFAULT 0,
+        last_qualifying_date TEXT,
+        rest_day_available INTEGER NOT NULL DEFAULT 1,
+        rest_day_used_on TEXT,
+        updated_at INTEGER NOT NULL
+      );
+      INSERT OR IGNORE INTO care_streak (id, current_streak, longest_streak, updated_at)
+        VALUES (1, 0, 0, 0);
+
+      CREATE TABLE IF NOT EXISTS daily_care_progress (
+        local_date TEXT PRIMARY KEY NOT NULL,
+        tasks_json TEXT NOT NULL DEFAULT '[]',
+        completed_json TEXT NOT NULL DEFAULT '[]',
+        updated_at INTEGER NOT NULL
+      );
+    `);
+  },
 ];
 
 export async function runMigrations(db: SQLiteDatabase): Promise<void> {

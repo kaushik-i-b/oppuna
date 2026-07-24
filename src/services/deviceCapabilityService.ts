@@ -36,7 +36,7 @@ interface OppunaModelAssetMemoryModule {
   getTotalMemoryBytes?: () => Promise<number>;
 }
 
-/** Devices below this threshold cannot reliably load Gemma 3 1B Q4_K_M. */
+/** Devices below this threshold cannot reliably load Qwen2.5 1.5B Q4_K_M. */
 const UNSUPPORTED_RAM_BYTES = 3 * 1024 * 1024 * 1024;
 /** Rough RAM tiers commonly seen on Android phones Oppuna targets. */
 const LOW_RAM_BYTES = 4 * 1024 * 1024 * 1024;

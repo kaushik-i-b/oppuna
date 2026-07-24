@@ -129,7 +129,7 @@ assetPack {
       } else if (isProductionBuild) {
         throw new Error(
           `[oppuna] Production build requires ${SOURCE_MODEL_DIR}/${MODEL_FILE}. ` +
-            'Place the Gemma GGUF before building a production AAB.',
+            'Place the Qwen GGUF (assets/ai-model/model.gguf) before building a production AAB.',
         );
       } else {
         writeFileIfChanged(

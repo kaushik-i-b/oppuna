@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * CI / PR source validation.
- * May SKIP large unavailable artifacts (model binary, authoritative Gemma terms).
+ * May SKIP large unavailable artifacts (model binary).
  * Never calls SKIPPED a PASS.
  */
 

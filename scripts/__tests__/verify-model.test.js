@@ -37,7 +37,7 @@ describe('verify-model modes', () => {
     const result = run({ OPPUNA_CI: '1' }, '--ci');
     expect(result.code).toBe(0);
     expect(result.out).toMatch(/SKIPPED.*model binary/i);
-    expect(result.out).toMatch(/806058496/);
+    expect(result.out).toMatch(/986048768/);
   });
 
   it('production mode does NOT skip missing model', () => {
@@ -48,41 +48,50 @@ describe('verify-model modes', () => {
     }
     const result = run({ OPPUNA_PRODUCTION_VALIDATE: '1' }, '--production');
     expect(result.code).not.toBe(0);
-    expect(result.out).toMatch(/FAIL|missing|not authoritative/i);
+    expect(result.out).toMatch(/FAIL|missing/i);
   });
 
-  it('production mode fails on placeholder Gemma terms', () => {
-    const terms = path.join(ROOT, 'assets', 'licenses', 'GEMMA-TERMS-OF-USE.txt');
-    const text = fs.readFileSync(terms, 'utf8');
-    if (!/BLOCKING TODO|PLACEHOLDER/i.test(text)) {
-      return;
-    }
-    const result = run({ OPPUNA_PRODUCTION_VALIDATE: '1' }, '--production');
-    expect(result.code).not.toBe(0);
-    expect(result.out).toMatch(/authoritative Gemma Terms|not authoritative/i);
-  });
-
-  it('requires the exact Gemma Notice sentence', () => {
+  it('requires the exact Qwen Notice sentence', () => {
     const notice = fs.readFileSync(
-      path.join(ROOT, 'assets', 'licenses', 'GEMMA-NOTICE.txt'),
+      path.join(ROOT, 'assets', 'licenses', 'QWEN-NOTICE.txt'),
       'utf8',
     );
     expect(notice).toContain(
-      'Gemma is provided under and subject to the Gemma Terms of Use found at ai.google.dev/gemma/terms',
+      'Qwen is provided under and subject to the Apache License, Version 2.0',
     );
   });
 
+  it('requires Apache-2.0 license text', () => {
+    const license = fs.readFileSync(
+      path.join(ROOT, 'assets', 'licenses', 'QWEN-LICENSE.txt'),
+      'utf8',
+    );
+    expect(license).toMatch(/Apache License/i);
+    expect(license.length).toBeGreaterThan(200);
+  });
+
   it('fails production when required Notice sentence is missing', () => {
-    const noticePath = path.join(ROOT, 'assets', 'licenses', 'GEMMA-NOTICE.txt');
+    const noticePath = path.join(ROOT, 'assets', 'licenses', 'QWEN-NOTICE.txt');
     const original = fs.readFileSync(noticePath, 'utf8');
     try {
       fs.writeFileSync(noticePath, 'Wrong notice without required sentence.\n', 'utf8');
       const result = run({ OPPUNA_PRODUCTION_VALIDATE: '1' }, '--production');
       expect(result.code).not.toBe(0);
-      expect(result.out).toMatch(/required Gemma Notice sentence/i);
+      expect(result.out).toMatch(/required Qwen Notice sentence/i);
     } finally {
       fs.writeFileSync(noticePath, original, 'utf8');
     }
+  });
+
+  it('passes strict validation when model and licenses are present', () => {
+    const modelPath = path.join(ROOT, 'assets', 'ai-model', 'model.gguf');
+    if (!fs.existsSync(modelPath)) {
+      return;
+    }
+    const result = run({ OPPUNA_PRODUCTION_VALIDATE: '1' }, '--production');
+    expect(result.code).toBe(0);
+    expect(result.out).toMatch(/Play install-time pack limit/i);
+    expect(result.out).toMatch(/SHA-256 verified/i);
   });
 });
 

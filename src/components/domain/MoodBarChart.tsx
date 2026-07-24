@@ -25,8 +25,10 @@ export function MoodBarChart({ data, maxScore = 5 }: Props): React.ReactElement 
         <Line x1={0} y1={HEIGHT - 1} x2={width} y2={HEIGHT - 1} stroke={theme.colors.border} strokeWidth={1} />
         {data.map((point, index) => {
           const x = index * (barWidth + BAR_GAP);
-          const ratio = point.score == null ? 0 : point.score / maxScore;
-          const barHeight = Math.max(point.score == null ? 0 : 6, ratio * (HEIGHT - 16));
+          const score = point.score;
+          const empty = score == null;
+          const ratio = score == null ? 0 : score / maxScore;
+          const barHeight = empty ? 10 : Math.max(8, ratio * (HEIGHT - 16));
           const y = HEIGHT - barHeight - 1;
           return (
             <Rect
@@ -35,8 +37,9 @@ export function MoodBarChart({ data, maxScore = 5 }: Props): React.ReactElement 
               y={y}
               width={barWidth}
               height={barHeight}
-              rx={6}
-              fill={point.score == null ? theme.colors.border : theme.colors.primary}
+              rx={8}
+              fill={empty ? theme.colors.primaryMuted : theme.colors.primary}
+              opacity={empty ? 0.55 : 1}
             />
           );
         })}

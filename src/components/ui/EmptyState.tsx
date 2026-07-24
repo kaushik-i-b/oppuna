@@ -4,8 +4,12 @@ import { StyleSheet, View } from 'react-native';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Typography';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Icon, LivingLeaf, type OppunaIconName } from '@/ui';
 
 interface Props {
+  /** Optional functional icon instead of the default Living Leaf. */
+  icon?: OppunaIconName;
+  /** Legacy content emoji override (e.g. mood-specific empty states). */
   emoji?: string;
   title: string;
   description?: string;
@@ -14,7 +18,8 @@ interface Props {
 }
 
 export function EmptyState({
-  emoji = '🌱',
+  icon,
+  emoji,
   title,
   description,
   actionLabel,
@@ -22,11 +27,19 @@ export function EmptyState({
 }: Props): React.ReactElement {
   const theme = useTheme();
 
+  const leading = emoji ? (
+    <Text variant="display" center>
+      {emoji}
+    </Text>
+  ) : icon ? (
+    <Icon name={icon} size={48} color={theme.colors.textFaint} />
+  ) : (
+    <LivingLeaf size={56} variant="idle" />
+  );
+
   return (
     <View style={[styles.container, { padding: theme.spacing.xl, gap: theme.spacing.sm }]}>
-      <Text variant="display" center>
-        {emoji}
-      </Text>
+      {leading}
       <Text variant="subtitle" center>
         {title}
       </Text>

@@ -1,0 +1,60 @@
+# Used by EAS instead of .gitignore when uploading the build archive.
+# Intentionally allows assets/ai-model/model.gguf so production AABs
+# can ship the install-time Play Asset Delivery pack.
+
+# dependencies
+node_modules/
+
+# expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# native / secrets
+*.orig.*
+*.keystore
+*.jks
+keystore-credentials.txt
+**/keystore-credentials.*
+**/signing-credentials.*
+**/*-upload-key.*
+release/*.apk
+release/*.aab
+release/*.keystore
+release/*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# generated native projects (recreated by `expo prebuild` on EAS)
+/android/
+/ios/
+
+# metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+
+# env
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# tests
+coverage/
+
+# Keep other model sideload dirs out of the archive
+assets/models/
+
+# Agent / editor noise
+.cursor/
+agent-transcripts/

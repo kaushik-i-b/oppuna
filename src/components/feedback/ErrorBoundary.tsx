@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { LivingLeaf } from '@/ui';
 import { lightColors } from '@/theme/colors';
 import { logger } from '@/utils/logger';
 
@@ -37,7 +38,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
     return (
       <View style={styles.container}>
-        <Text style={styles.emoji}>🌿</Text>
+        <LivingLeaf size={64} variant="outline" reduceMotion />
         <Text style={styles.title}>Something went off-track</Text>
         <Text style={styles.body}>
           Oppuna ran into an unexpected issue, but your data is safe on your device.
@@ -63,8 +64,7 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: lightColors.background,
   },
-  emoji: { fontSize: 48, marginBottom: 16 },
-  title: { fontSize: 20, fontWeight: '700', color: lightColors.text, marginBottom: 8 },
+  title: { fontSize: 20, fontWeight: '700', color: lightColors.text, marginTop: 16, marginBottom: 8 },
   body: {
     fontSize: 15,
     color: lightColors.textMuted,

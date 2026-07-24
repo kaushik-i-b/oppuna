@@ -25,6 +25,7 @@ import { DeleteDataScreen } from '@/screens/settings/DeleteDataScreen';
 import { TermsScreen } from '@/screens/settings/TermsScreen';
 import { ThirdPartyLicensesScreen } from '@/screens/settings/ThirdPartyLicensesScreen';
 import { AboutScreen } from '@/screens/settings/AboutScreen';
+import { HowOppunaHelpsScreen } from '@/screens/onboarding/HowOppunaHelpsScreen';
 import { LocalAIDiagnosticsScreen } from '@/screens/settings/LocalAIDiagnosticsScreen';
 import { ProductionReadinessScreen } from '@/screens/settings/ProductionReadinessScreen';
 import { CrisisScreen } from '@/screens/crisis/CrisisScreen';
@@ -64,6 +65,7 @@ export function RootNavigator(): React.ReactElement {
             <Stack.Screen name="Terms" component={TermsScreen} />
             <Stack.Screen name="ThirdPartyLicenses" component={ThirdPartyLicensesScreen} />
             <Stack.Screen name="About" component={AboutScreen} />
+            <Stack.Screen name="HowOppunaHelps" component={HowOppunaHelpsScreen} />
             {__DEV__ ? (
               <>
                 <Stack.Screen name="LocalAIDiagnostics" component={LocalAIDiagnosticsScreen} />

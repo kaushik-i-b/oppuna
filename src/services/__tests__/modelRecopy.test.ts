@@ -245,6 +245,6 @@ describe('storage headroom formula', () => {
       LOCAL_MODEL_CONFIG.expectedSize + LOCAL_MODEL_CONFIG.storageHeadroomBytes,
     );
     expect(required).toBeLessThan(LOCAL_MODEL_CONFIG.expectedSize * 2);
-    expect(LOCAL_MODEL_CONFIG.expectedSize).toBe(806058496);
+    expect(LOCAL_MODEL_CONFIG.expectedSize).toBe(986048768);
   });
 });

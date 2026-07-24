@@ -1,17 +1,18 @@
-# Gemma on-device distribution
+# Qwen on-device distribution
 
-Oppuna ships **Google Gemma 3 1B Instruct (Q4_K_M)** for fully offline inference via **llama.rn** (llama.cpp).
+Oppuna ships **Qwen2.5 1.5B Instruct (Q4_K_M)** for fully offline inference via **llama.rn** (llama.cpp).
 
 ## Model identity
 
 | Field | Value |
 | --- | --- |
-| Config id | `oppuna-gemma3-1b-it-q4km` |
-| Display name | Gemma 3 1B Instruct (Q4_K_M) |
+| Config id | `oppuna-qwen25-1_5b-instruct-q4km` |
+| Display name | Qwen2.5 1.5B Instruct (Q4_K_M) |
 | File in PAD pack | `model.gguf` |
-| Expected size | ~806,058,496 bytes (~769 MB) |
-| SHA-256 | Configured in `src/config/localModel.ts` |
+| Expected size | ~986,048,768 bytes (~941 MB) |
+| SHA-256 | Configured in `config/local-model.json` |
 | Context default | 4096 tokens (may be lowered per device tier) |
+| Upstream GGUF | `bartowski/Qwen2.5-1.5B-Instruct-GGUF` → `Qwen2.5-1.5B-Instruct-Q4_K_M.gguf` |
 
 ## Packaging (production Android)
 
@@ -30,6 +31,7 @@ Before first load (`src/services/modelAssetService.ts`):
 2. Exists + minimum size + expected byte size
 3. SHA-256 on first install, app/model version change, or suspected corruption
 4. Store verification metadata in AsyncStorage for faster subsequent launches
+5. `npm run verify:model` also enforces Play’s **1 GB** install-time pack ceiling
 
 Failure states:
 
@@ -48,13 +50,13 @@ Failure states:
 
 ## Licensing
 
-Bundled offline notices: **Settings → Legal → Third-Party Licenses / Gemma Information**
+Bundled offline notices: **Settings → Legal → Third-Party Licenses / Qwen Information**
 
-- `assets/licenses/GEMMA-NOTICE.txt`
-- `assets/licenses/GEMMA-TERMS-REFERENCE.md`
+- `assets/licenses/QWEN-NOTICE.txt`
+- `assets/licenses/QWEN-LICENSE.txt` (Apache License, Version 2.0)
 - llama.rn / llama.cpp MIT licenses
 
-Regenerate from installed packages:
+Regenerate notice + MIT copies from installed packages:
 
 ```bash
 npm run sync:licenses

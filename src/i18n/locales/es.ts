@@ -43,7 +43,8 @@ export const es: DeepPartial<Translation> = {
   settings: {
     title: 'Ajustes',
     appearance: 'Apariencia',
-    theme: 'Tema',
+    theme: 'Brillo',
+    colorPalette: 'Esquema de color',
     language: 'Idioma',
     privacy: 'Declaración de privacidad',
     disclaimer: 'Aviso médico',
@@ -60,6 +61,10 @@ export const es: DeepPartial<Translation> = {
     themeLight: 'Claro',
     themeDark: 'Oscuro',
     themeSystem: 'Sistema',
+    paletteSage: 'Salvia',
+    paletteHarbor: 'Puerto',
+    paletteBlossom: 'Flor',
+    paletteSlate: 'Pizarra',
   },
   lock: {
     title: 'Oppuna está bloqueada',

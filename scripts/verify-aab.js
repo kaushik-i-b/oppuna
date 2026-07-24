@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Inspects a built Android App Bundle for Gemma install-time delivery + privacy.
+ * Inspects a built Android App Bundle for on-device LLM install-time delivery + privacy.
  *
  * Usage: npm run verify:aab -- path/to/app.aab
  *
@@ -389,7 +389,7 @@ async function main() {
     }
 
     // Legal assets in base module
-    const licenseHits = ['GEMMA-NOTICE', 'GEMMA-TERMS', 'llama-rn-MIT', 'llama-cpp-MIT'].filter(
+    const licenseHits = ['QWEN-NOTICE', 'QWEN-LICENSE', 'llama-rn-MIT', 'llama-cpp-MIT'].filter(
       (name) => listing.includes(name),
     );
     if (licenseHits.length > 0) {

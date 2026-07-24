@@ -2,19 +2,20 @@ import React from 'react';
 import { View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { Button, Card, Screen, Text } from '@/components';
+import { Button, Screen, Text } from '@/components';
 import { PRIVACY_STATEMENT } from '@/constants/app';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { RootStackParamList } from '@/navigation/types';
+import { Icon, LivingLeaf } from '@/ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Privacy'>;
 
 const POINTS = [
-  { emoji: '✈️', text: 'Works fully offline — no internet ever required.' },
-  { emoji: '🔒', text: 'No login, no cloud sync, no analytics, no tracking.' },
-  { emoji: '📱', text: 'Your notes, moods, and chats stay only on this device.' },
-  { emoji: '🗑️', text: 'You can export or permanently delete your data anytime.' },
+  'Works fully offline — no internet ever required.',
+  'No login, no cloud sync, no analytics, no tracking.',
+  'Your notes, moods, and chats stay only on this device.',
+  'You can export or permanently delete your data anytime.',
 ];
 
 export function PrivacyScreen({ navigation, route }: Props): React.ReactElement {
@@ -29,21 +30,25 @@ export function PrivacyScreen({ navigation, route }: Props): React.ReactElement 
       onBack={fromSettings ? () => navigation.goBack() : undefined}
     >
       {!fromSettings ? (
-        <Text variant="title" style={{ marginBottom: theme.spacing.lg }}>
-          Your privacy comes first
-        </Text>
+        <View style={{ alignItems: 'center', marginBottom: theme.spacing.lg }}>
+          <LivingLeaf size={56} variant="outline" />
+          <Text variant="title" center style={{ marginTop: theme.spacing.md }}>
+            Your privacy comes first
+          </Text>
+        </View>
       ) : null}
 
       <View style={{ gap: theme.spacing.md }}>
         {POINTS.map((point) => (
-          <Card key={point.text}>
-            <View style={{ flexDirection: 'row', gap: theme.spacing.md, alignItems: 'center' }}>
-              <Text variant="title">{point.emoji}</Text>
-              <Text variant="body" style={{ flex: 1 }}>
-                {point.text}
-              </Text>
-            </View>
-          </Card>
+          <View
+            key={point}
+            style={{ flexDirection: 'row', gap: theme.spacing.md, alignItems: 'flex-start' }}
+          >
+            <Icon name="shield" size={20} color={theme.colors.primary} />
+            <Text variant="body" style={{ flex: 1 }}>
+              {point}
+            </Text>
+          </View>
         ))}
       </View>
 

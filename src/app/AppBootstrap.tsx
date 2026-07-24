@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 
@@ -8,22 +8,31 @@ import { initializeModel } from '@/ai/modelManager';
 import { initDatabase } from '@/database';
 import { warmDeviceMemoryEstimate } from '@/services/deviceCapabilityService';
 import { cleanupStaleExportFiles } from '@/services/dataExport';
+import { syncCareReminders } from '@/services/careReminderService';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettingsStore } from '@/store/settingsStore';
 import { logger } from '@/utils/logger';
 
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
+/** Minimum time to show the animated splash so leaf motion + ambient can play. */
+const MIN_SPLASH_MS = 3200;
+
 type Status = 'loading' | 'ready' | 'error';
 
 export function AppBootstrap({ children }: { children: React.ReactNode }): React.ReactElement {
   const theme = useTheme();
   const hydrated = useSettingsStore((s) => s.hydrated);
+  const careRemindersEnabled = useSettingsStore((s) => s.careRemindersEnabled);
   const [status, setStatus] = useState<Status>('loading');
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+  const bootStartedAt = useRef(Date.now());
 
   const bootstrap = useCallback(async () => {
     try {
       setStatus('loading');
+      bootStartedAt.current = Date.now();
+      setMinTimeElapsed(false);
       configureDefaultLocalLLMClient();
       // Probe RAM before model init so tier/context/GPU knobs are accurate.
       await warmDeviceMemoryEstimate();
@@ -65,10 +74,27 @@ export function AppBootstrap({ children }: { children: React.ReactNode }): React
   }, [bootstrap]);
 
   useEffect(() => {
-    if (status === 'ready' && hydrated) {
+    const elapsed = Date.now() - bootStartedAt.current;
+    const remaining = Math.max(0, MIN_SPLASH_MS - elapsed);
+    const timer = setTimeout(() => setMinTimeElapsed(true), remaining);
+    return () => clearTimeout(timer);
+  }, [status]);
+
+  const canEnterApp = status === 'ready' && hydrated && minTimeElapsed;
+
+  useEffect(() => {
+    if (canEnterApp) {
       void SplashScreen.hideAsync().catch(() => undefined);
     }
-  }, [status, hydrated]);
+  }, [canEnterApp]);
+
+  // Re-apply local daily care reminders after hydrate (survives reboot / reinstall of schedule).
+  useEffect(() => {
+    if (!hydrated || !careRemindersEnabled) return;
+    void syncCareReminders(true).catch((error: unknown) => {
+      logger.warn('Care reminder sync failed', { error: String(error) });
+    });
+  }, [hydrated, careRemindersEnabled]);
 
   if (status === 'error') {
     return (
@@ -88,7 +114,7 @@ export function AppBootstrap({ children }: { children: React.ReactNode }): React
     );
   }
 
-  if (status !== 'ready' || !hydrated) {
+  if (!canEnterApp) {
     return <BrandSplash />;
   }
 

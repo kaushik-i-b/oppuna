@@ -43,7 +43,8 @@ export const hi: DeepPartial<Translation> = {
   settings: {
     title: 'सेटिंग्स',
     appearance: 'रूप',
-    theme: 'थीम',
+    theme: 'चमक',
+    colorPalette: 'रंग योजना',
     language: 'भाषा',
     privacy: 'गोपनीयता विवरण',
     disclaimer: 'चिकित्सा अस्वीकरण',
@@ -60,6 +61,10 @@ export const hi: DeepPartial<Translation> = {
     themeLight: 'हल्का',
     themeDark: 'गहरा',
     themeSystem: 'सिस्टम',
+    paletteSage: 'सेज',
+    paletteHarbor: 'हरबर',
+    paletteBlossom: 'ब्लॉसम',
+    paletteSlate: 'स्लेट',
   },
   lock: {
     title: 'Oppuna लॉक है',

@@ -19,7 +19,7 @@ This document tracks software production-readiness work for the offline-first Op
 npm run verify:ci
 ```
 
-May report `SKIPPED` for the large GGUF binary and authoritative Gemma terms when those artifacts are intentionally unavailable in Git/CI. `SKIPPED` is not `PASS`.
+May report `SKIPPED` for the large GGUF binary when that artifact is intentionally unavailable in Git/CI. `SKIPPED` is not `PASS`.
 
 ### Release machines (strict — no skips)
 
@@ -29,7 +29,7 @@ OPPUNA_PRODUCTION_VALIDATE=1 npm run verify:model
 npm run verify:aab -- path/to/fresh-release.aab
 ```
 
-`verify:production` requires the real `assets/ai-model/model.gguf`, matching size/SHA/GGUF header, and authoritative `GEMMA-TERMS-OF-USE.txt`.
+`verify:production` requires the real `assets/ai-model/model.gguf`, matching size/SHA/GGUF header, and Qwen Apache-2.0 license assets.
 
 Individual checks:
 
@@ -41,7 +41,7 @@ Individual checks:
 | `npm run verify:secrets` | No committed keystores/passwords |
 | `npm run verify:offline` | Offline-only app configuration |
 | `npm run verify:privacy-config` | Android backup disabled |
-| `npm run verify:model` | Gemma / PAD / license assets (strict by default) |
+| `npm run verify:model` | Qwen GGUF / PAD / license assets (strict by default) |
 | `npm run verify:aab` | Inspect a built AAB artifact |
 | `npm run inspect:android-release` | SDK targets, package id, manifest |
 | `npm run verify:ci` | PR/CI pipeline (skips allowed) |
@@ -57,7 +57,7 @@ Current `app.json` version is **2.0.0** with `android.versionCode` **5**. Any fu
 
 - `docs/PRODUCTION_SIGNING.md` — upload keys, Play App Signing, rotation
 - `docs/DATA_PROTECTION.md` — storage model and limitations
-- `docs/GEMMA_DISTRIBUTION.md` — model packaging and verification
+- `docs/QWEN_DISTRIBUTION.md` — model packaging and verification
 - `docs/PLAY_STORE_RELEASE_CHECKLIST.md` — human release checklist
 
 ## Development-only diagnostics

@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 
 import { logger } from '@/utils/logger';
@@ -15,11 +16,23 @@ export interface AppLockCapability {
   enrolledTypes: LocalAuthentication.AuthenticationType[];
 }
 
+const WEB_UNAVAILABLE: AppLockCapability = {
+  hasHardware: false,
+  isEnrolled: false,
+  available: false,
+  enrolledTypes: [],
+};
+
 /**
  * Inspects the device's local authentication capability. Used before enabling
  * app lock so we never strand the user behind a lock they can't open.
  */
 export async function getAppLockCapability(): Promise<AppLockCapability> {
+  // Biometrics / device credentials are native-only.
+  if (Platform.OS === 'web') {
+    return WEB_UNAVAILABLE;
+  }
+
   try {
     const [hasHardware, isEnrolled, enrolledTypes, securityLevel] = await Promise.all([
       LocalAuthentication.hasHardwareAsync(),
@@ -53,6 +66,10 @@ export async function authenticate({
   promptMessage,
   cancelLabel,
 }: AuthenticateOptions): Promise<boolean> {
+  if (Platform.OS === 'web') {
+    return false;
+  }
+
   try {
     const result = await LocalAuthentication.authenticateAsync({
       promptMessage,

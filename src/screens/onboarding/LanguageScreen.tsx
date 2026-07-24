@@ -1,13 +1,14 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { Button, Card, ListItem, Screen, SectionHeader, Text } from '@/components';
+import { Button, Screen, Text } from '@/components';
 import { LANGUAGES } from '@/i18n';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { RootStackParamList } from '@/navigation/types';
+import { Icon } from '@/ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Language'>;
 
@@ -33,26 +34,42 @@ export function LanguageScreen({ navigation, route }: Props): React.ReactElement
         </View>
       ) : null}
 
-      <SectionHeader title="Language" />
-      <Card padded={false}>
-        <View style={{ gap: 1 }}>
-          {LANGUAGES.map((lang) => (
-            <ListItem
+      <View
+        style={{
+          backgroundColor: theme.colors.surface,
+          borderRadius: theme.radius.md,
+          overflow: 'hidden',
+        }}
+      >
+        {LANGUAGES.map((lang, i) => {
+          const selected = language === lang.code;
+          return (
+            <Pressable
               key={lang.code}
-              title={lang.native}
-              subtitle={lang.label}
-              trailing={
-                language === lang.code ? (
-                  <Text variant="subtitle" color="primary">
-                    ✓
-                  </Text>
-                ) : null
-              }
               onPress={() => setLanguage(lang.code)}
-            />
-          ))}
-        </View>
-      </Card>
+              accessibilityRole="radio"
+              accessibilityState={{ selected }}
+              style={({ pressed }) => [
+                styles.row,
+                {
+                  borderBottomWidth: i < LANGUAGES.length - 1 ? StyleSheet.hairlineWidth : 0,
+                  borderBottomColor: theme.colors.border,
+                  backgroundColor: pressed ? theme.colors.surfacePressed : theme.colors.surface,
+                  paddingHorizontal: theme.spacing.lg,
+                  paddingVertical: theme.spacing.md,
+                },
+              ]}
+            >
+              <Text variant="bodyStrong" style={{ flex: 1 }}>
+                {lang.native}
+              </Text>
+              {selected ? (
+                <Icon name="check" size={20} color={theme.colors.primary} />
+              ) : null}
+            </Pressable>
+          );
+        })}
+      </View>
 
       {!fromSettings ? (
         <View style={{ marginTop: theme.spacing.xl }}>
@@ -62,3 +79,7 @@ export function LanguageScreen({ navigation, route }: Props): React.ReactElement
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center' },
+});

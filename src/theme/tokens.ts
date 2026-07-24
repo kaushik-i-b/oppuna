@@ -23,12 +23,20 @@ export const radius = {
 
 export const fontSize = {
   xs: 12,
-  sm: 14,
+  sm: 13,
   md: 16,
-  lg: 18,
-  xl: 22,
+  lg: 17,
+  xl: 20,
   xxl: 28,
   xxxl: 34,
+  /** Section labels — uppercase / letter-spaced */
+  section: 13,
+  /** Card / list titles */
+  title: 18,
+  /** Screen titles */
+  screen: 28,
+  /** Hero display */
+  display: 34,
 } as const;
 
 export const fontWeight = {

@@ -41,6 +41,11 @@ export async function wipeAllTables(): Promise<void> {
     DELETE FROM breathing_sessions;
     DELETE FROM safety_events;
     DELETE FROM voice_notes;
+    DELETE FROM care_activities;
+    DELETE FROM care_streak;
+    DELETE FROM daily_care_progress;
+    INSERT OR IGNORE INTO care_streak (id, current_streak, longest_streak, updated_at)
+      VALUES (1, 0, 0, 0);
     VACUUM;
   `);
   logger.info('All local tables wiped');

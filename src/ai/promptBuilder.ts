@@ -1,6 +1,6 @@
 /**
  * Prompt builder — turns conversation state into a guardrailed prompt for the
- * on-device Gemma mental health agent. Pure and deterministic; no network, no side effects.
+ * on-device mental health agent. Pure and deterministic; no network, no side effects.
  *
  * Delegates to the mental health agent by default. Prefer using agents directly
  * via the orchestrator (`generateAIResponse`).
@@ -14,7 +14,7 @@ import { buildMentalHealthSystemPrompt, mentalHealthAgent } from '@/ai/agents/me
 export { buildMentalHealthSystemPrompt };
 
 /**
- * System instructions for the local Gemma mental health agent. The response validator remains the
+ * System instructions for the local mental health agent. The response validator remains the
  * enforcement layer — these instructions just steer generation toward replies
  * that will pass it.
  */

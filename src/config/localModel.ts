@@ -5,7 +5,7 @@
  * config/local-model.json — the single machine-readable source of truth
  * shared with verify-model, verify-aab, and the asset-pack plugin.
  *
- * Production model: Google Gemma 3 1B Instruct (Q4_K_M), ~769 MB — fits under
+ * Production model: Qwen2.5 1.5B Instruct (Q4_K_M), ~941 MB — fits under
  * Google Play's 1 GB install-time asset pack limit.
  *
  * The GGUF binary itself must NOT be committed to git — see docs/LOCAL_LLM_ANDROID.md.
@@ -27,7 +27,7 @@ export const LOCAL_MODEL_CONFIG = {
   version: String(localModelJson.version),
   /**
    * Expected SHA-256 hex digest of the GGUF file.
-   * Computed from assets/ai-model/model.gguf (Gemma 3 1B Instruct Q4_K_M).
+   * Computed from assets/ai-model/model.gguf (Qwen2.5 1.5B Instruct Q4_K_M).
    */
   sha256: localModelJson.sha256 as string,
   /**
@@ -72,20 +72,18 @@ export function requiredPrivateModelStorageBytes(
 }
 
 /**
- * Stop sequences for Gemma (and common chat templates).
- * Gemma 3 instruct uses `<end_of_turn>` / `<eos>`.
+ * Stop sequences for Qwen ChatML (and common chat templates).
+ * Qwen2.5 Instruct uses `<|im_end|>` / `<|endoftext|>`.
  */
 export const LOCAL_MODEL_STOP_SEQUENCES = [
-  '<end_of_turn>',
-  '<eos>',
-  '<start_of_turn>',
+  '<|im_end|>',
+  '<|im_start|>',
+  '<|endoftext|>',
   '</s>',
   '<|end|>',
   '<|eot_id|>',
   '<|end_of_text|>',
-  '<|im_end|>',
   '<|EOT|>',
   '<|END_OF_TURN_TOKEN|>',
   '<|end_of_turn|>',
-  '<|endoftext|>',
 ] as const;
