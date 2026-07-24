@@ -86,7 +86,13 @@ export interface SafetyFlags {
  * ------------------------------------------------------------------ */
 
 /** Where the final reply text came from. */
-export type ResponseSource = 'safety' | 'local-llm' | 'rule-engine' | 'safe-fallback';
+export type ResponseSource =
+  | 'safety'
+  | 'crisis-response'
+  | 'local-llm'
+  | 'rule-engine'
+  | 'safe-fallback'
+  | 'error-fallback';
 
 export interface AIResponseMetadata {
   source: ResponseSource;
@@ -130,8 +136,11 @@ export interface AIChatResponse extends EngineResponse {
  * Prefer LocalModelStatus; ModelStatus is kept as an alias for older UI code.
  */
 export type LocalModelStatus =
+  | 'idle'
   | 'uninitialized'
   | 'locating'
+  | 'checking-storage'
+  | 'copying'
   | 'verifying'
   | 'loading'
   | 'ready'
@@ -139,6 +148,7 @@ export type LocalModelStatus =
   | 'failed'
   | 'unavailable'
   | 'unsupported-device'
+  | 'insufficient-storage'
   | 'corrupted'
   | 'fallback-mode';
 

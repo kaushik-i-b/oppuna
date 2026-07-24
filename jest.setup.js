@@ -15,10 +15,11 @@ jest.mock('expo-haptics', () => ({
 jest.mock('expo-file-system/legacy', () => ({
   documentDirectory: 'file:///mock-documents/',
   cacheDirectory: 'file:///mock-cache/',
-  EncodingType: { UTF8: 'utf8' },
+  EncodingType: { UTF8: 'utf8', Base64: 'base64' },
   getInfoAsync: jest.fn(async () => ({ exists: false })),
   makeDirectoryAsync: jest.fn(async () => undefined),
   readDirectoryAsync: jest.fn(async () => []),
+  readAsStringAsync: jest.fn(async () => 'R0dVRg=='),
   copyAsync: jest.fn(async () => undefined),
   writeAsStringAsync: jest.fn(async () => undefined),
   deleteAsync: jest.fn(async () => undefined),

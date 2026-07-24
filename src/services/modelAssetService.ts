@@ -1,9 +1,9 @@
 /**
- * Resolves the on-device GGUF model path for llama.rn.
+ * Resolves and prepares the on-device GGUF model for llama.rn.
  *
- * Production Android builds deliver the model via an install-time Play Asset
- * Delivery pack (`ai_model_asset_pack`). Development builds may place a GGUF
- * under the app document directory. No runtime network downloads.
+ * Production Android: install-time Play Asset Delivery assets are copied once
+ * from AssetManager into app-private storage (filesDir/ai-model/model.gguf).
+ * Development: sideloaded GGUF under documentDirectory/models/.
  */
 
 import { NativeModules, Platform } from 'react-native';
@@ -13,8 +13,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP } from '@/constants/app';
 import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
 import { logger } from '@/utils/logger';
+import { isValidGgufHeader } from '@/utils/gguf';
 
 const VERIFICATION_STORAGE_KEY = 'oppuna.localModel.verification.v1';
+const RECOPY_ATTEMPTS_KEY = 'oppuna.localModel.recopyAttempts.v1';
+const MAX_RECOPY_ATTEMPTS = 1;
 const DEV_MODELS_DIR = `${FileSystem.documentDirectory ?? ''}models/`;
 
 export interface ModelMetadata {
@@ -32,7 +35,16 @@ export interface ModelIntegrityResult {
   size: number | null;
   sha256: string | null;
   fullVerification: boolean;
+  ggufHeaderValid: boolean | null;
   error: string | null;
+}
+
+export interface PrepareModelResult {
+  path: string;
+  copied: boolean;
+  size: number;
+  sha256: string | null;
+  verified: boolean;
 }
 
 interface StoredVerification {
@@ -45,9 +57,26 @@ interface StoredVerification {
   verifiedAt: number;
 }
 
+interface PrepareLocalModelNativeResult {
+  path: string;
+  copied: boolean;
+  size: number;
+  sha256: string;
+  verified: boolean;
+}
+
 interface OppunaModelAssetNativeModule {
-  getInstalledModelPath: (packName: string, fileName: string) => Promise<string | null>;
+  prepareLocalModel: (
+    assetFileName: string,
+    expectedSize: number,
+    expectedSha256: string,
+    forceRecopy: boolean,
+  ) => Promise<PrepareLocalModelNativeResult>;
   sha256File?: (path: string) => Promise<string>;
+  validateGgufHeader?: (path: string) => Promise<boolean>;
+  getAvailableStorageBytes?: () => Promise<number>;
+  deletePrivateModel?: () => Promise<boolean>;
+  getTotalMemoryBytes?: () => Promise<number>;
 }
 
 function getNativeModule(): OppunaModelAssetNativeModule | null {
@@ -74,63 +103,118 @@ function toFileUri(path: string): string {
   return path.startsWith('file://') ? path : `file://${path}`;
 }
 
+async function readGgufHeader(path: string): Promise<boolean> {
+  const native = getNativeModule();
+  if (native?.validateGgufHeader) {
+    try {
+      return await native.validateGgufHeader(path);
+    } catch {
+      // fall through to JS header read
+    }
+  }
+  try {
+    const uri = toFileUri(path);
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: FileSystem.EncodingType.Base64,
+      length: 4,
+      position: 0,
+    });
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+    return isValidGgufHeader(bytes);
+  } catch {
+    return false;
+  }
+}
+
 async function findDevModelPath(): Promise<string | null> {
   const preferred = `${DEV_MODELS_DIR}${LOCAL_MODEL_CONFIG.fileName}`;
   const preferredInfo = await FileSystem.getInfoAsync(preferred);
-  if (preferredInfo.exists) {
-    return toAbsolutePath(preferred);
-  }
+  if (preferredInfo.exists) return toAbsolutePath(preferred);
 
-  // Legacy filename from earlier Oppuna builds.
   const legacy = `${DEV_MODELS_DIR}oppuna-model.gguf`;
   const legacyInfo = await FileSystem.getInfoAsync(legacy);
-  if (legacyInfo.exists) {
-    return toAbsolutePath(legacy);
-  }
+  if (legacyInfo.exists) return toAbsolutePath(legacy);
 
   try {
     const entries = await FileSystem.readDirectoryAsync(DEV_MODELS_DIR);
     const gguf = entries.find((name) => name.toLowerCase().endsWith('.gguf'));
-    if (gguf) {
-      return toAbsolutePath(`${DEV_MODELS_DIR}${gguf}`);
-    }
+    if (gguf) return toAbsolutePath(`${DEV_MODELS_DIR}${gguf}`);
   } catch {
-    // Directory may not exist yet.
+    // Directory may not exist.
   }
-
   return null;
+}
+
+async function readRecopyAttempts(): Promise<number> {
+  try {
+    const raw = await AsyncStorage.getItem(RECOPY_ATTEMPTS_KEY);
+    return raw ? Number(raw) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+async function writeRecopyAttempts(count: number): Promise<void> {
+  await AsyncStorage.setItem(RECOPY_ATTEMPTS_KEY, String(count));
+}
+
+/**
+ * Copy install-time bundled asset into private storage (Android production path).
+ */
+export async function prepareBundledModel(options: {
+  forceRecopy?: boolean;
+} = {}): Promise<PrepareModelResult | null> {
+  if (Platform.OS !== 'android') return null;
+  const native = getNativeModule();
+  if (!native?.prepareLocalModel) return null;
+
+  const forceRecopy = options.forceRecopy === true;
+  try {
+    const result = await native.prepareLocalModel(
+      LOCAL_MODEL_CONFIG.fileName,
+      LOCAL_MODEL_CONFIG.expectedSize,
+      LOCAL_MODEL_CONFIG.sha256,
+      forceRecopy,
+    );
+    logger.info('Bundled model prepared', { copied: result.copied, verified: result.verified });
+    return {
+      path: result.path,
+      copied: result.copied,
+      size: result.size,
+      sha256: result.sha256 ?? null,
+      verified: result.verified,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (/INSUFFICIENT_STORAGE/i.test(message)) {
+      throw new Error('Not enough storage for the on-device AI model.');
+    }
+    logger.warn('Bundled model preparation failed', { error: message });
+    return null;
+  }
 }
 
 /**
  * Resolve a filesystem path llama.rn can mmap-open.
- * Prefers Play Asset Delivery on Android, then local document storage.
  */
 export async function getInstalledModelPath(): Promise<string | null> {
   if (Platform.OS === 'web') return null;
 
   if (Platform.OS === 'android') {
-    const native = getNativeModule();
-    if (native?.getInstalledModelPath) {
-      try {
-        const padPath = await native.getInstalledModelPath(
-          LOCAL_MODEL_CONFIG.assetPackName,
-          LOCAL_MODEL_CONFIG.fileName,
-        );
-        if (padPath) {
-          logger.info('Resolved model via Play Asset Delivery', { path: padPath });
-          return toAbsolutePath(padPath);
-        }
-      } catch (error) {
-        logger.warn('Play Asset Delivery model path lookup failed', { error: String(error) });
-      }
+    try {
+      const prepared = await prepareBundledModel();
+      if (prepared?.path) return toAbsolutePath(prepared.path);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (/storage/i.test(message)) throw error;
+      logger.warn('Bundled model preparation failed', { error: message });
     }
+    return null;
   }
 
-  const devPath = await findDevModelPath();
-  if (devPath) {
-    logger.info('Resolved model via local document storage', { path: devPath });
-  }
-  return devPath;
+  return findDevModelPath();
 }
 
 export async function isModelAvailable(): Promise<boolean> {
@@ -138,6 +222,13 @@ export async function isModelAvailable(): Promise<boolean> {
   if (!path) return false;
   const info = await FileSystem.getInfoAsync(toFileUri(path));
   return info.exists === true;
+}
+
+export async function deleteCorruptPrivateModel(): Promise<void> {
+  const native = getNativeModule();
+  if (native?.deletePrivateModel) {
+    await native.deletePrivateModel().catch(() => undefined);
+  }
 }
 
 async function readStoredVerification(): Promise<StoredVerification | null> {
@@ -156,6 +247,7 @@ async function writeStoredVerification(value: StoredVerification): Promise<void>
 
 export async function clearStoredVerification(): Promise<void> {
   await AsyncStorage.removeItem(VERIFICATION_STORAGE_KEY);
+  await AsyncStorage.removeItem(RECOPY_ATTEMPTS_KEY);
 }
 
 function needsFullVerification(stored: StoredVerification | null, path: string, size: number): boolean {
@@ -177,20 +269,9 @@ async function computeSha256(path: string): Promise<string | null> {
       logger.warn('Native SHA-256 failed', { error: String(error) });
     }
   }
-  // Without a native hasher we skip cryptographic verification rather than
-  // loading a multi-GB file into JS memory.
   return null;
 }
 
-/**
- * Verify the installed model before first load.
- *
- * Strategy:
- * - Always: exists + size sanity (+ expectedSize when configured)
- * - Full SHA-256: first install, app/model version change, size mismatch,
- *   or when corruption is suspected (forceFull=true)
- * - Later launches: trusted stored metadata + size/version check
- */
 export async function verifyModelIntegrity(options: {
   path?: string | null;
   forceFull?: boolean;
@@ -204,6 +285,7 @@ export async function verifyModelIntegrity(options: {
       size: null,
       sha256: null,
       fullVerification: false,
+      ggufHeaderValid: null,
       error: 'Model file not found on device.',
     };
   }
@@ -216,6 +298,7 @@ export async function verifyModelIntegrity(options: {
       size: null,
       sha256: null,
       fullVerification: false,
+      ggufHeaderValid: false,
       error: 'Model path does not exist.',
     };
   }
@@ -228,6 +311,7 @@ export async function verifyModelIntegrity(options: {
       size,
       sha256: null,
       fullVerification: false,
+      ggufHeaderValid: false,
       error: 'Model file is missing or suspiciously small.',
     };
   }
@@ -239,7 +323,21 @@ export async function verifyModelIntegrity(options: {
       size,
       sha256: null,
       fullVerification: false,
+      ggufHeaderValid: null,
       error: `Model size mismatch (expected ${LOCAL_MODEL_CONFIG.expectedSize}, got ${size}).`,
+    };
+  }
+
+  const ggufHeaderValid = await readGgufHeader(path);
+  if (!ggufHeaderValid) {
+    return {
+      ok: false,
+      path,
+      size,
+      sha256: null,
+      fullVerification: true,
+      ggufHeaderValid: false,
+      error: 'Invalid GGUF header.',
     };
   }
 
@@ -256,6 +354,7 @@ export async function verifyModelIntegrity(options: {
       size,
       sha256: stored.sha256,
       fullVerification: false,
+      ggufHeaderValid: true,
       error: null,
     };
   }
@@ -271,11 +370,12 @@ export async function verifyModelIntegrity(options: {
         size,
         sha256,
         fullVerification: true,
+        ggufHeaderValid: true,
         error: 'Model SHA-256 mismatch — file may be corrupt.',
       };
     }
     if (!sha256) {
-      logger.warn('SHA-256 configured but hasher unavailable; relying on size/version checks');
+      logger.warn('SHA-256 configured but hasher unavailable; relying on size/header checks');
     }
   }
 
@@ -295,8 +395,25 @@ export async function verifyModelIntegrity(options: {
     size,
     sha256,
     fullVerification: true,
+    ggufHeaderValid: true,
     error: null,
   };
+}
+
+/**
+ * Attempt one repair recopy when the private model copy is corrupt.
+ * Returns true when a recopy was attempted.
+ */
+export async function attemptModelRecopy(): Promise<boolean> {
+  const attempts = await readRecopyAttempts();
+  if (attempts >= MAX_RECOPY_ATTEMPTS) return false;
+
+  await writeRecopyAttempts(attempts + 1);
+  await clearStoredVerification();
+  await deleteCorruptPrivateModel();
+
+  const prepared = await prepareBundledModel({ forceRecopy: true });
+  return prepared !== null;
 }
 
 /** Document directory used for development / sideloaded GGUF files. */

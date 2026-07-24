@@ -14,6 +14,7 @@
     "verify:offline": "node scripts/verify-offline.js",
     "verify:privacy-config": "node scripts/verify-privacy-config.js",
     "verify:model": "node scripts/verify-model.js",
+    "verify:aab": "node scripts/verify-aab.js",
     "inspect:android-release": "node scripts/inspect-android-release.js",
     "verify:production": "node scripts/verify-production.js",
     "sync:licenses": "node scripts/sync-licenses.js",

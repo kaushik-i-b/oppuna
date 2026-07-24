@@ -41,6 +41,7 @@ import {
   isLLMAvailable,
 } from '@/ai/llmClient';
 import { validateResponse } from '@/ai/responseValidator';
+import { setLastAIResponseSource } from '@/ai/responseSourceStore';
 
 /** Attempts at composing a non-repetitive rule-based reply before giving up. */
 const MAX_COMPOSE_ATTEMPTS = 3;
@@ -83,14 +84,14 @@ export async function generateAIResponse(
   // 1. Safety first — a crisis stops everything else. Never ask the LLM.
   const safety = assessSafety(text);
   if (safety.crisis) {
-    return {
+    const response: AIChatResponse = {
       reply: CRISIS_REPLY,
       intent: 'unknown',
       mood: detectMood(text),
       crisis: safety.crisis,
       suggestions: [],
       meta: {
-        source: 'safety',
+        source: 'crisis-response',
         agentId: agent.id,
         llmAvailable: false,
         rejectedCandidates: 0,
@@ -98,6 +99,8 @@ export async function generateAIResponse(
         generatedAt: Date.now(),
       },
     };
+    setLastAIResponseSource('crisis-response');
+    return response;
   }
 
   const intent = detectIntent(text);
@@ -107,6 +110,7 @@ export async function generateAIResponse(
   // 2. Local on-device LLM path (llama.rn / llama.cpp) when ready.
   const llmAvailable = await isLLMAvailable(client);
   let rejectedCandidates = 0;
+  let llmErrorFallback = false;
   if (llmAvailable) {
     try {
       const capability = getDeviceCapability();
@@ -131,6 +135,7 @@ export async function generateAIResponse(
 
       if (completion.finishReason === 'stop' && verdict.ok) {
         memory.recordTurn({ intent, mood, reply: candidate });
+        setLastAIResponseSource('local-llm');
         return {
           reply: candidate,
           intent,
@@ -156,6 +161,7 @@ export async function generateAIResponse(
       });
     } catch (error) {
       logger.warn('LLM generation failed, falling back to rule engine', { error: String(error) });
+      llmErrorFallback = true;
     }
   }
 
@@ -171,6 +177,8 @@ export async function generateAIResponse(
     const verdict = validateResponse(candidate, { recentReplies });
     if (verdict.ok) {
       memory.recordTurn({ intent, mood, reply: candidate });
+      const source = llmErrorFallback ? 'error-fallback' : 'rule-engine';
+      setLastAIResponseSource(source);
       return {
         reply: candidate,
         intent,
@@ -178,7 +186,7 @@ export async function generateAIResponse(
         crisis: null,
         suggestions: agent.suggestionsFor(intent),
         meta: {
-          source: 'rule-engine',
+          source,
           agentId: agent.id,
           llmAvailable,
           rejectedCandidates,
@@ -193,6 +201,7 @@ export async function generateAIResponse(
 
   // 4. Last resort — fixed, human-authored safe text.
   memory.recordTurn({ intent, mood, reply: SAFE_FALLBACK });
+  setLastAIResponseSource('safe-fallback');
   return {
     reply: SAFE_FALLBACK,
     intent,

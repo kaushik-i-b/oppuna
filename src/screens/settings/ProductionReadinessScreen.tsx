@@ -10,13 +10,14 @@ import { Button, Card, Screen, Text } from '@/components';
 import { APP } from '@/constants/app';
 import { DATABASE_NAME } from '@/database/schema';
 import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
+import { getLastAIResponseSource } from '@/ai/responseSourceStore';
 import { getModelDiagnosticStatus } from '@/services/modelDiagnosticService';
-import { getModelMetadata, isModelAvailable } from '@/services/modelAssetService';
+import { getModelMetadata, isModelAvailable, verifyModelIntegrity } from '@/services/modelAssetService';
 import { getAppLockCapability } from '@/services/appLock';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { useTheme } from '@/theme/ThemeProvider';
 
-type CheckStatus = 'PASS' | 'WARN' | 'FAIL';
+type CheckStatus = 'PASS' | 'FAIL' | 'WARN' | 'BUILD-TIME VERIFIED';
 
 interface CheckResult {
   name: string;
@@ -51,23 +52,24 @@ export function ProductionReadinessScreen(): React.ReactElement {
     const meta = getModelMetadata();
     const lock = await getAppLockCapability();
     const modelPresent = await isModelAvailable();
-
-    results.push({
-      name: 'Offline-only flag',
-      status: true ? 'PASS' : 'FAIL',
-      detail: 'extra.offlineOnly expected in app config',
-    });
+    const lastSource = getLastAIResponseSource();
 
     results.push({
       name: 'Android backup disabled',
-      status: 'PASS',
-      detail: 'Validated in CI via verify:privacy-config',
+      status: 'BUILD-TIME VERIFIED',
+      detail: 'Checked by npm run verify:privacy-config in CI',
     });
 
     results.push({
       name: 'INTERNET permission blocked',
-      status: 'PASS',
-      detail: 'android.blockedPermissions includes INTERNET',
+      status: 'BUILD-TIME VERIFIED',
+      detail: 'Checked by npm run verify:offline in CI',
+    });
+
+    results.push({
+      name: 'Target SDK / manifest',
+      status: 'BUILD-TIME VERIFIED',
+      detail: 'Checked by npm run inspect:android-release in CI',
     });
 
     results.push({
@@ -78,9 +80,18 @@ export function ProductionReadinessScreen(): React.ReactElement {
 
     results.push({
       name: 'Model present on device',
-      status: modelPresent ? 'PASS' : 'WARN',
-      detail: modelPresent ? 'GGUF resolved' : 'No local GGUF (expected in dev without PAD)',
+      status: modelPresent ? 'PASS' : 'FAIL',
+      detail: modelPresent ? 'Private GGUF path resolved' : 'No model on device',
     });
+
+    if (modelPresent) {
+      const integrity = await verifyModelIntegrity({ forceFull: true });
+      results.push({
+        name: 'Model integrity',
+        status: integrity.ok ? 'PASS' : 'FAIL',
+        detail: integrity.ok ? 'Size/header/SHA verified' : (integrity.error ?? 'failed'),
+      });
+    }
 
     results.push({
       name: 'AI engine state',
@@ -89,8 +100,20 @@ export function ProductionReadinessScreen(): React.ReactElement {
           ? 'PASS'
           : diagnostic.engineMode === 'initializing'
             ? 'WARN'
-            : 'WARN',
+            : 'FAIL',
       detail: `${diagnostic.engineMode} (${model.status})`,
+    });
+
+    results.push({
+      name: 'Fallback active',
+      status: diagnostic.engineMode === 'guided-offline' ? 'WARN' : 'PASS',
+      detail: diagnostic.engineMode === 'guided-offline' ? 'yes' : 'no',
+    });
+
+    results.push({
+      name: 'Last AI response source',
+      status: lastSource ? 'PASS' : 'WARN',
+      detail: lastSource ?? 'No response generated yet in this session',
     });
 
     results.push({
@@ -130,7 +153,7 @@ export function ProductionReadinessScreen(): React.ReactElement {
   return (
     <Screen title="Production readiness" scroll>
       <Text variant="caption" color="textMuted" style={{ marginBottom: theme.spacing.md }}>
-        Development only. No secrets or private user content are shown.
+        Development only. Runtime checks run on-device; build-time items are verified in CI.
       </Text>
 
       <Card>
@@ -140,6 +163,7 @@ export function ProductionReadinessScreen(): React.ReactElement {
         <Row label="AI state" value={diagnostic.title} />
         <Row label="Fallback mode" value={diagnostic.engineMode === 'guided-offline' ? 'yes' : 'no'} />
         <Row label="Device tier" value={diagnostic.deviceTier.toUpperCase()} />
+        <Row label="Last response source" value={getLastAIResponseSource() ?? '—'} />
       </Card>
 
       <View style={{ marginTop: theme.spacing.lg, gap: theme.spacing.sm }}>

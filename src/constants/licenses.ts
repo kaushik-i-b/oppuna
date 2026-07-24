@@ -20,9 +20,9 @@ export const LICENSE_ASSETS: LicenseAsset[] = [
   },
   {
     id: 'gemma-terms',
-    title: 'Gemma Terms of Use (reference)',
-    module: require('../../assets/licenses/GEMMA-TERMS-REFERENCE.md'),
-    filename: 'GEMMA-TERMS-REFERENCE.md',
+    title: 'Gemma Terms of Use',
+    module: require('../../assets/licenses/GEMMA-TERMS-OF-USE.txt'),
+    filename: 'GEMMA-TERMS-OF-USE.txt',
   },
   {
     id: 'llama-rn',
