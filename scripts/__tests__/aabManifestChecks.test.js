@@ -3,6 +3,7 @@
 const {
   compareArtifactIdentity,
   isInstallTimeDeliveryEvidence,
+  MIN_TARGET_SDK,
 } = require('../lib/aabManifestChecks');
 
 describe('AAB artifact identity checks', () => {
@@ -10,6 +11,7 @@ describe('AAB artifact identity checks', () => {
     packageId: 'com.oppuna.app',
     versionCode: 4,
     versionName: '1.2.0',
+    minTargetSdk: MIN_TARGET_SDK,
   };
 
   function manifest(overrides = {}) {
@@ -19,22 +21,51 @@ describe('AAB artifact identity checks', () => {
     const targetSdk = overrides.targetSdk ?? 36;
     const allowBackup = overrides.allowBackup ?? 'false';
     const internet = overrides.internet ?? '';
+    const includeTargetSdk = overrides.includeTargetSdk !== false;
     return `
       <manifest package="${packageId}"
         android:versionCode="${versionCode}"
         android:versionName="${versionName}">
-        <uses-sdk android:targetSdkVersion="${targetSdk}" />
+        ${includeTargetSdk ? `<uses-sdk android:targetSdkVersion="${targetSdk}" />` : ''}
         <application android:allowBackup="${allowBackup}" />
         ${internet}
       </manifest>
     `;
   }
 
-  it('passes when artifact matches expected config', () => {
-    const result = compareArtifactIdentity(manifest(), expected);
+  it('uses minTargetSdk 36 from release config', () => {
+    expect(MIN_TARGET_SDK).toBe(36);
+  });
+
+  it('passes when artifact matches expected config with targetSdk 36', () => {
+    const result = compareArtifactIdentity(manifest({ targetSdk: 36 }), expected);
     expect(result.ok).toBe(true);
     expect(result.actual.versionCode).toBe(4);
     expect(result.actual.versionName).toBe('1.2.0');
+    expect(result.actual.targetSdk).toBe(36);
+  });
+
+  it('passes when actual targetSdk is 37', () => {
+    const result = compareArtifactIdentity(manifest({ targetSdk: 37 }), expected);
+    expect(result.ok).toBe(true);
+    expect(result.actual.targetSdk).toBe(37);
+  });
+
+  it('fails when actual targetSdk is 35', () => {
+    const result = compareArtifactIdentity(manifest({ targetSdk: 35 }), expected);
+    expect(result.ok).toBe(false);
+    expect(result.failures).toContain('targetSdk');
+  });
+
+  it('fails when actual targetSdk is 34', () => {
+    const result = compareArtifactIdentity(manifest({ targetSdk: 34 }), expected);
+    expect(result.failures).toContain('targetSdk');
+  });
+
+  it('blocks when targetSdk is missing/unreadable', () => {
+    const result = compareArtifactIdentity(manifest({ includeTargetSdk: false }), expected);
+    expect(result.ok).toBe(false);
+    expect(result.blocks).toContain('targetSdk-unreadable');
   });
 
   it('fails when actual versionCode mismatches', () => {
@@ -66,11 +97,6 @@ describe('AAB artifact identity checks', () => {
   it('fails when allowBackup is true', () => {
     const result = compareArtifactIdentity(manifest({ allowBackup: 'true' }), expected);
     expect(result.failures).toContain('allowBackup');
-  });
-
-  it('fails when targetSdk is too low', () => {
-    const result = compareArtifactIdentity(manifest({ targetSdk: 33 }), expected);
-    expect(result.failures).toContain('targetSdk');
   });
 });
 

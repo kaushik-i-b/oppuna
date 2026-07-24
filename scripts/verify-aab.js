@@ -15,6 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { loadLocalModelConfig } = require('./lib/localModelConfig');
+const { MIN_TARGET_SDK } = require('./lib/aabManifestChecks');
 
 const ROOT = path.join(__dirname, '..');
 const APP_JSON = path.join(ROOT, 'app.json');
@@ -348,11 +349,13 @@ async function main() {
       const sdkMatch = manifestXml.match(/android:targetSdkVersion\s*=\s*"?(\d+)"?/);
       if (sdkMatch) {
         const sdk = Number(sdkMatch[1]);
-        if (sdk < 34) {
-          fail(`targetSdkVersion ${sdk} is below expected (>=34)`);
+        console.log(`Expected minimum targetSdk: ${MIN_TARGET_SDK}`);
+        console.log(`Actual AAB targetSdk: ${sdk}`);
+        if (sdk < MIN_TARGET_SDK) {
+          fail(`targetSdkVersion ${sdk} is below required minimum (${MIN_TARGET_SDK})`);
           failures.push('targetSdk');
         } else {
-          pass(`targetSdkVersion (artifact) = ${sdk}`);
+          pass(`targetSdkVersion (artifact) = ${sdk} (>= ${MIN_TARGET_SDK})`);
         }
       } else {
         blocked('targetSdkVersion not found in decoded manifest');

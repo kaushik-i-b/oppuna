@@ -75,6 +75,8 @@ interface PrepFailureState {
   modelId: string;
   modelVersion: string;
   appVersion: string;
+  /** Distinguishes Play builds that share the same versionName. */
+  appVersionCode: number;
 }
 
 interface PrepareLocalModelNativeResult {
@@ -206,7 +208,7 @@ export async function getPreparationFailureState(): Promise<PrepFailureState | n
 
 /**
  * True when automatic ~806 MB copies should be suppressed after persistent failures.
- * Resets when model/app version changes.
+ * Resets when model config or app build identity (versionName + versionCode) changes.
  */
 export async function shouldSuppressAutomaticPreparation(): Promise<boolean> {
   const state = await readPrepFailure();
@@ -214,6 +216,7 @@ export async function shouldSuppressAutomaticPreparation(): Promise<boolean> {
   if (state.modelId !== LOCAL_MODEL_CONFIG.id) return false;
   if (state.modelVersion !== LOCAL_MODEL_CONFIG.version) return false;
   if (state.appVersion !== APP.version) return false;
+  if (state.appVersionCode !== APP.androidVersionCode) return false;
   return state.consecutiveFailures >= MAX_AUTO_PREP_FAILURES;
 }
 
@@ -223,7 +226,8 @@ export async function recordPreparationFailure(category: string): Promise<void> 
     previous &&
     previous.modelId === LOCAL_MODEL_CONFIG.id &&
     previous.modelVersion === LOCAL_MODEL_CONFIG.version &&
-    previous.appVersion === APP.version;
+    previous.appVersion === APP.version &&
+    previous.appVersionCode === APP.androidVersionCode;
   const consecutiveFailures = sameConfig ? previous.consecutiveFailures + 1 : 1;
   await writePrepFailure({
     consecutiveFailures,
@@ -232,6 +236,7 @@ export async function recordPreparationFailure(category: string): Promise<void> 
     modelId: LOCAL_MODEL_CONFIG.id,
     modelVersion: LOCAL_MODEL_CONFIG.version,
     appVersion: APP.version,
+    appVersionCode: APP.androidVersionCode,
   });
 }
 
