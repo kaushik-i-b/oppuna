@@ -1,9 +1,8 @@
 /**
  * Model manager — owns the on-device GGUF lifecycle.
  *
- * Responsibilities: locate → verify → initialize provider → generate → unload.
- * Avoids the "cached rejected Promise" trap: failed initialization clears the
- * in-flight promise so `retryModelInitialization()` actually retries.
+ * Responsibilities: locate → prepare → verify → initialize provider → generate → unload.
+ * Single-flight initialization; canceled attempts never promote to ready.
  */
 
 import { Platform } from 'react-native';
@@ -12,6 +11,7 @@ import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
 import { logger } from '@/utils/logger';
 import { getDeviceCapability } from '@/services/deviceCapabilityService';
 import {
+  attemptModelRecopy,
   clearStoredVerification,
   getDevModelsDirectory,
   getInstalledModelPath,
@@ -25,7 +25,7 @@ import type { LocalModelState, LocalModelStatus } from '@/ai/types';
 type ModelStateListener = (state: LocalModelState) => void;
 
 const INITIAL_STATE: LocalModelState = {
-  status: 'uninitialized',
+  status: 'idle',
   modelPath: null,
   modelId: null,
   error: null,
@@ -42,8 +42,10 @@ let state: LocalModelState = { ...INITIAL_STATE };
 const listeners = new Set<ModelStateListener>();
 let initPromise: Promise<LocalModelState> | null = null;
 let activeProvider: LocalLLMProvider | null = null;
-/** Injected provider factory for tests. */
 let providerFactory: ((modelPath: string) => LocalLLMProvider) | null = null;
+let initAttemptId = 0;
+let initCanceled = false;
+let activeGenerationId = 0;
 
 function emit(): void {
   for (const listener of listeners) {
@@ -56,6 +58,10 @@ function setState(patch: Partial<LocalModelState>): void {
   emit();
 }
 
+function isInitAttemptCurrent(attemptId: number): boolean {
+  return !initCanceled && attemptId === initAttemptId;
+}
+
 export function getModelStatus(): LocalModelStatus {
   return state.status;
 }
@@ -64,7 +70,6 @@ export function getModelState(): LocalModelState {
   return state;
 }
 
-/** @deprecated Prefer getModelState() — kept for existing callers. */
 export function subscribeToModelState(listener: ModelStateListener): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
@@ -86,7 +91,6 @@ export function getActiveProvider(): LocalLLMProvider | null {
   return activeProvider;
 }
 
-/** Test-only: inject a custom provider factory (e.g. FakeLocalLLMProvider). */
 export function setProviderFactoryForTests(
   factory: ((modelPath: string) => LocalLLMProvider) | null,
 ): void {
@@ -94,9 +98,7 @@ export function setProviderFactoryForTests(
 }
 
 function createProvider(modelPath: string): LocalLLMProvider {
-  if (providerFactory) {
-    return providerFactory(modelPath);
-  }
+  if (providerFactory) return providerFactory(modelPath);
   const capability = getDeviceCapability();
   return new LlamaRnProvider({
     modelPath,
@@ -107,20 +109,67 @@ function createProvider(modelPath: string): LocalLLMProvider {
   });
 }
 
-function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+async function withInitTimeout<T>(
+  promise: Promise<T>,
+  attemptId: number,
+  timeoutMs: number,
+  label: string,
+): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(
-      () => reject(new LocalLLMProviderError(`${label} timed out after ${timeoutMs}ms`, 'timeout')),
-      timeoutMs,
-    );
-  });
-  return Promise.race([promise, timeout]).finally(() => {
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          initCanceled = true;
+          reject(new LocalLLMProviderError(`${label} timed out after ${timeoutMs}ms`, 'timeout'));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
     if (timer !== undefined) clearTimeout(timer);
-  });
+    if (!isInitAttemptCurrent(attemptId)) {
+      initCanceled = true;
+    }
+  }
+}
+
+async function resolveModelPath(): Promise<string | null> {
+  if (Platform.OS === 'android') {
+    setState({ status: 'checking-storage', error: null });
+  }
+  try {
+    const path = await getInstalledModelPath();
+    if (path && Platform.OS === 'android') {
+      setState({ status: 'copying' });
+    }
+    return path;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (/storage/i.test(message)) {
+      setState({
+        status: 'insufficient-storage',
+        error: message,
+        fallbackActive: true,
+      });
+      return null;
+    }
+    throw error;
+  }
+}
+
+async function handleCorruptModel(): Promise<string | null> {
+  setState({ status: 'corrupted', fallbackActive: true });
+  const recopied = await attemptModelRecopy();
+  if (!recopied) return null;
+  setState({ status: 'copying' });
+  return resolveModelPath();
 }
 
 async function runInitialization(): Promise<LocalModelState> {
+  const attemptId = ++initAttemptId;
+  initCanceled = false;
+
   if (Platform.OS === 'web') {
     setState({
       ...INITIAL_STATE,
@@ -152,8 +201,15 @@ async function runInitialization(): Promise<LocalModelState> {
   }
 
   try {
-    const modelPath = await getInstalledModelPath();
+    let modelPath = await resolveModelPath();
+    if (!isInitAttemptCurrent(attemptId)) {
+      await activeProvider?.unload().catch(() => undefined);
+      activeProvider = null;
+      return state;
+    }
+
     if (!modelPath) {
+      if (state.status === 'insufficient-storage') return state;
       logger.info('No on-device LLM model found');
       setState({
         status: 'unavailable',
@@ -173,18 +229,31 @@ async function runInitialization(): Promise<LocalModelState> {
       modelId: getModelMetadata().modelName,
     });
 
-    const integrity = await verifyModelIntegrity({ path: modelPath });
+    let integrity = await verifyModelIntegrity({ path: modelPath });
     if (!integrity.ok) {
       const isCorrupt =
+        integrity.ggufHeaderValid === false ||
         integrity.error?.includes('SHA-256') ||
         integrity.error?.includes('size mismatch') ||
-        integrity.error?.includes('suspiciously small');
-      setState({
-        status: isCorrupt ? 'corrupted' : 'failed',
-        error: integrity.error ?? 'Model verification failed',
-        loadedAt: null,
-        fallbackActive: true,
-      });
+        integrity.error?.includes('Invalid GGUF');
+      if (isCorrupt) {
+        modelPath = await handleCorruptModel();
+        if (modelPath) {
+          integrity = await verifyModelIntegrity({ path: modelPath, forceFull: true });
+        }
+      }
+      if (!integrity.ok) {
+        setState({
+          status: isCorrupt ? 'corrupted' : 'failed',
+          error: integrity.error ?? 'Model verification failed',
+          loadedAt: null,
+          fallbackActive: true,
+        });
+        return state;
+      }
+    }
+
+    if (!isInitAttemptCurrent(attemptId)) {
       return state;
     }
 
@@ -196,14 +265,35 @@ async function runInitialization(): Promise<LocalModelState> {
       activeProvider = null;
     }
 
-    const provider = createProvider(modelPath);
-    await withTimeout(
-      provider.initialize(),
-      LOCAL_MODEL_CONFIG.initTimeoutMs,
-      'Model initialization',
-    );
-    activeProvider = provider;
+    if (!modelPath) {
+      setState({
+        status: 'unavailable',
+        modelPath: null,
+        fallbackActive: true,
+      });
+      return state;
+    }
 
+    const provider = createProvider(modelPath);
+    try {
+      await withInitTimeout(
+        provider.initialize(),
+        attemptId,
+        LOCAL_MODEL_CONFIG.initTimeoutMs,
+        'Model initialization',
+      );
+    } catch (error) {
+      await provider.unload().catch(() => undefined);
+      throw error;
+    }
+
+    if (!isInitAttemptCurrent(attemptId)) {
+      await provider.unload().catch(() => undefined);
+      activeProvider = null;
+      return state;
+    }
+
+    activeProvider = provider;
     setState({
       status: 'ready',
       loadedAt: Date.now(),
@@ -232,7 +322,7 @@ async function runInitialization(): Promise<LocalModelState> {
     logger.error('Model initialization failed', { error: message });
     activeProvider = null;
     setState({
-      status: 'failed',
+      status: error instanceof LocalLLMProviderError && error.code === 'timeout' ? 'failed' : 'failed',
       error: message,
       loadedAt: null,
       providerId: null,
@@ -242,10 +332,6 @@ async function runInitialization(): Promise<LocalModelState> {
   }
 }
 
-/**
- * Locate, verify, and load the local model.
- * Concurrent callers share one in-flight promise; failures clear it for retry.
- */
 export async function initializeModel(): Promise<LocalModelState> {
   if (state.status === 'ready' && activeProvider?.isReady()) {
     return state;
@@ -253,29 +339,28 @@ export async function initializeModel(): Promise<LocalModelState> {
   if (initPromise) return initPromise;
 
   initPromise = runInitialization().finally(() => {
-    // Always clear so retries work after failure OR after unload.
     initPromise = null;
   });
   return initPromise;
 }
 
-/** @deprecated Prefer initializeModel() */
 export async function initializeModelManager(): Promise<LocalModelState> {
   return initializeModel();
 }
 
-/** Clear failure state and attempt initialization again. */
 export async function retryModelInitialization(): Promise<LocalModelState> {
+  initAttemptId += 1;
+  initCanceled = true;
   initPromise = null;
   if (activeProvider) {
     await activeProvider.unload().catch(() => undefined);
     activeProvider = null;
   }
-  if (state.status === 'failed') {
+  if (state.status === 'failed' || state.status === 'corrupted') {
     await clearStoredVerification().catch(() => undefined);
   }
   setState({
-    status: 'uninitialized',
+    status: 'idle',
     error: null,
     loadedAt: null,
     initDurationMs: null,
@@ -292,10 +377,22 @@ export async function generate(
     throw new LocalLLMProviderError('Local model is not ready', 'not_ready');
   }
 
+  const generationId = ++activeGenerationId;
   setState({ status: 'generating', error: null });
   const started = Date.now();
+
+  const guardedOnToken: TokenCallback | undefined = onToken
+    ? (token) => {
+        if (generationId !== activeGenerationId) return;
+        onToken(token);
+      }
+    : undefined;
+
   try {
-    const text = await activeProvider.chat(messages, options, onToken);
+    const text = await activeProvider.chat(messages, options, guardedOnToken);
+    if (generationId !== activeGenerationId) {
+      throw new LocalLLMProviderError('Generation cancelled', 'cancelled');
+    }
     const durationSec = Math.max(0.001, (Date.now() - started) / 1000);
     const approxTokens = Math.max(1, Math.ceil(text.length / 4));
     setState({
@@ -304,28 +401,34 @@ export async function generate(
     });
     return text;
   } catch (error) {
-    setState({
-      status: activeProvider.isReady() ? 'ready' : 'failed',
-      error: error instanceof Error ? error.message : String(error),
-    });
+    if (generationId === activeGenerationId) {
+      setState({
+        status: activeProvider.isReady() ? 'ready' : 'failed',
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
     throw error;
   }
 }
 
 export async function cancelGeneration(): Promise<void> {
+  activeGenerationId += 1;
   if (activeProvider) {
     await activeProvider.cancelGeneration();
   }
 }
 
 export async function unloadModel(): Promise<void> {
+  initAttemptId += 1;
+  initCanceled = true;
   initPromise = null;
+  activeGenerationId += 1;
   if (activeProvider) {
     await activeProvider.unload().catch(() => undefined);
     activeProvider = null;
   }
   setState({
-    status: state.modelPath ? 'uninitialized' : 'unavailable',
+    status: state.modelPath ? 'idle' : 'unavailable',
     loadedAt: null,
     providerId: null,
     error: null,
@@ -333,30 +436,31 @@ export async function unloadModel(): Promise<void> {
   });
 }
 
-/** Legacy helpers used by older call sites / tests. */
 export function markModelLoading(): void {
   if (state.status === 'unavailable') return;
   setState({ status: 'loading', error: null });
 }
 
 export function markModelReady(): void {
-  setState({ status: 'ready', loadedAt: Date.now(), error: null });
+  setState({ status: 'ready', loadedAt: Date.now(), error: null, fallbackActive: false });
 }
 
 export function markModelError(error: string): void {
-  setState({ status: 'failed', error, loadedAt: null });
+  setState({ status: 'failed', error, loadedAt: null, fallbackActive: true });
 }
 
 export function markModelReleased(): void {
   void unloadModel();
 }
 
-/** @internal Reset state for unit tests. */
 export function __resetModelManagerForTests(): void {
   state = { ...INITIAL_STATE };
   initPromise = null;
   activeProvider = null;
   providerFactory = null;
+  initAttemptId = 0;
+  initCanceled = false;
+  activeGenerationId = 0;
   listeners.clear();
 }
 

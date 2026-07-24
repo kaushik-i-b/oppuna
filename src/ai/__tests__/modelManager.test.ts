@@ -11,6 +11,7 @@ import {
   generate,
   cancelGeneration,
   unloadModel,
+  LOCAL_MODEL_CONFIG,
 } from '@/ai/modelManager';
 import { FakeLocalLLMProvider } from '@/ai/providers';
 import * as modelAssetService from '@/services/modelAssetService';
@@ -117,7 +118,7 @@ describe('modelManager lifecycle', () => {
     });
 
     const result = await initializeModel();
-    expect(result.status).toBe('corrupted');
+    expect(result.status).toBe('failed');
     expect(result.error).toMatch(/suspiciously small/i);
   });
 
@@ -184,7 +185,96 @@ describe('modelManager lifecycle', () => {
     setProviderFactoryForTests(() => new FakeLocalLLMProvider());
     await initializeModel();
     await unloadModel();
-    expect(getModelStatus()).toBe('uninitialized');
+    expect(getModelStatus()).toBe('idle');
     expect(isModelReady()).toBe(false);
+  });
+
+  it('shares a single initialization across concurrent callers', async () => {
+    (modelAssetService.getInstalledModelPath as jest.Mock).mockResolvedValue(
+      '/data/model.gguf',
+    );
+    (modelAssetService.verifyModelIntegrity as jest.Mock).mockResolvedValue({
+      ok: true,
+      path: '/data/model.gguf',
+      size: 5_000_000,
+      sha256: null,
+      fullVerification: true,
+      error: null,
+    });
+
+    let providerCreates = 0;
+    setProviderFactoryForTests(() => {
+      providerCreates += 1;
+      return new FakeLocalLLMProvider({ initLatencyMs: 30, reply: 'ok' });
+    });
+
+    const results = await Promise.all([
+      initializeModel(),
+      initializeModel(),
+      initializeModel(),
+    ]);
+
+    expect(providerCreates).toBe(1);
+    expect(results.every((r) => r.status === 'ready')).toBe(true);
+  });
+
+  it('ignores late provider completion after initialization timeout', async () => {
+    jest.useFakeTimers();
+    (modelAssetService.getInstalledModelPath as jest.Mock).mockResolvedValue(
+      '/data/model.gguf',
+    );
+    (modelAssetService.verifyModelIntegrity as jest.Mock).mockResolvedValue({
+      ok: true,
+      path: '/data/model.gguf',
+      size: 5_000_000,
+      sha256: null,
+      fullVerification: true,
+      error: null,
+    });
+
+    setProviderFactoryForTests(
+      () => new FakeLocalLLMProvider({ initLatencyMs: 200_000, reply: 'late' }),
+    );
+
+    const pending = initializeModel();
+    await jest.advanceTimersByTimeAsync(LOCAL_MODEL_CONFIG.initTimeoutMs + 1);
+    const result = await pending;
+
+    expect(result.status).toBe('failed');
+    expect(isModelReady()).toBe(false);
+    jest.useRealTimers();
+  });
+
+  it('ignores late tokens after generation cancellation', async () => {
+    (modelAssetService.getInstalledModelPath as jest.Mock).mockResolvedValue(
+      '/data/model.gguf',
+    );
+    (modelAssetService.verifyModelIntegrity as jest.Mock).mockResolvedValue({
+      ok: true,
+      path: '/data/model.gguf',
+      size: 5_000_000,
+      sha256: null,
+      fullVerification: true,
+      error: null,
+    });
+
+    setProviderFactoryForTests(
+      () =>
+        new FakeLocalLLMProvider({
+          reply: 'should not arrive',
+          latencyMs: 500,
+        }),
+    );
+    await initializeModel();
+
+    const tokens: string[] = [];
+    const pending = generate(
+      [{ role: 'user', content: 'hi' }],
+      { maxTokens: 32 },
+      (token) => tokens.push(token),
+    );
+    await cancelGeneration();
+    await expect(pending).rejects.toBeDefined();
+    expect(tokens).toHaveLength(0);
   });
 });

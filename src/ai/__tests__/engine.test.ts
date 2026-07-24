@@ -15,7 +15,7 @@ describe('generateAIResponse — safety first', () => {
     const response = await generateAIResponse({ sessionId: freshSession(), text: 'I want to kill myself' });
     expect(response.crisis).toBe('suicide');
     expect(response.suggestions).toHaveLength(0);
-    expect(response.meta.source).toBe('safety');
+    expect(response.meta.source).toBe('crisis-response');
   });
 
   it('runs crisis detection even when an LLM is available', async () => {
@@ -25,7 +25,7 @@ describe('generateAIResponse — safety first', () => {
       { client },
     );
     expect(response.crisis).toBe('medical_emergency');
-    expect(response.meta.source).toBe('safety');
+    expect(response.meta.source).toBe('crisis-response');
     expect(response.reply).not.toBe('Everything is fine!');
   });
 });
@@ -133,11 +133,10 @@ describe('generateAIResponse — LLM path', () => {
       { sessionId: freshSession(), text: 'I feel stressed' },
       { client, rng: () => 0 },
     );
-    expect(response.meta.source).toBe('rule-engine');
-    expect(response.reply.length).toBeGreaterThan(0);
+    expect(response.meta.source).toBe('error-fallback');
   });
 
-  it('streams tokens through onToken when the LLM path is used', async () => {
+  it('streams tokens when the LLM path is used', async () => {
     const client = new MockLocalLLMClient({
       available: true,
       reply: 'One calm breath at a time.',

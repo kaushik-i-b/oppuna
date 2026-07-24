@@ -15,7 +15,7 @@ const STEPS = [
   ['verify:secrets', 'node scripts/verify-secrets.js'],
   ['verify:offline', 'node scripts/verify-offline.js'],
   ['verify:privacy-config', 'node scripts/verify-privacy-config.js'],
-  ['verify:model', 'node scripts/verify-model.js'],
+  ['verify:model', 'OPPUNA_CI=1 node scripts/verify-model.js'],
   ['inspect:android-release', 'node scripts/inspect-android-release.js'],
 ];
 

@@ -11,6 +11,7 @@
 import { Platform } from 'react-native';
 
 import { logger } from '@/utils/logger';
+import { cancelGeneration } from '@/ai/modelManager';
 import { LlamaRnLocalLLMClient } from '@/ai/localLLMClient';
 import type {
   LLMCompletion,
@@ -147,40 +148,62 @@ export async function isLLMAvailable(client: LocalLLMClient = activeClient): Pro
   }
 }
 
-/** Run a generation with a hard timeout so the chat UI can never hang. */
+/** Run a generation with a hard timeout; cancels native inference on expiry. */
 export async function generateWithTimeout(
   client: LocalLLMClient,
   prompt: LLMPrompt,
   timeoutMs: number,
 ): Promise<LLMCompletion> {
+  const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new LLMGenerationError(`LLM timed out after ${timeoutMs}ms`)), timeoutMs);
+    timer = setTimeout(() => {
+      void cancelGeneration().catch(() => undefined);
+      controller.abort();
+      reject(new LLMGenerationError(`LLM timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
   });
   try {
-    return await Promise.race([client.generate(prompt, { timeoutMs }), timeout]);
+    return await Promise.race([
+      client.generate(prompt, { timeoutMs, signal: controller.signal }),
+      timeout,
+    ]);
   } finally {
     if (timer !== undefined) clearTimeout(timer);
   }
 }
 
-/** Streaming generation with a hard timeout. */
+/** Streaming generation with a hard timeout and native cancellation. */
 export async function generateStreamWithTimeout(
   client: LocalLLMClient,
   prompt: LLMPrompt,
   timeoutMs: number,
   onToken: LLMTokenCallback,
 ): Promise<LLMCompletion> {
+  const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let generationId = 0;
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new LLMGenerationError(`LLM timed out after ${timeoutMs}ms`)), timeoutMs);
+    timer = setTimeout(() => {
+      generationId += 1;
+      void cancelGeneration().catch(() => undefined);
+      controller.abort();
+      reject(new LLMGenerationError(`LLM timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
   });
+
+  const guardedOnToken: LLMTokenCallback = (token) => {
+    if (controller.signal.aborted) return;
+    onToken(token);
+  };
+
   try {
     return await Promise.race([
-      client.generateStream(prompt, onToken, { timeoutMs }),
+      client.generateStream(prompt, guardedOnToken, { timeoutMs, signal: controller.signal }),
       timeout,
     ]);
   } finally {
     if (timer !== undefined) clearTimeout(timer);
+    void generationId;
   }
 }

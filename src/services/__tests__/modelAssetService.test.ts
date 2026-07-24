@@ -33,6 +33,7 @@ describe('modelAssetService', () => {
       exists: true,
       size: 128,
     });
+    (FileSystem.readAsStringAsync as jest.Mock).mockResolvedValue('R0dVRg==');
 
     const result = await verifyModelIntegrity({ path: '/tmp/model.gguf' });
     expect(result.ok).toBe(false);
@@ -45,6 +46,7 @@ describe('modelAssetService', () => {
       exists: true,
       size: expectedSize,
     });
+    (FileSystem.readAsStringAsync as jest.Mock).mockResolvedValue('R0dVRg==');
 
     const first = await verifyModelIntegrity({ path: '/tmp/model.gguf', forceFull: true });
     expect(first.ok).toBe(true);
@@ -71,5 +73,19 @@ describe('modelAssetService', () => {
   it('can clear stored verification', async () => {
     await clearStoredVerification();
     expect(AsyncStorage.removeItem).toHaveBeenCalled();
+  });
+
+  it('rejects files with an invalid GGUF header', async () => {
+    const expectedSize = LOCAL_MODEL_CONFIG.expectedSize;
+    (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({
+      exists: true,
+      size: expectedSize,
+    });
+    (FileSystem.readAsStringAsync as jest.Mock).mockResolvedValue('AAAA');
+
+    const result = await verifyModelIntegrity({ path: '/tmp/model.gguf', forceFull: true });
+    expect(result.ok).toBe(false);
+    expect(result.ggufHeaderValid).toBe(false);
+    expect(result.error).toMatch(/GGUF/i);
   });
 });

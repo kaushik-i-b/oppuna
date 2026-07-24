@@ -4,8 +4,8 @@
  * During `npx expo prebuild`, this plugin:
  * 1. Creates `android/ai_model_asset_pack/` with install-time delivery
  * 2. Wires the asset pack into Gradle
- * 3. Injects a small native module (`OppunaModelAsset`) that resolves a
- *    filesystem path llama.rn can open via AssetPackManager
+ * 3. Injects a native module (`OppunaModelAsset`) that copies install-time
+ *    assets via AssetManager into app-private storage for llama.rn mmap
  * 4. Marks `.gguf` as noCompress
  *
  * Place the real model at:
@@ -74,14 +74,12 @@ function withAssetPackGradle(config) {
       }
     }
 
-    // Play Asset Delivery dependency for AssetPackManager.
-    if (!contents.includes('com.google.android.play:asset-delivery')) {
-      if (contents.includes('dependencies {')) {
-        contents = contents.replace(
-          /dependencies\s*\{/,
-          `dependencies {\n    implementation "com.google.android.play:asset-delivery:2.3.0"`,
-        );
-      }
+    // Play Asset Delivery — install-time pack (no runtime AssetPackManager path needed).
+    if (contents.includes('com.google.android.play:asset-delivery')) {
+      contents = contents.replace(
+        /\n\s*implementation "com\.google\.android\.play:asset-delivery:[^"]+"\n/,
+        '\n',
+      );
     }
 
     cfg.modResults.contents = contents;
@@ -119,8 +117,16 @@ assetPack {
       // Copy model if the developer has placed one; otherwise leave a placeholder note.
       const sourceModel = path.join(projectRoot, SOURCE_MODEL_DIR, MODEL_FILE);
       const destModel = path.join(assetsDir, MODEL_FILE);
+      const isProductionBuild =
+        process.env.OPPUNA_PRODUCTION_BUILD === '1' ||
+        process.env.EAS_BUILD_PROFILE === 'production';
       if (fs.existsSync(sourceModel)) {
         fs.copyFileSync(sourceModel, destModel);
+      } else if (isProductionBuild) {
+        throw new Error(
+          `[oppuna] Production build requires ${SOURCE_MODEL_DIR}/${MODEL_FILE}. ` +
+            'Place the Gemma GGUF before building a production AAB.',
+        );
       } else {
         writeFileIfChanged(
           path.join(assetsDir, 'README.txt'),
@@ -143,96 +149,16 @@ assetPack {
       );
       ensureDir(javaPackagePath);
 
-      writeFileIfChanged(
-        path.join(javaPackagePath, 'OppunaModelAssetModule.kt'),
-        `package com.oppuna.app
-
-import android.app.ActivityManager
-import android.content.Context
-import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
-import com.google.android.play.core.assetpacks.AssetPackManagerFactory
-import java.io.File
-import java.io.FileInputStream
-import java.security.MessageDigest
-
-class OppunaModelAssetModule(
-  private val reactContext: ReactApplicationContext
-) : ReactContextBaseJavaModule(reactContext) {
-
-  override fun getName(): String = "OppunaModelAsset"
-
-  @ReactMethod
-  fun getTotalMemoryBytes(promise: Promise) {
-    try {
-      val am = reactContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-      val info = ActivityManager.MemoryInfo()
-      am.getMemoryInfo(info)
-      promise.resolve(info.totalMem.toDouble())
-    } catch (error: Exception) {
-      promise.reject("MEMORY_ERROR", error.message, error)
-    }
-  }
-
-  @ReactMethod
-  fun getInstalledModelPath(packName: String, fileName: String, promise: Promise) {
-    try {
-      val manager = AssetPackManagerFactory.getInstance(reactContext)
-      val location = manager.getPackLocation(packName)
-      if (location != null) {
-        val path = File(location.assetsPath(), fileName)
-        if (path.exists()) {
-          promise.resolve(path.absolutePath)
-          return
-        }
-      }
-
-      // Fallback: install-time packs are also visible via AssetManager for small assets,
-      // but GGUF must be a real filesystem path for llama.cpp mmap. Try known PAD roots.
-      val candidates = listOf(
-        File(reactContext.filesDir, "../${'$'}packName/${'$'}fileName"),
-        File("/data/data/" + reactContext.packageName + "/assets/${'$'}fileName")
-      )
-      for (candidate in candidates) {
-        try {
-          val normalized = candidate.canonicalFile
-          if (normalized.exists()) {
-            promise.resolve(normalized.absolutePath)
-            return
-          }
-        } catch (_: Exception) {
-        }
-      }
-
-      promise.resolve(null)
-    } catch (error: Exception) {
-      promise.reject("MODEL_PATH_ERROR", error.message, error)
-    }
-  }
-
-  @ReactMethod
-  fun sha256File(path: String, promise: Promise) {
-    try {
-      val digest = MessageDigest.getInstance("SHA-256")
-      FileInputStream(File(path)).use { input ->
-        val buffer = ByteArray(1024 * 1024)
-        while (true) {
-          val read = input.read(buffer)
-          if (read <= 0) break
-          digest.update(buffer, 0, read)
-        }
-      }
-      val hex = digest.digest().joinToString("") { "%02x".format(it) }
-      promise.resolve(hex)
-    } catch (error: Exception) {
-      promise.reject("SHA256_ERROR", error.message, error)
-    }
-  }
-}
-`,
+      const nativeModuleSrc = path.join(
+        projectRoot,
+        'plugins',
+        'native',
+        'OppunaModelAssetModule.kt',
       );
+      if (!fs.existsSync(nativeModuleSrc)) {
+        throw new Error(`Missing native module source: ${nativeModuleSrc}`);
+      }
+      fs.copyFileSync(nativeModuleSrc, path.join(javaPackagePath, 'OppunaModelAssetModule.kt'));
 
       writeFileIfChanged(
         path.join(javaPackagePath, 'OppunaModelAssetPackage.kt'),

@@ -6,6 +6,7 @@ import {
   LLMUnavailableError,
   MockLocalLLMClient,
 } from '@/ai/llmClient';
+import * as modelManager from '@/ai/modelManager';
 import type { LLMPrompt } from '@/ai/types';
 
 const PROMPT: LLMPrompt = {
@@ -67,6 +68,16 @@ describe('generateWithTimeout', () => {
   it('rejects when generation exceeds the timeout', async () => {
     const client = new MockLocalLLMClient({ available: true, latencyMs: 200 });
     await expect(generateWithTimeout(client, PROMPT, 20)).rejects.toThrow(/timed out/);
+  });
+
+  it('requests native cancellation when generation times out', async () => {
+    const cancelSpy = jest
+      .spyOn(modelManager, 'cancelGeneration')
+      .mockResolvedValue(undefined);
+    const client = new MockLocalLLMClient({ available: true, latencyMs: 200 });
+    await expect(generateWithTimeout(client, PROMPT, 20)).rejects.toThrow(/timed out/);
+    expect(cancelSpy).toHaveBeenCalled();
+    cancelSpy.mockRestore();
   });
 });
 

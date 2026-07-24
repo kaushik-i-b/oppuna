@@ -29,6 +29,7 @@ export interface ModelDiagnosticStatus {
 const FALLBACK_STATUSES = new Set<LocalModelStatus>([
   'unavailable',
   'unsupported-device',
+  'insufficient-storage',
   'corrupted',
   'failed',
   'fallback-mode',
@@ -49,8 +50,11 @@ export function deriveEngineMode(state: LocalModelState): AIEngineMode {
   if (state.status === 'ready' || state.status === 'generating') return 'on-device';
   if (
     state.status === 'locating' ||
+    state.status === 'checking-storage' ||
+    state.status === 'copying' ||
     state.status === 'verifying' ||
     state.status === 'loading' ||
+    state.status === 'idle' ||
     state.status === 'uninitialized'
   ) {
     return 'initializing';

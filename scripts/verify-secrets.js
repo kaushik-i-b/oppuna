@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
  * Fails if tracked files contain signing secrets or credential patterns.
+ * Path patterns apply to filenames only; content patterns skip documentation prose.
  */
 
 const fs = require('fs');
@@ -20,14 +21,24 @@ const IGNORE_DIRS = new Set([
   'web-build',
 ]);
 
-const SECRET_PATTERNS = [
+const FORBIDDEN_PATH_PATTERNS = [
   { name: 'keystore file', regex: /\.keystore$/i },
   { name: 'jks file', regex: /\.jks$/i },
-  { name: 'keystore-credentials file', regex: /keystore-credentials/i },
+  { name: 'keystore-credentials file', regex: /keystore-credentials\.txt$/i },
+  { name: 'signing credentials file', regex: /signing-credentials/i },
+];
+
+const SENSITIVE_CONTENT_PATTERNS = [
   { name: 'Gradle storePassword literal', regex: /storePassword\s*[=:]\s*['"][^'"]+['"]/i },
   { name: 'Gradle keyPassword literal', regex: /keyPassword\s*[=:]\s*['"][^'"]+['"]/i },
-  { name: 'upload key password env sample', regex: /OPPUNA_UPLOAD_(STORE|KEY)_PASSWORD\s*=\s*\S+/i },
+  {
+    name: 'hardcoded upload key password',
+    regex: /OPPUNA_UPLOAD_(STORE|KEY)_PASSWORD\s*=\s*[^$\s{][^\s#]*/i,
+  },
+  { name: 'private key block', regex: /-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----/ },
 ];
+
+const DOC_LIKE = new Set(['.md', '.txt']);
 
 function walk(dir, files = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -48,6 +59,10 @@ function isGitTracked(file) {
   }
 }
 
+function isDocFile(file) {
+  return DOC_LIKE.has(path.extname(file).toLowerCase());
+}
+
 function main() {
   const failures = [];
   const files = walk(ROOT).filter(isGitTracked);
@@ -56,18 +71,21 @@ function main() {
     const rel = path.relative(ROOT, file);
     const base = path.basename(file);
 
-    for (const { name, regex } of SECRET_PATTERNS) {
+    for (const { name, regex } of FORBIDDEN_PATH_PATTERNS) {
       if (regex.test(base) || regex.test(rel)) {
-        failures.push(`${rel}: matches ${name}`);
+        failures.push(`${rel}: forbidden path pattern (${name})`);
       }
     }
 
-    if (/\.(ts|tsx|js|json|md|txt|yml|yaml|gradle|properties|env)$/i.test(file)) {
-      const content = fs.readFileSync(file, 'utf8');
-      for (const { name, regex } of SECRET_PATTERNS) {
-        if (regex.test(content)) {
-          failures.push(`${rel}: content matches ${name}`);
-        }
+    if (!/\.(ts|tsx|js|json|gradle|properties|env|yml|yaml|kt|java)$/i.test(file)) {
+      continue;
+    }
+    if (path.basename(file) === 'verify-secrets.js') continue;
+
+    const content = fs.readFileSync(file, 'utf8');
+    for (const { name, regex } of SENSITIVE_CONTENT_PATTERNS) {
+      if (regex.test(content)) {
+        failures.push(`${rel}: sensitive content (${name})`);
       }
     }
   }

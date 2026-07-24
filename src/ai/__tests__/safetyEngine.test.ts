@@ -39,7 +39,7 @@ describe('SafetyEngine intercepts before LLM inference', () => {
     );
 
     expect(called).toBe(false);
-    expect(response.meta.source).toBe('safety');
+    expect(response.meta.source).toBe('crisis-response');
     expect(response.crisis).toBe('suicide');
   });
 });
