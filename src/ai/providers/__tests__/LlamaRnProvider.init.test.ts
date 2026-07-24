@@ -1,6 +1,11 @@
 import { initLlama } from 'llama.rn';
 
-import { LlamaRnProvider } from '@/ai/providers/LlamaRnProvider';
+import {
+  LlamaRnProvider,
+  __getActiveNativeInitPromiseForTests,
+  __getNativeInitStartsForTests,
+  __resetNativeInitGateForTests,
+} from '@/ai/providers/LlamaRnProvider';
 import { FakeLocalLLMProvider } from '@/ai/providers/FakeLocalLLMProvider';
 
 jest.mock('llama.rn', () => ({
@@ -19,9 +24,20 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
+async function flushMicrotasks(): Promise<void> {
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
 describe('LlamaRnProvider initialization lifecycle', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    __resetNativeInitGateForTests();
+  });
+
+  afterEach(async () => {
+    __resetNativeInitGateForTests();
   });
 
   it('shares a single native load across concurrent initialize calls', async () => {
@@ -32,12 +48,51 @@ describe('LlamaRnProvider initialization lifecycle', () => {
     const a = provider.initialize();
     const b = provider.initialize();
     const c = provider.initialize();
+    await flushMicrotasks();
 
     expect(initLlamaMock).toHaveBeenCalledTimes(1);
+    expect(__getNativeInitStartsForTests()).toBe(1);
 
     load.resolve({ release: jest.fn(async () => undefined), gpu: false });
     await Promise.all([a, b, c]);
     expect(provider.isReady()).toBe(true);
+  });
+
+  it('does not start a second native init while a stale one is still unresolved', async () => {
+    const first = deferred<{ release: jest.Mock; gpu: boolean }>();
+    const second = deferred<{ release: jest.Mock; gpu: boolean }>();
+    initLlamaMock
+      .mockReturnValueOnce(first.promise as never)
+      .mockReturnValueOnce(second.promise as never);
+
+    const providerA = new LlamaRnProvider({ modelPath: '/data/model.gguf' });
+    const pendingA = providerA.initialize();
+    await flushMicrotasks();
+    expect(initLlamaMock).toHaveBeenCalledTimes(1);
+    expect(__getActiveNativeInitPromiseForTests()).not.toBeNull();
+
+    await providerA.unload();
+    // Retry requested while first native init is still unresolved.
+    const providerB = new LlamaRnProvider({ modelPath: '/data/model.gguf' });
+    const pendingB = providerB.initialize();
+    await flushMicrotasks();
+
+    // Second native init must not have started yet.
+    expect(initLlamaMock).toHaveBeenCalledTimes(1);
+
+    const release = jest.fn(async () => undefined);
+    first.resolve({ release, gpu: false });
+    await expect(pendingA).rejects.toBeDefined();
+    expect(release).toHaveBeenCalled();
+    expect(providerA.isReady()).toBe(false);
+
+    await flushMicrotasks();
+    expect(initLlamaMock).toHaveBeenCalledTimes(2);
+
+    second.resolve({ release: jest.fn(async () => undefined), gpu: false });
+    await pendingB;
+    expect(providerB.isReady()).toBe(true);
+    expect(__getNativeInitStartsForTests()).toBe(2);
   });
 
   it('releases a late native context after unload/cancel and does not become ready', async () => {
@@ -47,6 +102,7 @@ describe('LlamaRnProvider initialization lifecycle', () => {
 
     const provider = new LlamaRnProvider({ modelPath: '/data/model.gguf' });
     const pending = provider.initialize();
+    await flushMicrotasks();
 
     await provider.unload();
     load.resolve({ release, gpu: false });

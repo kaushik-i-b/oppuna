@@ -4,8 +4,10 @@
  * Model discovery, integrity, and lifecycle orchestration live in modelManager.
  * This class must not call cloud APIs, Ollama, or perform network I/O.
  *
- * Initialization uses an attempt ID so timed-out / canceled loads never assign
- * a late native context (orphaned llama.cpp contexts are released immediately).
+ * Native initLlama is globally single-flight:
+ * - Logical attempts may time out / become stale immediately.
+ * - A second initLlama MUST NOT start until the prior native Promise settles.
+ * - Stale resolutions release the returned context and never become ready.
  */
 
 import { Platform } from 'react-native';
@@ -54,6 +56,29 @@ function mapNativeError(error: unknown, fallbackCode: LocalLLMProviderError['cod
   return new LocalLLMProviderError(message, fallbackCode, error);
 }
 
+/**
+ * Global native-init gate shared across ALL LlamaRnProvider instances.
+ * Clearing a logical initPromise must NOT allow a second initLlama while
+ * the first underlying native call is still unresolved.
+ */
+let nativeInitChain: Promise<void> = Promise.resolve();
+let activeNativeInitPromise: Promise<LlamaContext> | null = null;
+let nativeInitStarts = 0;
+
+/** @internal Test helpers */
+export function __getNativeInitStartsForTests(): number {
+  return nativeInitStarts;
+}
+export function __resetNativeInitGateForTests(): void {
+  // Force-resolve any abandoned gate from interrupted tests, then reset.
+  nativeInitChain = Promise.resolve();
+  activeNativeInitPromise = null;
+  nativeInitStarts = 0;
+}
+export function __getActiveNativeInitPromiseForTests(): Promise<LlamaContext> | null {
+  return activeNativeInitPromise;
+}
+
 export class LlamaRnProvider implements LocalLLMProvider {
   readonly id = 'llama.rn';
   readonly displayName = 'llama.rn (llama.cpp)';
@@ -66,7 +91,8 @@ export class LlamaRnProvider implements LocalLLMProvider {
 
   private context: LlamaContext | null = null;
   private status: LocalLLMProviderStatus = 'uninitialized';
-  private initPromise: Promise<void> | null = null;
+  /** Logical init promise for concurrent callers on THIS instance. */
+  private logicalInitPromise: Promise<void> | null = null;
   private generating = false;
   private cancelRequested = false;
   private initAttemptId = 0;
@@ -112,20 +138,20 @@ export class LlamaRnProvider implements LocalLLMProvider {
       return;
     }
 
-    // Single-flight: concurrent callers share the same native load.
-    if (this.initPromise) {
-      return this.initPromise;
+    // Single-flight per instance: concurrent callers share the same logical op.
+    if (this.logicalInitPromise) {
+      return this.logicalInitPromise;
     }
 
     const attemptId = ++this.initAttemptId;
     this.initCanceled = false;
     this.status = 'initializing';
-    this.initPromise = this.loadContext(attemptId);
+    this.logicalInitPromise = this.loadContext(attemptId);
     try {
-      await this.initPromise;
+      await this.logicalInitPromise;
     } finally {
-      // Clear so a later retry after failure actually retries.
-      this.initPromise = null;
+      // Logical promise may clear while native work is still gated globally.
+      this.logicalInitPromise = null;
     }
   }
 
@@ -141,10 +167,20 @@ export class LlamaRnProvider implements LocalLLMProvider {
     }
   }
 
-  private async loadContext(attemptId: number): Promise<void> {
-    let context: LlamaContext | null = null;
-    try {
-      context = await initLlama({
+  /**
+   * Runs initLlama under the global native gate so overlapping loads cannot start.
+   */
+  private enqueueNativeInit(): Promise<LlamaContext> {
+    let release!: () => void;
+    const previous = nativeInitChain;
+    nativeInitChain = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+
+    const run = (async (): Promise<LlamaContext> => {
+      await previous;
+      nativeInitStarts += 1;
+      const nativePromise = initLlama({
         model: toFileUri(this.modelPath),
         use_mmap: true,
         use_mlock: this.useMlock,
@@ -152,6 +188,26 @@ export class LlamaRnProvider implements LocalLLMProvider {
         n_threads: this.nThreads,
         n_gpu_layers: this.nGpuLayers,
       });
+      activeNativeInitPromise = nativePromise;
+      try {
+        return await nativePromise;
+      } finally {
+        if (activeNativeInitPromise === nativePromise) {
+          activeNativeInitPromise = null;
+        }
+        release();
+      }
+    })();
+
+    // Ensure gate advances even if run rejects before finally (defense in depth).
+    run.catch(() => undefined);
+    return run;
+  }
+
+  private async loadContext(attemptId: number): Promise<void> {
+    let context: LlamaContext | null = null;
+    try {
+      context = await this.enqueueNativeInit();
 
       if (!this.isInitAttemptCurrent(attemptId)) {
         await this.releaseContextQuietly(context);
@@ -171,9 +227,6 @@ export class LlamaRnProvider implements LocalLLMProvider {
         attemptId,
       });
     } catch (error) {
-      if (context && this.context !== context) {
-        // Already released above, or never assigned.
-      }
       if (this.isInitAttemptCurrent(attemptId)) {
         this.context = null;
         this.status = 'failed';
@@ -246,11 +299,14 @@ export class LlamaRnProvider implements LocalLLMProvider {
   }
 
   async unload(): Promise<void> {
-    // Invalidate any in-flight initialization so a late initLlama result is released.
+    // Mark logical attempt stale immediately so callers can fall back.
+    // Do NOT wait for / clear the underlying native init — the global gate
+    // ensures a subsequent initialize() cannot start another initLlama until
+    // the in-flight native Promise settles (and any stale context is released).
     this.initCanceled = true;
     this.initAttemptId += 1;
     this.cancelRequested = true;
-    this.initPromise = null;
+    this.logicalInitPromise = null;
     if (this.context) {
       try {
         await this.context.release();

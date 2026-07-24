@@ -115,6 +115,8 @@ async function main() {
     'llama-rn-MIT.txt',
     'llama-cpp-MIT.txt',
   ];
+  const REQUIRED_NOTICE =
+    'Gemma is provided under and subject to the Gemma Terms of Use found at ai.google.dev/gemma/terms';
   for (const file of requiredLicenses) {
     const full = path.join(LICENSES, file);
     if (!fs.existsSync(full)) {
@@ -123,6 +125,15 @@ async function main() {
       continue;
     }
     pass(`${file} exists`);
+    if (file === 'GEMMA-NOTICE.txt') {
+      const text = read(full);
+      if (!text.includes(REQUIRED_NOTICE)) {
+        failures.push('GEMMA-NOTICE.txt missing required Gemma Notice sentence');
+        fail('required Gemma Notice sentence');
+      } else {
+        pass('required Gemma Notice sentence present');
+      }
+    }
     if (file === 'GEMMA-TERMS-OF-USE.txt') {
       const text = read(full);
       if (isPlaceholderTerms(text)) {

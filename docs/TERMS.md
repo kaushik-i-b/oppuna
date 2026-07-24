@@ -12,6 +12,20 @@ Oppuna is a private, offline wellness and journaling companion. It provides a ca
 
 Oppuna may use an **on-device language model** (Google Gemma 3 1B Instruct, quantized) for conversational support. **AI inference happens locally on your device.** Model outputs may be inaccurate and must not be treated as medical diagnosis, treatment, professional therapy, or emergency care. Oppuna's safety and guided fallback systems may replace or override model responses. Use of the Gemma model is also subject to **Google's Gemma Terms of Use** (see Settings → Legal → Third-Party Licenses).
 
+## 2A. On-Device AI and Third-Party Model Restrictions
+
+Oppuna includes an on-device Gemma model for conversational features. AI inference occurs locally on your device and is not sent to Oppuna or Google for remote processing.
+
+When you use Gemma-powered functionality you agree that:
+
+1. You will comply with the applicable **Gemma Terms of Use** and **Gemma Notice** bundled in the app (Settings → Legal → Third-Party Licenses), and with applicable laws.
+2. You will not use Gemma-powered features for any use prohibited by the applicable Gemma terms or use policy.
+3. AI output may be inaccurate, incomplete, or inappropriate for your situation.
+4. Oppuna is **not** diagnosis, treatment, professional therapy, or emergency care.
+5. Oppuna safety systems may block, replace, or override generative responses (including crisis responses and guided offline fallbacks).
+
+The authoritative Gemma agreement, when bundled, is provided separately as `GEMMA-TERMS-OF-USE.txt`. Oppuna's own terms do not replace Google's Gemma Terms of Use.
+
 ## 3. Not a medical or emergency service
 
 Oppuna is **not** a doctor, therapist, counselor, crisis service, or medical device. It does **not** diagnose, treat, cure, or prevent any condition, and it is **not a substitute for professional medical, psychological, or emergency services**.
