@@ -23,8 +23,12 @@ const {
 const fs = require('fs');
 const path = require('path');
 
-const PACK_NAME = 'ai_model_asset_pack';
-const MODEL_FILE = 'model.gguf';
+const { loadLocalModelConfig } = require('../scripts/lib/localModelConfig');
+
+const MODEL_META = loadLocalModelConfig();
+const PACK_NAME = MODEL_META.assetPackName;
+const MODEL_FILE = MODEL_META.fileName;
+const DELIVERY_TYPE = MODEL_META.deliveryType;
 const SOURCE_MODEL_DIR = 'assets/ai-model';
 
 function ensureDir(dir) {
@@ -108,7 +112,7 @@ function withAssetPackFiles(config) {
 assetPack {
     packName = "${PACK_NAME}"
     dynamicDelivery {
-        deliveryType = "install-time"
+        deliveryType = "${DELIVERY_TYPE}"
     }
 }
 `,

@@ -25,6 +25,15 @@ export interface FakeLocalLLMProviderOptions {
   failGeneration?: boolean;
   /** Stream token granularity. Defaults to word-ish chunks. */
   streamByWord?: boolean;
+  /**
+   * Optional hook invoked when initialize starts (for single-flight / stale tests).
+   * Receives the attempt id.
+   */
+  onInitializeStart?: (attemptId: number) => void;
+  /** Optional deferred resolver for testing late completion after cancel. */
+  deferInitialize?: {
+    promise: Promise<void>;
+  };
 }
 
 const DEFAULT_REPLY =
@@ -42,7 +51,14 @@ export class FakeLocalLLMProvider implements LocalLLMProvider {
   private status: LocalLLMProviderStatus = 'uninitialized';
   private cancelled = false;
   private generating = false;
+  private initPromise: Promise<void> | null = null;
+  private initAttemptId = 0;
+  private initCanceled = false;
   private readonly options: FakeLocalLLMProviderOptions;
+  /** Counts how many real initialize loads started (not shared waiters). */
+  initializeStarts = 0;
+  /** Counts contexts that would have been assigned but were released as stale. */
+  staleReleases = 0;
 
   constructor(options: FakeLocalLLMProviderOptions = {}) {
     this.options = options;
@@ -56,10 +72,38 @@ export class FakeLocalLLMProvider implements LocalLLMProvider {
     return this.status === 'ready' || this.status === 'generating';
   }
 
+  getInitAttemptId(): number {
+    return this.initAttemptId;
+  }
+
   async initialize(): Promise<void> {
     if (this.status === 'ready') return;
+    if (this.initPromise) return this.initPromise;
+
+    const attemptId = ++this.initAttemptId;
+    this.initCanceled = false;
     this.status = 'initializing';
+    this.initializeStarts += 1;
+    this.options.onInitializeStart?.(attemptId);
+
+    this.initPromise = this.runInitialize(attemptId);
+    try {
+      await this.initPromise;
+    } finally {
+      this.initPromise = null;
+    }
+  }
+
+  private async runInitialize(attemptId: number): Promise<void> {
     await delay(this.options.initLatencyMs ?? 0);
+    if (this.options.deferInitialize) {
+      await this.options.deferInitialize.promise;
+    }
+    if (this.initCanceled || attemptId !== this.initAttemptId) {
+      this.staleReleases += 1;
+      if (this.status === 'initializing') this.status = 'failed';
+      throw new LocalLLMProviderError('Initialization cancelled (stale attempt)', 'cancelled');
+    }
     if (this.options.initializeOk === false) {
       this.status = 'failed';
       throw new LocalLLMProviderError('Fake provider initialization failed', 'init_failed');
@@ -125,8 +169,11 @@ export class FakeLocalLLMProvider implements LocalLLMProvider {
   }
 
   async unload(): Promise<void> {
+    this.initCanceled = true;
+    this.initAttemptId += 1;
     this.cancelled = true;
     this.generating = false;
+    this.initPromise = null;
     this.status = 'unloaded';
   }
 

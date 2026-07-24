@@ -11,9 +11,11 @@ import * as FileSystem from 'expo-file-system/legacy';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { APP } from '@/constants/app';
-import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
+import { LOCAL_MODEL_CONFIG, requiredPrivateModelStorageBytes } from '@/config/localModel';
 import { logger } from '@/utils/logger';
 import { isValidGgufHeader } from '@/utils/gguf';
+
+export { requiredPrivateModelStorageBytes };
 
 const VERIFICATION_STORAGE_KEY = 'oppuna.localModel.verification.v1';
 const RECOPY_ATTEMPTS_KEY = 'oppuna.localModel.recopyAttempts.v1';
@@ -178,7 +180,14 @@ export async function prepareBundledModel(options: {
       LOCAL_MODEL_CONFIG.sha256,
       forceRecopy,
     );
+    if (!result?.path) {
+      logger.warn('Bundled model preparation returned no path');
+      return null;
+    }
     logger.info('Bundled model prepared', { copied: result.copied, verified: result.verified });
+    if (result.verified) {
+      await clearRecopyAttemptCounter().catch(() => undefined);
+    }
     return {
       path: result.path,
       copied: result.copied,
@@ -247,7 +256,16 @@ async function writeStoredVerification(value: StoredVerification): Promise<void>
 
 export async function clearStoredVerification(): Promise<void> {
   await AsyncStorage.removeItem(VERIFICATION_STORAGE_KEY);
+  // Intentionally does NOT clear the recopy attempt counter.
+}
+
+/** Clears only the corruption-recopy attempt counter (after successful recovery). */
+export async function clearRecopyAttemptCounter(): Promise<void> {
   await AsyncStorage.removeItem(RECOPY_ATTEMPTS_KEY);
+}
+
+export async function getRecopyAttemptCount(): Promise<number> {
+  return readRecopyAttempts();
 }
 
 function needsFullVerification(stored: StoredVerification | null, path: string, size: number): boolean {
@@ -402,7 +420,12 @@ export async function verifyModelIntegrity(options: {
 
 /**
  * Attempt one repair recopy when the private model copy is corrupt.
- * Returns true when a recopy was attempted.
+ * Returns true when a recopy was attempted and verification succeeded.
+ *
+ * Counter semantics:
+ * - Incremented before the repair attempt
+ * - Cleared only after a verified successful prepare
+ * - Failed repair leaves the counter elevated so startup does not loop
  */
 export async function attemptModelRecopy(): Promise<boolean> {
   const attempts = await readRecopyAttempts();
@@ -413,10 +436,17 @@ export async function attemptModelRecopy(): Promise<boolean> {
   await deleteCorruptPrivateModel();
 
   const prepared = await prepareBundledModel({ forceRecopy: true });
-  return prepared !== null;
+  if (prepared?.verified) {
+    await clearRecopyAttemptCounter();
+    return true;
+  }
+  // Leave counter elevated — no immediate infinite repair loop.
+  return false;
 }
 
 /** Document directory used for development / sideloaded GGUF files. */
 export function getDevModelsDirectory(): string {
   return DEV_MODELS_DIR;
 }
+
+export { MAX_RECOPY_ATTEMPTS };

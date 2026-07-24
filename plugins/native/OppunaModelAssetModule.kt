@@ -12,12 +12,19 @@ import com.facebook.react.bridge.WritableMap
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 import java.util.concurrent.Executors
 
 /**
  * Resolves install-time Play Asset Delivery models via AssetManager and copies
  * them into app-private storage for llama.cpp mmap access.
+ *
+ * Storage formula (documented):
+ *   requiredFreeBytes = expectedSize + STORAGE_HEADROOM_BYTES
+ * One private copy is written to model.gguf.tmp then atomically moved to model.gguf.
+ * We do NOT require 2× model size because the non-atomic copy fallback was removed.
  */
 class OppunaModelAssetModule(
   private val reactContext: ReactApplicationContext
@@ -138,7 +145,8 @@ class OppunaModelAssetModule(
 
     if (tempFile.exists()) tempFile.delete()
 
-    val requiredBytes = expectedSize * 2 + STORAGE_HEADROOM_BYTES
+    // One private copy + safety headroom (not 2× model size).
+    val requiredBytes = requiredPrivateStorageBytes(expectedSize)
     val usable = getUsableBytes(dir)
     if (usable < requiredBytes) {
       if (tempFile.exists()) tempFile.delete()
@@ -149,7 +157,7 @@ class OppunaModelAssetModule(
 
     copyAssetToFile(assetFileName, tempFile)
 
-  if (tempFile.length() != expectedSize) {
+    if (tempFile.length() != expectedSize) {
       tempFile.delete()
       throw IllegalStateException("Copied model size mismatch.")
     }
@@ -165,15 +173,49 @@ class OppunaModelAssetModule(
       throw IllegalStateException("Model SHA-256 mismatch.")
     }
 
-    if (modelFile.exists()) modelFile.delete()
-    if (!tempFile.renameTo(modelFile)) {
-      tempFile.copyTo(modelFile, overwrite = true)
-      tempFile.delete()
+    // Atomic finalize only — never non-atomic copy into the trusted final name.
+    atomicMoveVerifiedTemp(tempFile, modelFile)
+
+    if (modelFile.length() != expectedSize || !isValidGgufFile(modelFile)) {
+      modelFile.delete()
+      throw IllegalStateException("Final model failed post-move verification.")
     }
 
-    syncFile(modelFile)
-
     return resultMap(modelFile.absolutePath, true, modelFile.length(), sha, true)
+  }
+
+  /**
+   * Atomically move temp → final within the same private directory.
+   * If atomic move is unavailable, fail preparation rather than risk a
+   * partially written trusted filename.
+   */
+  private fun atomicMoveVerifiedTemp(tempFile: File, modelFile: File) {
+    if (modelFile.exists() && !modelFile.delete()) {
+      tempFile.delete()
+      throw IllegalStateException("Could not remove existing model before atomic move.")
+    }
+
+    try {
+      Files.move(
+        tempFile.toPath(),
+        modelFile.toPath(),
+        StandardCopyOption.ATOMIC_MOVE,
+        StandardCopyOption.REPLACE_EXISTING
+      )
+    } catch (atomicError: Exception) {
+      // Do NOT fall back to non-atomic copy into the final trusted path.
+      if (tempFile.exists()) tempFile.delete()
+      if (modelFile.exists()) modelFile.delete()
+      throw IllegalStateException(
+        "Atomic model finalize failed: ${atomicError.message}",
+        atomicError
+      )
+    }
+
+    if (tempFile.exists()) {
+      // Should not remain after a successful atomic move.
+      tempFile.delete()
+    }
   }
 
   private fun copyAssetToFile(assetFileName: String, dest: File) {
@@ -188,10 +230,6 @@ class OppunaModelAssetModule(
         output.fd.sync()
       }
     }
-  }
-
-  private fun syncFile(file: File) {
-    FileOutputStream(file, true).use { it.fd.sync() }
   }
 
   private fun modelDirectory(): File = File(reactContext.filesDir, "ai-model")
@@ -248,6 +286,11 @@ class OppunaModelAssetModule(
   companion object {
     private const val MODEL_FILE_NAME = "model.gguf"
     private const val MODEL_TEMP_NAME = "model.gguf.tmp"
-    private const val STORAGE_HEADROOM_BYTES = 100L * 1024L * 1024L
+    /** ~150 MiB headroom for FS overhead and normal app operation. */
+    private const val STORAGE_HEADROOM_BYTES = 150L * 1024L * 1024L
+
+    fun requiredPrivateStorageBytes(expectedSize: Long): Long {
+      return expectedSize + STORAGE_HEADROOM_BYTES
+    }
   }
 }

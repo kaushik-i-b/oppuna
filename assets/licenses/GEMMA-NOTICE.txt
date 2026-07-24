@@ -19,4 +19,4 @@ Key points (summary — the official terms control):
   - Gemma outputs may be inaccurate and must not be treated as medical or professional advice.
   - Redistribution of the model weights outside Oppuna is governed by Google's terms.
 
-For the full Gemma Terms of Use text, see assets/licenses/GEMMA-TERMS-REFERENCE.md
+For the full Gemma Terms of Use text, see assets/licenses/GEMMA-TERMS-OF-USE.txt
