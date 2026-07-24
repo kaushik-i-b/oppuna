@@ -81,8 +81,8 @@ function main() {
   if (!report.internetBlocked) failures.push('INTERNET permission is not blocked in app.json');
   if (report.allowBackupConfig !== false) failures.push('allowBackup is not false in app.json');
 
-  if (report.targetSdk !== null && report.targetSdk < 35) {
-    failures.push(`targetSdk ${report.targetSdk} is below required minimum (35+)`);
+  if (report.targetSdk !== null && report.targetSdk < 36) {
+    failures.push(`targetSdk ${report.targetSdk} is below required minimum (36+)`);
   }
 
   try {

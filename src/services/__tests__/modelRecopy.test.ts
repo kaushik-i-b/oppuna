@@ -209,6 +209,20 @@ describe('preparation failure backoff', () => {
     expect(prepared?.verified).toBe(true);
   });
 
+  it('resets backoff when android versionCode changes', async () => {
+    const store = mockStore();
+    store['oppuna.localModel.prepFailure.v1'] = JSON.stringify({
+      consecutiveFailures: 2,
+      lastCategory: 'prepare_error',
+      lastFailureAt: Date.now(),
+      modelId: LOCAL_MODEL_CONFIG.id,
+      modelVersion: LOCAL_MODEL_CONFIG.version,
+      appVersion: APP.version,
+      appVersionCode: APP.androidVersionCode - 1,
+    });
+    expect(await shouldSuppressAutomaticPreparation()).toBe(false);
+  });
+
   it('successful prepare clears failure state', async () => {
     await recordPreparationFailure('prepare_error');
     NativeModules.OppunaModelAsset.prepareLocalModel.mockResolvedValue({

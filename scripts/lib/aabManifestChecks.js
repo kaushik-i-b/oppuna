@@ -2,6 +2,15 @@
  * Pure helpers for comparing AAB manifest values to expected project config.
  */
 
+const fs = require('fs');
+const path = require('path');
+
+const ANDROID_RELEASE = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', '..', 'config', 'android-release.json'), 'utf8'),
+);
+
+const MIN_TARGET_SDK = Number(ANDROID_RELEASE.minTargetSdk) || 36;
+
 function parseManifestAttr(xml, attr) {
   const re = new RegExp(`${attr}\\s*=\\s*"([^"]+)"`);
   const match = xml.match(re);
@@ -10,6 +19,8 @@ function parseManifestAttr(xml, attr) {
 
 function compareArtifactIdentity(manifestXml, expected) {
   const failures = [];
+  const blocks = [];
+  const minTargetSdk = expected.minTargetSdk ?? MIN_TARGET_SDK;
   const packageOk = manifestXml.includes(expected.packageId);
   if (!packageOk) failures.push('packageId');
 
@@ -24,8 +35,11 @@ function compareArtifactIdentity(manifestXml, expected) {
   if (versionName === null) failures.push('versionName-missing');
   else if (versionName !== String(expected.versionName)) failures.push('versionName');
 
-  if (targetSdk === null) failures.push('targetSdk-missing');
-  else if (Number(targetSdk) < 34) failures.push('targetSdk');
+  if (targetSdk === null) {
+    blocks.push('targetSdk-unreadable');
+  } else if (Number(targetSdk) < minTargetSdk) {
+    failures.push('targetSdk');
+  }
 
   if (allowBackup !== 'false') failures.push('allowBackup');
 
@@ -36,8 +50,10 @@ function compareArtifactIdentity(manifestXml, expected) {
   if (internetPresent) failures.push('INTERNET');
 
   return {
-    ok: failures.length === 0,
+    ok: failures.length === 0 && blocks.length === 0,
     failures,
+    blocks,
+    minTargetSdk,
     actual: {
       versionCode: versionCode === null ? null : Number(versionCode),
       versionName,
@@ -54,6 +70,7 @@ function isInstallTimeDeliveryEvidence(text) {
 }
 
 module.exports = {
+  MIN_TARGET_SDK,
   parseManifestAttr,
   compareArtifactIdentity,
   isInstallTimeDeliveryEvidence,

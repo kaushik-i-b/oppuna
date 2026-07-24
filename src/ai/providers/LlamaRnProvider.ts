@@ -169,8 +169,10 @@ export class LlamaRnProvider implements LocalLLMProvider {
 
   /**
    * Runs initLlama under the global native gate so overlapping loads cannot start.
+   * After waiting for any previous native init, re-checks that this logical attempt
+   * is still current before calling initLlama (prevents zombie loads from stale queues).
    */
-  private enqueueNativeInit(): Promise<LlamaContext> {
+  private enqueueNativeInit(attemptId: number): Promise<LlamaContext> {
     let release!: () => void;
     const previous = nativeInitChain;
     nativeInitChain = new Promise<void>((resolve) => {
@@ -178,23 +180,34 @@ export class LlamaRnProvider implements LocalLLMProvider {
     });
 
     const run = (async (): Promise<LlamaContext> => {
-      await previous;
-      nativeInitStarts += 1;
-      const nativePromise = initLlama({
-        model: toFileUri(this.modelPath),
-        use_mmap: true,
-        use_mlock: this.useMlock,
-        n_ctx: this.contextSize,
-        n_threads: this.nThreads,
-        n_gpu_layers: this.nGpuLayers,
-      });
-      activeNativeInitPromise = nativePromise;
       try {
-        return await nativePromise;
-      } finally {
-        if (activeNativeInitPromise === nativePromise) {
-          activeNativeInitPromise = null;
+        await previous;
+
+        if (!this.isInitAttemptCurrent(attemptId)) {
+          throw new LocalLLMProviderError(
+            'Initialization cancelled before native load',
+            'cancelled',
+          );
         }
+
+        nativeInitStarts += 1;
+        const nativePromise = initLlama({
+          model: toFileUri(this.modelPath),
+          use_mmap: true,
+          use_mlock: this.useMlock,
+          n_ctx: this.contextSize,
+          n_threads: this.nThreads,
+          n_gpu_layers: this.nGpuLayers,
+        });
+        activeNativeInitPromise = nativePromise;
+        try {
+          return await nativePromise;
+        } finally {
+          if (activeNativeInitPromise === nativePromise) {
+            activeNativeInitPromise = null;
+          }
+        }
+      } finally {
         release();
       }
     })();
@@ -207,7 +220,7 @@ export class LlamaRnProvider implements LocalLLMProvider {
   private async loadContext(attemptId: number): Promise<void> {
     let context: LlamaContext | null = null;
     try {
-      context = await this.enqueueNativeInit();
+      context = await this.enqueueNativeInit(attemptId);
 
       if (!this.isInitAttemptCurrent(attemptId)) {
         await this.releaseContextQuietly(context);

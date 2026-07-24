@@ -95,6 +95,47 @@ describe('LlamaRnProvider initialization lifecycle', () => {
     expect(__getNativeInitStartsForTests()).toBe(2);
   });
 
+  it('never calls initLlama for a queued attempt that cancels while waiting', async () => {
+    const first = deferred<{ release: jest.Mock; gpu: boolean }>();
+    initLlamaMock.mockReturnValueOnce(first.promise as never);
+
+    const providerA = new LlamaRnProvider({ modelPath: '/data/model.gguf' });
+    const pendingA = providerA.initialize();
+    await flushMicrotasks();
+    expect(initLlamaMock).toHaveBeenCalledTimes(1);
+
+    // B queues behind A, then becomes stale before A finishes.
+    const providerB = new LlamaRnProvider({ modelPath: '/data/model.gguf' });
+    const pendingB = providerB.initialize();
+    await flushMicrotasks();
+    expect(initLlamaMock).toHaveBeenCalledTimes(1);
+
+    await providerB.unload(); // cancel B while still waiting on the gate
+
+    first.resolve({ release: jest.fn(async () => undefined), gpu: false });
+    await pendingA;
+    expect(providerA.isReady()).toBe(true);
+
+    await expect(pendingB).rejects.toMatchObject({ code: 'cancelled' });
+    await flushMicrotasks();
+    // Critical: canceled B must NEVER start a zombie native load.
+    expect(initLlamaMock).toHaveBeenCalledTimes(1);
+    expect(providerB.isReady()).toBe(false);
+
+    // Later valid attempt C can initialize normally.
+    await providerA.unload();
+    const third = deferred<{ release: jest.Mock; gpu: boolean }>();
+    initLlamaMock.mockReturnValueOnce(third.promise as never);
+    const providerC = new LlamaRnProvider({ modelPath: '/data/model.gguf' });
+    const pendingC = providerC.initialize();
+    await flushMicrotasks();
+    expect(initLlamaMock).toHaveBeenCalledTimes(2);
+    third.resolve({ release: jest.fn(async () => undefined), gpu: false });
+    await pendingC;
+    expect(providerC.isReady()).toBe(true);
+    expect(providerB.isReady()).toBe(false);
+  });
+
   it('releases a late native context after unload/cancel and does not become ready', async () => {
     const load = deferred<{ release: jest.Mock; gpu: boolean }>();
     const release = jest.fn(async () => undefined);
