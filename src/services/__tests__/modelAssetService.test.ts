@@ -58,7 +58,7 @@ describe('modelAssetService', () => {
         schemaVersion: 1,
         modelId: LOCAL_MODEL_CONFIG.id,
         modelVersion: LOCAL_MODEL_CONFIG.version,
-        appVersion: '1.2.0',
+        appVersion: '2.0.0',
         expectedSize,
         expectedSha256: LOCAL_MODEL_CONFIG.sha256,
         path: '/tmp/model.gguf',

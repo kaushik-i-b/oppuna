@@ -51,7 +51,7 @@ Model metadata source of truth: `config/local-model.json`
 
 ### Version codes for Play uploads
 
-Current `app.json` `android.versionCode` is **4**. The next fresh production AAB uploaded to Play must use a `versionCode` **strictly greater** than every previously uploaded Play artifact. Do not reuse an already-uploaded versionCode. `verify:aab` compares the **actual AAB** versionCode/versionName against `app.json` when bundletool is available.
+Current `app.json` version is **2.0.0** with `android.versionCode` **5**. Any future Play upload must use a `versionCode` **strictly greater** than every previously uploaded Play artifact. Do not reuse an already-uploaded versionCode. `verify:aab` compares the **actual AAB** versionCode/versionName against `app.json` when bundletool is available.
 
 ## Key documentation
 
