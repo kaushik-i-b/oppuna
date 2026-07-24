@@ -9,14 +9,14 @@ const {
 describe('AAB artifact identity checks', () => {
   const expected = {
     packageId: 'com.oppuna.app',
-    versionCode: 4,
-    versionName: '1.2.0',
+    versionCode: 5,
+    versionName: '2.0.0',
     minTargetSdk: MIN_TARGET_SDK,
   };
 
   function manifest(overrides = {}) {
-    const versionCode = overrides.versionCode ?? 4;
-    const versionName = overrides.versionName ?? '1.2.0';
+    const versionCode = overrides.versionCode ?? 5;
+    const versionName = overrides.versionName ?? '2.0.0';
     const packageId = overrides.packageId ?? 'com.oppuna.app';
     const targetSdk = overrides.targetSdk ?? 36;
     const allowBackup = overrides.allowBackup ?? 'false';
@@ -40,8 +40,8 @@ describe('AAB artifact identity checks', () => {
   it('passes when artifact matches expected config with targetSdk 36', () => {
     const result = compareArtifactIdentity(manifest({ targetSdk: 36 }), expected);
     expect(result.ok).toBe(true);
-    expect(result.actual.versionCode).toBe(4);
-    expect(result.actual.versionName).toBe('1.2.0');
+    expect(result.actual.versionCode).toBe(5);
+    expect(result.actual.versionName).toBe('2.0.0');
     expect(result.actual.targetSdk).toBe(36);
   });
 
@@ -69,7 +69,7 @@ describe('AAB artifact identity checks', () => {
   });
 
   it('fails when actual versionCode mismatches', () => {
-    const result = compareArtifactIdentity(manifest({ versionCode: 5 }), expected);
+    const result = compareArtifactIdentity(manifest({ versionCode: 4 }), expected);
     expect(result.ok).toBe(false);
     expect(result.failures).toContain('versionCode');
   });

@@ -4,9 +4,9 @@ export const APP = {
   name: 'Oppuna',
   tagline:
     'A private, offline journal, mood, and reflection companion with on-device AI and guided safety fallbacks.',
-  version: '1.2.0',
+  version: '2.0.0',
   /** Must match app.json expo.android.versionCode — used for prep-failure backoff identity. */
-  androidVersionCode: 4,
+  androidVersionCode: 5,
 } as const;
 
 export const MEDICAL_DISCLAIMER =
