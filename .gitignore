@@ -17,8 +17,14 @@ keystore-credentials.txt
 **/*-upload-key.*
 release/*.apk
 release/*.aab
+release/*.apks
+release/**/*.apk
+release/**/*.aab
+release/**/*.apks
+release/**/toc.pb
 release/*.keystore
 release/*.jks
+release/*.log
 *.p8
 *.p12
 *.key
