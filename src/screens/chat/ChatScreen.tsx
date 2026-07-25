@@ -3,6 +3,7 @@ import {
   AppState,
   type AppStateStatus,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -71,6 +72,8 @@ export function ChatScreen(): React.ReactElement {
   const [sending, setSending] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [userScrolledUp, setUserScrolledUp] = useState(false);
+  /** Android fallback lift when window resize does not clear the composer. */
+  const [androidKeyboardLift, setAndroidKeyboardLift] = useState(0);
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const streamingIdRef = useRef<string | null>(null);
   const streamBufferRef = useRef('');
@@ -123,6 +126,25 @@ export function ChatScreen(): React.ReactElement {
   const scrollToEnd = useCallback((animated = true) => {
     if (!stickToBottomRef.current) return;
     requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated }));
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== 'android') return undefined;
+    const show = Keyboard.addListener('keyboardDidShow', () => {
+      // tabBarHideOnKeyboard removes ~58dp; compensate residual overlap on OEMs
+      // where adjustResize alone leaves the composer under the IME.
+      setAndroidKeyboardLift(24);
+      if (stickToBottomRef.current) {
+        requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: false }));
+      }
+    });
+    const hide = Keyboard.addListener('keyboardDidHide', () => {
+      setAndroidKeyboardLift(0);
+    });
+    return () => {
+      show.remove();
+      hide.remove();
+    };
   }, []);
 
   const flushStreamBuffer = useCallback(() => {
@@ -353,13 +375,14 @@ export function ChatScreen(): React.ReactElement {
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
       >
         <FlatList
           ref={listRef}
           data={messages}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <ChatBubble message={item} />}
+          automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
           contentContainerStyle={{
             paddingHorizontal: theme.spacing.lg,
             paddingTop: theme.spacing.md,
@@ -503,7 +526,9 @@ export function ChatScreen(): React.ReactElement {
           style={{
             paddingHorizontal: theme.spacing.lg,
             paddingTop: theme.spacing.sm,
-            paddingBottom: Math.max(insets.bottom, theme.spacing.sm),
+            paddingBottom:
+              Math.max(insets.bottom, theme.spacing.sm) +
+              (Platform.OS === 'android' ? androidKeyboardLift : 0),
             backgroundColor: theme.colors.background,
           }}
         >

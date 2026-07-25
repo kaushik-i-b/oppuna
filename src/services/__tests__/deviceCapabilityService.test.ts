@@ -27,6 +27,16 @@ describe('deviceCapabilityService', () => {
     expect(cap.canRunLocalModel).toBe(true);
   });
 
+  it('marks sub-3GB devices unsupported for Qwen 1.5B Q4_K_M', () => {
+    const cap = getDeviceCapability({
+      platform: 'android',
+      totalMemoryBytes: 2.5 * 1024 * 1024 * 1024,
+    });
+    expect(cap.canRunLocalModel).toBe(false);
+    expect(cap.tier).toBe('low');
+    expect(cap.reason).toMatch(/memory/i);
+  });
+
   it('allows larger context on high RAM devices without unsafe Android GPU offload', () => {
     const cap = getDeviceCapability({
       platform: 'android',

@@ -22,6 +22,13 @@ describe('local-model.json source of truth', () => {
     expect(config.assetPackName).toBe('ai_model_asset_pack');
     expect(config.sha256).toMatch(/^[a-f0-9]{64}$/);
     expect(config.sourceRepo).toBe('bartowski/Qwen2.5-1.5B-Instruct-GGUF');
+    expect(config.family).toMatch(/qwen/i);
+    expect(config.architecture).toBe('qwen2');
+    expect(config.quantization).toBe('Q4_K_M');
+    expect(config.licenseId).toBe('apache-2.0');
+    expect(config.chatTemplate).toBe('chatml');
+    expect(config.stopSequences).toContain('<|im_end|>');
+    expect(config.exactModel).toMatch(/Qwen2\.5-1\.5B-Instruct/i);
   });
 
   it('calculates storage as expectedSize + headroom (not 2×)', () => {

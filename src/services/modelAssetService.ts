@@ -207,7 +207,7 @@ export async function getPreparationFailureState(): Promise<PrepFailureState | n
 }
 
 /**
- * True when automatic ~806 MB copies should be suppressed after persistent failures.
+ * True when automatic private model copies should be suppressed after persistent failures.
  * Resets when model config or app build identity (versionName + versionCode) changes.
  */
 export async function shouldSuppressAutomaticPreparation(): Promise<boolean> {

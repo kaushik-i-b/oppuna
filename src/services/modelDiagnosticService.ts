@@ -5,7 +5,8 @@
 
 import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
 import { getModelState } from '@/ai/modelManager';
-import type { AIEngineMode, LocalModelState, LocalModelStatus } from '@/ai/types';
+import { getLastAIResponseSource } from '@/ai/responseSourceStore';
+import type { AIEngineMode, LocalModelState, LocalModelStatus, ResponseSource } from '@/ai/types';
 import { getDeviceCapability } from '@/services/deviceCapabilityService';
 import { getModelMetadata } from '@/services/modelAssetService';
 
@@ -20,10 +21,17 @@ export interface ModelDiagnosticStatus {
   subtitle: string;
   modelConfigured: string;
   modelDisplayName: string;
+  exactModel: string;
+  family: string;
+  quantization: string;
+  modelPresent: boolean | null;
   deviceTier: string;
   integrityOk: boolean | null;
   initDurationMs: number | null;
   errorSummary: string | null;
+  lastResponseSource: ResponseSource | null;
+  expectedSizeBytes: number;
+  sha256Prefix: string;
 }
 
 const FALLBACK_STATUSES = new Set<LocalModelStatus>([
@@ -62,6 +70,21 @@ export function deriveEngineMode(state: LocalModelState): AIEngineMode {
   return 'guided-offline';
 }
 
+function deriveModelPresent(state: LocalModelState): boolean | null {
+  if (state.modelPath) return true;
+  if (
+    state.status === 'unavailable' ||
+    state.status === 'unsupported-device' ||
+    state.status === 'insufficient-storage'
+  ) {
+    return false;
+  }
+  if (state.status === 'idle' || state.status === 'uninitialized' || state.status === 'locating') {
+    return null;
+  }
+  return state.modelPath != null;
+}
+
 export function getModelDiagnosticStatus(): ModelDiagnosticStatus {
   const state = getModelState();
   const meta = getModelMetadata();
@@ -91,6 +114,10 @@ export function getModelDiagnosticStatus(): ModelDiagnosticStatus {
     subtitle,
     modelConfigured: meta.modelName,
     modelDisplayName: LOCAL_MODEL_CONFIG.displayName,
+    exactModel: LOCAL_MODEL_CONFIG.exactModel,
+    family: LOCAL_MODEL_CONFIG.family,
+    quantization: LOCAL_MODEL_CONFIG.quantization,
+    modelPresent: deriveModelPresent(state),
     deviceTier: state.deviceTier ?? capability.tier,
     integrityOk:
       state.status === 'corrupted' || state.status === 'failed'
@@ -100,5 +127,8 @@ export function getModelDiagnosticStatus(): ModelDiagnosticStatus {
           : null,
     initDurationMs: state.initDurationMs,
     errorSummary: sanitizeError(state.error),
+    lastResponseSource: getLastAIResponseSource(),
+    expectedSizeBytes: LOCAL_MODEL_CONFIG.expectedSize,
+    sha256Prefix: `${LOCAL_MODEL_CONFIG.sha256.slice(0, 12)}…`,
   };
 }

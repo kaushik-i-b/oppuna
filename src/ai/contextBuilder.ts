@@ -9,7 +9,7 @@ import type { MoodKey } from '@/types';
 import type { AIMessage, Intent, LLMPrompt } from '@/ai/types';
 import type { ConversationMemory } from '@/ai/conversationMemory';
 import type { ChatMessage } from '@/ai/providers/LocalLLMProvider';
-import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
+import { LOCAL_MODEL_CONFIG, LOCAL_MODEL_STOP_SEQUENCES } from '@/config/localModel';
 import { buildMentalHealthSystemPrompt } from '@/ai/agents/mentalHealthAgent';
 
 /** Rough chars-per-token estimate for English + chat templates. */
@@ -182,6 +182,7 @@ export function buildContext(input: ContextBuilderInput): BuiltContext {
       maxTokens: maxGenerationTokens,
       temperature: LOCAL_MODEL_CONFIG.temperature,
       topP: LOCAL_MODEL_CONFIG.topP,
+      stopSequences: [...LOCAL_MODEL_STOP_SEQUENCES],
     },
   };
 

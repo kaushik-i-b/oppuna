@@ -1,6 +1,11 @@
 {
   "modelId": "oppuna-qwen25-1_5b-instruct-q4km",
   "displayName": "Qwen2.5 1.5B Instruct (Q4_K_M)",
+  "family": "qwen2.5",
+  "architecture": "qwen2",
+  "exactModel": "Qwen2.5-1.5B-Instruct",
+  "parameterCount": "1.5B",
+  "quantization": "Q4_K_M",
   "fileName": "model.gguf",
   "version": "3",
   "expectedSize": 986048768,
@@ -10,6 +15,28 @@
   "minPlausibleSizeBytes": 1000000,
   "sourceRepo": "bartowski/Qwen2.5-1.5B-Instruct-GGUF",
   "sourceFile": "Qwen2.5-1.5B-Instruct-Q4_K_M.gguf",
+  "sourceUrl": "https://huggingface.co/bartowski/Qwen2.5-1.5B-Instruct-GGUF",
   "packageId": "com.oppuna.app",
-  "storageHeadroomBytes": 157286400
+  "storageHeadroomBytes": 157286400,
+  "licenseId": "apache-2.0",
+  "licenseName": "Apache License, Version 2.0",
+  "chatTemplate": "chatml",
+  "contextSize": 4096,
+  "maxGenerationTokens": 220,
+  "temperature": 0.65,
+  "topP": 0.9,
+  "responseTimeoutMs": 60000,
+  "initTimeoutMs": 120000,
+  "stopSequences": [
+    "<|im_end|>",
+    "<|im_start|>",
+    "<|endoftext|>",
+    "</s>",
+    "<|end|>",
+    "<|eot_id|>",
+    "<|end_of_text|>",
+    "<|EOT|>",
+    "<|END_OF_TURN_TOKEN|>",
+    "<|end_of_turn|>"
+  ]
 }

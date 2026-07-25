@@ -13,13 +13,13 @@ const fs = require('fs');
 const path = require('path');
 
 const { loadLocalModelConfig } = require('./lib/localModelConfig');
+const { checkGgufMagic, readGgufIdentity } = require('./lib/ggufMeta');
 
 const ROOT = path.join(__dirname, '..');
 const MODEL_PATH = path.join(ROOT, 'assets', 'ai-model', 'model.gguf');
 const APP_JSON = path.join(ROOT, 'app.json');
 const ASSET_PACK_PLUGIN = path.join(ROOT, 'plugins', 'withAiModelAssetPack.js');
 const LICENSES = path.join(ROOT, 'assets', 'licenses');
-const GGUF_MAGIC = Buffer.from('GGUF', 'ascii');
 
 /** Google Play install-time asset pack hard limit (1 GiB). */
 const PLAY_INSTALL_TIME_PACK_MAX_BYTES = 1073741824;
@@ -42,17 +42,6 @@ function sha256File(filePath) {
     stream.on('end', () => resolve(hash.digest('hex')));
     stream.on('error', reject);
   });
-}
-
-function checkGgufHeader(filePath) {
-  const fd = fs.openSync(filePath, 'r');
-  try {
-    const buf = Buffer.alloc(4);
-    fs.readSync(fd, buf, 0, 4, 0);
-    return buf.equals(GGUF_MAGIC);
-  } finally {
-    fs.closeSync(fd);
-  }
 }
 
 function pass(line) {
@@ -83,7 +72,8 @@ async function main() {
   console.log('MODEL VALIDATION\n');
   console.log(`Mode: ${CI_MODE ? 'CI (skips allowed)' : 'STRICT'}`);
   console.log(`Expected size: ${config.expectedSize}`);
-  console.log(`Model ID: ${config.modelId}\n`);
+  console.log(`Model ID: ${config.modelId}`);
+  console.log(`Family: ${config.family} / ${config.architecture} / ${config.quantization}\n`);
 
   if (config.expectedSize < config.minPlausibleSizeBytes) {
     failures.push(
@@ -103,6 +93,20 @@ async function main() {
     pass(
       `expectedSize under Play install-time pack limit (${config.expectedSize} < ${PLAY_INSTALL_TIME_PACK_MAX_BYTES})`,
     );
+  }
+
+  if (!config.stopSequences.includes('<|im_end|>')) {
+    failures.push('stopSequences missing ChatML <|im_end|>');
+    fail('ChatML stop sequences');
+  } else {
+    pass('ChatML stop sequences include <|im_end|>');
+  }
+
+  if (/gemma/i.test(JSON.stringify(config))) {
+    failures.push('config/local-model.json must not reference Gemma');
+    fail('config free of Gemma');
+  } else {
+    pass('config free of Gemma');
   }
 
   const app = JSON.parse(read(APP_JSON));
@@ -161,6 +165,13 @@ async function main() {
     }
   }
 
+  for (const name of fs.readdirSync(LICENSES)) {
+    if (/gemma/i.test(name)) {
+      failures.push(`Prohibited Gemma license asset present: ${name}`);
+      fail(`no Gemma license asset (${name})`);
+    }
+  }
+
   const modelExists = fs.existsSync(MODEL_PATH);
   if (!modelExists) {
     if (CI_MODE && !PRODUCTION_MODE) {
@@ -189,11 +200,50 @@ async function main() {
       pass('model.gguf under Play pack limit');
     }
 
-    if (!checkGgufHeader(MODEL_PATH)) {
+    if (!checkGgufMagic(MODEL_PATH)) {
       failures.push('Invalid GGUF header magic');
       fail('GGUF header valid');
     } else {
       pass('GGUF header valid');
+    }
+
+    try {
+      const identity = readGgufIdentity(MODEL_PATH);
+      if (identity.architecture) {
+        if (identity.architecture !== config.architecture) {
+          failures.push(
+            `GGUF architecture "${identity.architecture}" != config "${config.architecture}"`,
+          );
+          fail('GGUF architecture matches config');
+        } else {
+          pass(`GGUF architecture = ${identity.architecture}`);
+        }
+      } else {
+        failures.push('Could not read general.architecture from GGUF metadata');
+        fail('GGUF architecture readable');
+      }
+
+      if (identity.name && !/qwen/i.test(identity.name)) {
+        failures.push(`GGUF general.name does not look like Qwen: ${identity.name}`);
+        fail('GGUF name is Qwen-family');
+      } else if (identity.name) {
+        pass(`GGUF name = ${identity.name}`);
+      }
+
+      if (identity.chatTemplatePreview && !identity.chatTemplatePreview.includes('<|im_start|>')) {
+        failures.push('GGUF chat template does not look like ChatML (<|im_start|> missing)');
+        fail('GGUF ChatML template');
+      } else if (identity.chatTemplatePreview) {
+        pass('GGUF chat template includes ChatML tokens');
+      }
+
+      if (identity.architecture && /gemma/i.test(identity.architecture)) {
+        failures.push('Packaged GGUF architecture is Gemma — forbidden');
+        fail('GGUF is not Gemma');
+      }
+    } catch (error) {
+      failures.push(`Failed to read GGUF metadata: ${error.message}`);
+      fail('GGUF metadata readable');
     }
 
     const actualSha = await sha256File(MODEL_PATH);

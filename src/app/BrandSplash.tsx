@@ -27,7 +27,6 @@ const BRAND_FG_MUTED = 'rgba(255, 255, 255, 0.78)';
 const BRAND_GLOW = 'rgba(255, 255, 255, 0.12)';
 
 // Bundled offline ambient (~2.8s). Fully local — no network.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const SPLASH_AUDIO = require('../../assets/audio/splash.wav');
 
 interface Props {

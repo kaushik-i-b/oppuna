@@ -138,7 +138,7 @@ class OppunaModelAssetModule(
     if (!forceRecopy && modelFile.exists()) {
       val existingSize = modelFile.length()
       if (existingSize == expectedSize && isValidGgufFile(modelFile)) {
-        // Trusted JS verification metadata may authorize skipping a full ~806 MB rehash.
+        // Trusted JS verification metadata may authorize skipping a full private-copy rehash.
         if (skipFullSha) {
           return resultMap(
             modelFile.absolutePath,

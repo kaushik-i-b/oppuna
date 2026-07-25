@@ -400,6 +400,21 @@ async function main() {
       );
     }
 
+    // Stale Gemma legal / naming must never ship in a Qwen production AAB.
+    const gemmaHits = listing
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => /gemma/i.test(l));
+    if (gemmaHits.length > 0) {
+      fail('AAB contains prohibited Gemma assets/paths');
+      for (const hit of gemmaHits.slice(0, 8)) {
+        console.error(`  - ${hit}`);
+      }
+      failures.push('gemma assets');
+    } else {
+      pass('No Gemma-named assets in AAB listing');
+    }
+
     // Stream model SHA
     if (modelEntry) {
       try {
@@ -421,6 +436,11 @@ async function main() {
           failures.push('sha256');
         } else {
           pass('SHA-256 matches configured digest (streamed)');
+        }
+        // Stale pre-Qwen packs were ~806 MB; reject obvious legacy size even if config drifts.
+        if (streamed.size === 806058496) {
+          fail('Packaged model size matches legacy pre-Qwen GGUF — rebuild with Qwen weights');
+          failures.push('legacy model size');
         }
       } catch (error) {
         fail(`Could not stream model from AAB: ${error.message}`);

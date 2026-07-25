@@ -10,6 +10,7 @@ import { StyleSheet, View } from 'react-native';
 import { Button, Card, Screen, Text } from '@/components';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { retryModelInitialization, unloadModel } from '@/ai/modelManager';
+import { getModelDiagnosticStatus } from '@/services/modelDiagnosticService';
 import { getDeviceCapability } from '@/services/deviceCapabilityService';
 import { getModelMetadata } from '@/services/modelAssetService';
 import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
@@ -29,12 +30,26 @@ function Row({ label, value }: { label: string; value: string }): React.ReactEle
   );
 }
 
+function presentLabel(value: boolean | null): string {
+  if (value === true) return 'present';
+  if (value === false) return 'absent';
+  return 'unknown';
+}
+
+function integrityLabel(value: boolean | null): string {
+  if (value === true) return 'ok';
+  if (value === false) return 'failed';
+  return 'not verified';
+}
+
 export function LocalAIDiagnosticsScreen(): React.ReactElement {
   const theme = useTheme();
   const model = useModelStatus();
   const capability = getDeviceCapability();
   const meta = getModelMetadata();
   const [busy, setBusy] = useState(false);
+  // Re-read on each render; model status subscription already re-renders this screen.
+  const diagnostics = getModelDiagnosticStatus();
 
   const handleRetry = useCallback(async () => {
     setBusy(true);
@@ -62,22 +77,24 @@ export function LocalAIDiagnosticsScreen(): React.ReactElement {
   return (
     <Screen title="AI diagnostics" scroll>
       <Text variant="caption" color="textMuted" style={{ marginBottom: theme.spacing.md }}>
-        Development only. No conversation content is shown.
+        Development only. No conversation content is shown. Values reflect real local state — never a fake PASS.
       </Text>
 
       <Card>
-        <Row label="Model" value={model.status.toUpperCase()} />
+        <Row label="AI state" value={model.status.toUpperCase()} />
+        <Row label="Engine mode" value={diagnostics.engineMode} />
+        <Row label="Exact model" value={diagnostics.exactModel} />
         <Row label="Display name" value={LOCAL_MODEL_CONFIG.displayName} />
+        <Row label="Family / quant" value={`${diagnostics.family} / ${diagnostics.quantization}`} />
         <Row label="Model id" value={model.modelId ?? meta.modelName} />
         <Row label="Model version" value={meta.version} />
+        <Row label="Model presence" value={presentLabel(diagnostics.modelPresent)} />
+        <Row label="Integrity" value={integrityLabel(diagnostics.integrityOk)} />
         <Row
-          label="Model size"
-          value={
-            LOCAL_MODEL_CONFIG.expectedSize > 0
-              ? `${(LOCAL_MODEL_CONFIG.expectedSize / (1024 * 1024)).toFixed(0)} MB (expected)`
-              : 'not configured'
-          }
+          label="Expected size"
+          value={`${(LOCAL_MODEL_CONFIG.expectedSize / (1024 * 1024)).toFixed(0)} MB`}
         />
+        <Row label="SHA-256 (prefix)" value={diagnostics.sha256Prefix} />
         <Row label="Provider" value={model.providerId ?? '—'} />
         <Row label="Context size" value={model.contextSize?.toString() ?? '—'} />
         <Row label="Device tier" value={(model.deviceTier ?? capability.tier).toUpperCase()} />
@@ -92,6 +109,10 @@ export function LocalAIDiagnosticsScreen(): React.ReactElement {
               ? `${model.lastTokensPerSecond.toFixed(1)} tokens/sec`
               : '—'
           }
+        />
+        <Row
+          label="Last response source"
+          value={diagnostics.lastResponseSource ?? 'none yet'}
         />
         <Row label="Memory" value={memoryLabel} />
         <Row label="Path" value={model.modelPath ?? '—'} />

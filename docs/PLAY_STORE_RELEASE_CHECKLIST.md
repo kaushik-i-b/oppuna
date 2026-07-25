@@ -21,12 +21,15 @@ Use this checklist before promoting a build to production. **Do not invent bench
 
 ## AI / Qwen
 
-- [ ] Production AAB includes install-time asset pack with `model.gguf`
-- [ ] `npm run verify:model` passes (SHA-256 + size configured)
+- [ ] **Fresh** production AAB includes install-time asset pack with Qwen `model.gguf` (986,048,768 bytes)
+- [ ] `npm run verify:no-stale-model` passes
+- [ ] `npm run verify:model` passes (SHA-256 + size + GGUF architecture)
+- [ ] `npm run verify:aab -- <fresh.aab>` passes (not BLOCKED; no Gemma assets)
 - [ ] Airplane-mode inference tested on internal track
 - [ ] Fallback tested (model missing / corrupt / timeout)
-- [ ] Unsupported low-RAM device shows Guided Offline Mode
-- [ ] Third-party licenses visible offline in app
+- [ ] Unsupported low-RAM (<3 GB) device shows Guided Offline Mode
+- [ ] Third-party Qwen / Apache-2.0 licenses visible offline in app
+- [ ] Do **not** upload historical / obsolete pre-Qwen AABs from `release/`
 
 ### Device matrix (record real measurements)
 
@@ -40,19 +43,22 @@ Use this checklist before promoting a build to production. **Do not invent bench
 
 - [ ] Internal testing passed
 - [ ] Closed testing passed (if required)
-- [ ] Screenshots / description match on-device AI (not “rule-based only”)
+- [ ] Screenshots / description match on-device Qwen AI (not “rule-based only”)
 - [ ] `docs/APP_STORE.md` copy reviewed
 - [ ] Privacy policy URL works (web) + in-app Privacy Policy works offline
 - [ ] Terms and Qwen notices accessible offline
-- [ ] `npm run inspect:android-release` passes (target SDK, package id)
+- [ ] `npm run inspect:android-release` passes (targetSdk ≥ 36, package id)
+- [ ] `android.versionCode` in `app.json` is **strictly greater** than every previously uploaded Play artifact (currently 7 for 2.0.0)
 
 ## Build verification
 
 ```bash
 npm run verify:production
+npm run verify:aab -- path/to/fresh-qwen.aab
 ```
 
-- [ ] All gates PASS on CI for release commit
+- [ ] All gates PASS on the release machine for the release commit
+- [ ] AAB validation is PASS (failures or BLOCKED ⇒ do not ship)
 
 ## Post-release manual actions
 
