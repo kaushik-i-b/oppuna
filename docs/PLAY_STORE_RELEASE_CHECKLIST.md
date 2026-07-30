@@ -41,14 +41,23 @@ Use this checklist before promoting a build to production. **Do not invent bench
 
 ## Play Store listing
 
+**Privacy policy URL for Play Console (App content → Privacy policy):**
+
+```
+https://kaushik-i-b.github.io/oppuna/
+```
+
+Hosted from `site/` via GitHub Pages. If that URL 404s, enable Pages (see `site/README.md`) and re-run **Deploy privacy policy to GitHub Pages**, then paste the URL above into Play Console. Do not use temporary tunnels or password-protected Drop links — Play crawlers must load the page publicly.
+
 - [ ] Internal testing passed
 - [ ] Closed testing passed (if required)
 - [ ] Screenshots / description match on-device Qwen AI (not “rule-based only”)
 - [ ] `docs/APP_STORE.md` copy reviewed
-- [ ] Privacy policy URL works (web) + in-app Privacy Policy works offline
+- [ ] Privacy policy URL `https://kaushik-i-b.github.io/oppuna/` loads publicly (no login / password)
+- [ ] In-app Privacy Policy works offline
 - [ ] Terms and Qwen notices accessible offline
 - [ ] `npm run inspect:android-release` passes (targetSdk ≥ 36, package id)
-- [ ] `android.versionCode` in `app.json` is **strictly greater** than every previously uploaded Play artifact (currently 7 for 2.0.0)
+- [ ] `android.versionCode` in `app.json` is **strictly greater** than every previously uploaded Play artifact (currently 8 for 2.0.0)
 
 ## Build verification
 
