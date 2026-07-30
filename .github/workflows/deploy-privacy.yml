@@ -9,8 +9,10 @@ on:
       - ".github/workflows/deploy-privacy.yml"
   workflow_dispatch:
 
+# contents:write publishes the static site to the gh-pages branch.
+# pages + id-token support the official Actions Pages deploy when enabled.
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -19,7 +21,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  # Always publish site/ to the gh-pages branch. Enable hosting with:
+  # Settings → Pages → Build and deployment → Source: Deploy from a branch
+  # Branch: gh-pages / (root)
+  publish-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare Pages root
+        run: |
+          mkdir -p _site
+          cp site/index.html site/favicon.svg site/pitch-deck.html _site/
+          touch _site/.nojekyll
+
+      - name: Publish to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          force_orphan: true
+          commit_message: "Deploy privacy policy site"
+
+  # Optional path used when Pages source is set to GitHub Actions.
+  deploy-actions-pages:
+    needs: publish-branch
+    if: ${{ vars.ENABLE_ACTIONS_PAGES == 'true' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -30,8 +58,6 @@ jobs:
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
