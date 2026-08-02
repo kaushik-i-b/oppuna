@@ -33,18 +33,18 @@ Follow [`SQUARESPACE.md`](SQUARESPACE.md): match Site Styles to the Sage palette
 Paste into **Play Console → App content → Privacy policy**:
 
 ```
-https://kaushik-i-b.github.io/oppuna/
+https://kaushik-i-b.github.io/oppuna/privacy/
 ```
 
-Google’s crawler must reach the page with no login and no password wall.
+The marketing site (Next.js under `website/`) is what GitHub Pages serves. Google’s crawler must reach the page with no login and no password wall.
 
 ## Hosting on GitHub Pages
 
-The workflow `.github/workflows/deploy-privacy.yml` publishes this `site/` folder.
+The workflow `.github/workflows/deploy-privacy.yml` builds `website/` (static export) and publishes to `gh-pages`. Legacy files from `site/` (e.g. pitch-deck) are copied when present.
 
 1. **Repo → Settings → Actions → General → Workflow permissions:** Read and write permissions  
-2. **Repo → Settings → Pages → Source:** GitHub Actions, or Deploy from branch `gh-pages` / `/ (root)`  
-3. Run **Deploy privacy policy to GitHub Pages** (or push changes under `site/`)
+2. **Repo → Settings → Pages → Source:** Deploy from branch `gh-pages` / `/ (root)`  
+3. Run **Deploy website to GitHub Pages** (or merge to `main`)
 
 Published base URL:
 

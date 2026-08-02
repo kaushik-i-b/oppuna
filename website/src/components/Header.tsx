@@ -44,13 +44,13 @@ export function Header() {
           aria-label="Primary"
         >
           {siteConfig.nav.map((item) => (
-            <a
+            <Link
               key={item.href}
               href={item.href}
               className="transition-colors hover:text-sage-deep"
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -77,14 +77,14 @@ export function Header() {
         >
           <nav className="flex flex-col gap-1" aria-label="Mobile">
             {siteConfig.nav.map((item) => (
-              <a
+              <Link
                 key={item.href}
                 href={item.href}
                 className="rounded-xl px-3 py-3 text-base font-medium text-sage-deep hover:bg-sage-soft/50"
                 onClick={() => setOpen(false)}
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </nav>
           <div className="mt-4">

@@ -1,10 +1,11 @@
-name: Deploy privacy policy to GitHub Pages
+name: Deploy website to GitHub Pages
 
 on:
   push:
     branches:
       - main
     paths:
+      - "website/**"
       - "site/**"
       - ".github/workflows/deploy-privacy.yml"
   workflow_dispatch:
@@ -21,7 +22,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Always publish site/ to the gh-pages branch. Enable hosting with:
+  # Build the Next.js marketing site (static export) and publish to gh-pages.
+  # Enable hosting with:
   # Settings → Pages → Build and deployment → Source: Deploy from a branch
   # Branch: gh-pages / (root)
   publish-branch:
@@ -30,10 +32,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install website dependencies
+        working-directory: website
+        run: npm ci
+
+      - name: Build static export for GitHub Pages
+        working-directory: website
+        env:
+          GITHUB_PAGES: "true"
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: npm run build
+
       - name: Prepare Pages root
         run: |
           mkdir -p _site
-          cp site/index.html site/favicon.svg site/pitch-deck.html _site/
+          cp -R website/out/. _site/
+          # Keep legacy static assets from site/ when present
+          if [ -f site/pitch-deck.html ]; then
+            cp site/pitch-deck.html _site/pitch-deck.html
+          fi
+          if [ -f site/favicon.svg ] && [ ! -f _site/favicon.svg ]; then
+            cp site/favicon.svg _site/favicon.svg
+          fi
+          # Preserve old privacy URL for Play Store: /oppuna/ → redirect note via copy
+          # New canonical privacy is /privacy/. Also keep a root-compatible privacy mirror
+          # only if marketing index is not privacy (it is marketing now).
           touch _site/.nojekyll
 
       - name: Publish to gh-pages branch
@@ -42,7 +72,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./_site
           force_orphan: true
-          commit_message: "Deploy privacy policy site"
+          commit_message: "Deploy Oppuna marketing website"
 
   # Optional path used when Pages source is set to GitHub Actions.
   deploy-actions-pages:
@@ -56,13 +86,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install and build
+        working-directory: website
+        env:
+          GITHUB_PAGES: "true"
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          npm ci
+          npm run build
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: website/out
 
       - name: Deploy to GitHub Pages
         id: deployment

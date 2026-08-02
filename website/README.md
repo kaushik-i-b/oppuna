@@ -10,6 +10,39 @@ Google Play: https://play.google.com/store/apps/details?id=com.oppuna.care
 
 Configured in [`src/config/site.ts`](./src/config/site.ts) (`googlePlayUrl`, `supportEmail`).
 
+## GitHub Pages (primary hosting)
+
+Published URL:
+
+```
+https://kaushik-i-b.github.io/oppuna/
+```
+
+- Privacy: `https://kaushik-i-b.github.io/oppuna/privacy/`
+- Terms: `https://kaushik-i-b.github.io/oppuna/terms/`
+- Support: `https://kaushik-i-b.github.io/oppuna/support/`
+
+Workflow: [`.github/workflows/deploy-privacy.yml`](../.github/workflows/deploy-privacy.yml)  
+Builds a static export with `GITHUB_PAGES=true` (base path `/oppuna`) and pushes to the `gh-pages` branch.
+
+### Enable Pages (once)
+
+1. Repo → **Settings → Pages**
+2. **Build and deployment → Source:** Deploy from a branch
+3. Branch: **gh-pages** / folder: **/ (root)** → Save
+4. Also set **Settings → Actions → General → Workflow permissions** to **Read and write**
+5. Run **Deploy website to GitHub Pages** (Actions → Run workflow), or merge to `main`
+
+### Update Play Store privacy URL
+
+Point Play Console privacy policy to:
+
+```
+https://kaushik-i-b.github.io/oppuna/privacy/
+```
+
+(The site root is now the marketing homepage.)
+
 ## Local development
 
 ```bash
@@ -22,13 +55,19 @@ Open http://localhost:3000
 
 Routes: `/` · `/privacy` · `/terms` · `/support`
 
-## Production
+## Production / static export
 
 ```bash
 npm run lint
 npm run typecheck
-npm run build
-npm start
+npm run build            # local static export → website/out
+npm run build:gh-pages   # same with /oppuna basePath
+```
+
+Serve the export locally:
+
+```bash
+npx serve out
 ```
 
 ## Configuration
@@ -40,28 +79,20 @@ Edit `src/config/site.ts`:
 | `googlePlayUrl` | Set (live) |
 | `supportEmail` | Set (`admin@adilakshmi.co` from Play) |
 | `companyName` | Set (ADILAKSHMI INFOTECH PRIVATE LIMITED) |
-| `siteUrl` | **PLACEHOLDER** — set before launch |
+| `siteUrl` | Set to GitHub Pages URL |
 | `social.*` | Optional |
 
-## Deploy on Vercel
+## Custom domain (Squarespace DNS → GitHub Pages)
 
-1. Import the Git repo in Vercel  
-2. Set **Root Directory** to `website`  
-3. Deploy  
-4. Set `siteUrl` to your custom domain and redeploy  
-
-## Connect a Squarespace-registered domain to Vercel
-
-1. Vercel → Project → Domains → add `yourdomain.com` / `www`  
-2. In Squarespace Domains → DNS, add the A/CNAME records Vercel shows  
-3. Remove conflicting old Squarespace hosting records if moving off Squarespace hosting  
-4. Wait for DNS + HTTPS  
-
-This Next.js app cannot run *on* Squarespace hosting; use Vercel/Netlify and point DNS.
+1. Pages → Custom domain → add `yourdomain.com`
+2. At your DNS host, add the records GitHub shows (usually A records to GitHub IPs + `www` CNAME)
+3. After DNS works, set `siteUrl` to `https://yourdomain.com` and redeploy **without** `GITHUB_PAGES` basePath (or with apex hosting configured accordingly)
 
 ## Placeholders checklist
 
-- [ ] `siteUrl` — replace `https://PLACEHOLDER_YOUR_DOMAIN.com`  
-- [ ] Legal review of `/privacy` and `/terms`  
-- [ ] Add real phone screenshots when available  
-- [ ] Optional social URLs  
+- [x] `siteUrl` — GitHub Pages
+- [ ] Update Play Console privacy URL to `/privacy/`
+- [ ] Legal review of `/privacy` and `/terms`
+- [ ] Add real phone screenshots when available
+- [ ] Optional social URLs
+

@@ -27,12 +27,13 @@ export const siteConfig = {
   companyName: "ADILAKSHMI INFOTECH PRIVATE LIMITED",
 
   /**
-   * PLACEHOLDER — set to your production domain (no trailing slash).
-   * Used for canonical URLs, Open Graph, sitemap, and structured data.
+   * GitHub Pages project site (no trailing slash).
+   * Custom domain: change this and clear basePath by deploying without GITHUB_PAGES.
    */
-  siteUrl: "https://PLACEHOLDER_YOUR_DOMAIN.com",
+  siteUrl: "https://kaushik-i-b.github.io/oppuna",
 
-  legacyPrivacyUrl: "https://kaushik-i-b.github.io/oppuna/",
+  /** Previous root privacy page; marketing privacy now lives at /privacy/ */
+  legacyPrivacyUrl: "https://kaushik-i-b.github.io/oppuna/privacy/",
 
   social: {
     twitter: null as string | null,
