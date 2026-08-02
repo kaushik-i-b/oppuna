@@ -19,7 +19,8 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.siteUrl),
+  // Trailing slash helps metadata path joining stay under /oppuna/
+  metadataBase: new URL(`${siteConfig.siteUrl}/`),
   title: {
     default: `${siteConfig.name} — Private wellness companion for Android`,
     template: `%s · ${siteConfig.name}`,
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
     description: siteConfig.longDescription,
     images: [
       {
-        url: "/brand/feature-image.png",
+        url: absoluteUrl("/brand/feature-image.png"),
         width: 1024,
         height: 500,
         alt: "Oppuna — private emotional wellness for Android",
@@ -58,14 +59,18 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${siteConfig.name} — ${siteConfig.tagline}`,
     description: siteConfig.description,
-    images: ["/brand/feature-image.png"],
+    images: [absoluteUrl("/brand/feature-image.png")],
   },
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/brand/favicon.png", sizes: "32x32", type: "image/png" },
+      { url: absoluteUrl("/favicon.svg"), type: "image/svg+xml" },
+      {
+        url: absoluteUrl("/brand/favicon.png"),
+        sizes: "32x32",
+        type: "image/png",
+      },
     ],
-    apple: [{ url: "/brand/icon.png" }],
+    apple: [{ url: absoluteUrl("/brand/icon.png") }],
   },
   robots: {
     index: true,

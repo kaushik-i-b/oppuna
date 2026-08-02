@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { siteConfig } from "@/config/site";
+import { BrandImage } from "./BrandImage";
 import { GooglePlayButton } from "./GooglePlayButton";
 
 export function Header() {
@@ -26,8 +26,8 @@ export function Header() {
           className="flex items-center gap-2.5 rounded-lg"
           onClick={() => setOpen(false)}
         >
-          <Image
-            src="/brand/icon.png"
+          <BrandImage
+            path="/brand/icon.png"
             alt=""
             width={36}
             height={36}

@@ -68,13 +68,17 @@ export default function SupportPage() {
           <a href="tel:112" className="font-semibold text-sage-deep">
             112
           </a>
-          , KIRAN{" "}
-          <a href="tel:18005990019" className="font-semibold text-sage-deep">
-            1800-599-0019
-          </a>
-          , or Tele-MANAS{" "}
+          , Tele-MANAS{" "}
           <a href="tel:14416" className="font-semibold text-sage-deep">
             14416
+          </a>{" "}
+          or{" "}
+          <a href="tel:18008914416" className="font-semibold text-sage-deep">
+            1800-89-14416
+          </a>
+          , or KIRAN{" "}
+          <a href="tel:18005990019" className="font-semibold text-sage-deep">
+            1800-599-0019
           </a>
           . See the{" "}
           <Link
@@ -83,7 +87,7 @@ export default function SupportPage() {
           >
             responsible-use
           </Link>{" "}
-          section on the homepage.
+          section on the homepage for official sources.
         </p>
       </div>
 

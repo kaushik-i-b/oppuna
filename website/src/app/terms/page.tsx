@@ -12,11 +12,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <LegalDocument
-      title="Terms of Use"
-      updated={siteConfig.legal.lastUpdated}
-      reviewNote="Adapted from docs/TERMS.md. Requires legal review before launch."
-    >
+    <LegalDocument title="Terms of Use" updated={siteConfig.legal.lastUpdated}>
       <p>
         Please read these terms carefully before using Oppuna. By downloading,
         installing, or using the app, you agree to them. If you do not agree, do
@@ -27,7 +23,7 @@ export default function TermsPage() {
       <p>
         Oppuna is a private, offline wellness and journaling companion with an
         on-device supportive companion plus safety-checked guided offline
-        fallbacks.
+        fallbacks. It supports everyday emotional wellness and self-reflection.
       </p>
 
       <h2>2. On-device AI</h2>
@@ -42,8 +38,9 @@ export default function TermsPage() {
       <h2>3. Not a medical or emergency service</h2>
       <p>
         Oppuna is not a doctor, therapist, counselor, crisis service, or medical
-        device. If you are in danger or thinking about harming yourself or
-        others, contact local emergency services immediately.
+        device. It does not diagnose conditions or replace qualified
+        professional care. If you are in danger or thinking about harming
+        yourself or others, contact local emergency services immediately.
       </p>
 
       <h2>4. Your responsibilities</h2>

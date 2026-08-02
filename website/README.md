@@ -72,6 +72,17 @@ npx serve out
 
 ## Configuration
 
+### Build env (hosting)
+
+| Variable | GitHub Pages | Local / custom domain |
+|----------|--------------|------------------------|
+| `NEXT_PUBLIC_BASE_PATH` | `/oppuna` | empty |
+| `NEXT_PUBLIC_SITE_URL` | `https://kaushik-i-b.github.io/oppuna` | your origin |
+
+Asset helpers live in `src/config/paths.ts` (`assetUrl`, `absoluteUrl`, `appPath`).
+
+### Product config
+
 Edit `src/config/site.ts`:
 
 | Field | Status |
@@ -79,8 +90,9 @@ Edit `src/config/site.ts`:
 | `googlePlayUrl` | Set (live) |
 | `supportEmail` | Set (`admin@adilakshmi.co` from Play) |
 | `companyName` | Set (ADILAKSHMI INFOTECH PRIVATE LIMITED) |
-| `siteUrl` | Set to GitHub Pages URL |
 | `social.*` | Optional |
+
+Internal legal checklist: [`LEGAL_REVIEW_REQUIRED.md`](./LEGAL_REVIEW_REQUIRED.md) (not rendered on the site).
 
 ## Custom domain (Squarespace DNS → GitHub Pages)
 

@@ -5,7 +5,7 @@ export function Purpose() {
       className="scroll-mt-24 border-y border-line bg-surface"
       aria-labelledby="purpose-heading"
     >
-      <div className="mx-auto w-full max-w-6xl px-5 py-16 md:px-8 md:py-20">
+      <div className="mx-auto w-full max-w-6xl px-5 py-14 md:px-8 md:py-16">
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-sage">
           Why Oppuna exists
         </p>
@@ -13,25 +13,21 @@ export function Purpose() {
           id="purpose-heading"
           className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight text-sage-deep md:text-4xl"
         >
-          Everyone deserves a quiet place to make sense of their day.
+          A quiet place to make sense of your day
         </h2>
-        <div className="mt-10 grid gap-8 md:grid-cols-2">
+        <div className="mt-8 grid gap-6 md:grid-cols-3">
           {[
             {
-              title: "A private space to process",
-              body: "People often need somewhere private to notice what they are feeling—without performing for a feed or signing into another account.",
+              title: "Private by default",
+              body: "Reflect without signing into another account or performing for a feed.",
             },
             {
-              title: "Support between appointments",
-              body: "Professional care is not always immediately available. Oppuna offers simple self-help tools you can return to between fuller conversations with a clinician.",
+              title: "Small practices",
+              body: "Mood check-ins, journaling, and breathing—simple tools you can return to.",
             },
             {
-              title: "Small practices, repeated",
-              body: "Checking in with your mood, writing a few lines, or breathing for a few minutes can help you understand patterns over time.",
-            },
-            {
-              title: "Wellness tools that stay with you",
-              body: "Oppuna is designed to work offline on your Android phone, so everyday reflection does not depend on a strong signal or a cloud login.",
+              title: "Works offline",
+              body: "Designed for airplane mode so wellness tools do not depend on a strong signal.",
             },
           ].map((item) => (
             <article key={item.title} className="max-w-md">
@@ -42,7 +38,7 @@ export function Purpose() {
             </article>
           ))}
         </div>
-        <p className="mt-10 max-w-2xl text-sm text-muted">
+        <p className="mt-8 max-w-2xl text-sm text-muted">
           Oppuna does not claim to cure anxiety, depression, or any medical
           condition. It is a self-help companion for everyday emotional wellness.
         </p>

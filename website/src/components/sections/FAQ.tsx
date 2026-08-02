@@ -11,7 +11,11 @@ const faqs = [
   },
   {
     q: "Who can use it?",
-    a: `Oppuna is intended for general wellbeing. On Google Play it is rated ${siteConfig.legal.ageGuidance}.`,
+    a: "Oppuna is designed for general, everyday emotional wellness. It is a self-help companion—not a clinical service.",
+  },
+  {
+    q: "Which languages are available?",
+    a: `The interface includes ${siteConfig.languagesMention.join(", ")}, among others selectable in the app.`,
   },
   {
     q: "Does it work offline?",
@@ -42,7 +46,7 @@ const faqs = [
 export function FAQ() {
   return (
     <section id="faq" className="scroll-mt-24" aria-labelledby="faq-heading">
-      <div className="mx-auto w-full max-w-3xl px-5 py-16 md:px-8 md:py-20">
+      <div className="mx-auto w-full max-w-3xl px-5 py-14 md:px-8 md:py-16">
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-sage">
           FAQ
         </p>
@@ -52,7 +56,7 @@ export function FAQ() {
         >
           Questions, answered honestly
         </h2>
-        <div className="mt-10 space-y-3">
+        <div className="mt-8 space-y-3">
           {faqs.map((item) => (
             <details
               key={item.q}

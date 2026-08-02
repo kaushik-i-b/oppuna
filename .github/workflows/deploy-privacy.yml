@@ -46,6 +46,8 @@ jobs:
       - name: Build static export for GitHub Pages
         working-directory: website
         env:
+          NEXT_PUBLIC_BASE_PATH: /oppuna
+          NEXT_PUBLIC_SITE_URL: https://kaushik-i-b.github.io/oppuna
           GITHUB_PAGES: "true"
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: npm run build
@@ -96,6 +98,8 @@ jobs:
       - name: Install and build
         working-directory: website
         env:
+          NEXT_PUBLIC_BASE_PATH: /oppuna
+          NEXT_PUBLIC_SITE_URL: https://kaushik-i-b.github.io/oppuna
           GITHUB_PAGES: "true"
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |

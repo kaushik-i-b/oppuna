@@ -7,7 +7,7 @@ export function FinalCTA() {
       className="scroll-mt-24"
       aria-labelledby="cta-heading"
     >
-      <div className="mx-auto w-full max-w-6xl px-5 pb-20 md:px-8">
+      <div className="mx-auto w-full max-w-6xl px-5 pb-16 md:px-8">
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-sage to-sage-deep px-7 py-12 text-white md:px-12 md:py-16">
           <div
             className="pointer-events-none absolute -right-16 -bottom-24 size-80 rounded-full bg-white/10"

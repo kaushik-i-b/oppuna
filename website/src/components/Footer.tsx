@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
+import { BrandImage } from "./BrandImage";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -11,8 +11,8 @@ export function Footer() {
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div className="max-w-sm">
             <div className="flex items-center gap-2.5">
-              <Image
-                src="/brand/icon.png"
+              <BrandImage
+                path="/brand/icon.png"
                 alt=""
                 width={32}
                 height={32}

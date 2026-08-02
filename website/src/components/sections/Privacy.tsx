@@ -23,7 +23,7 @@ export function PrivacySection() {
       className="scroll-mt-24"
       aria-labelledby="privacy-heading"
     >
-      <div className="mx-auto w-full max-w-6xl px-5 py-16 md:px-8 md:py-20">
+      <div className="mx-auto w-full max-w-6xl px-5 py-14 md:px-8 md:py-16">
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-sage">
           Privacy
         </p>

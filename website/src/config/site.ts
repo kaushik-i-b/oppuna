@@ -1,6 +1,10 @@
+import { absoluteUrl, assetUrl, basePath, siteUrl } from "@/config/paths";
+
+export { absoluteUrl, assetUrl, basePath, siteUrl };
+
 /**
  * Central marketing configuration.
- * Replace PLACEHOLDER_* values before public launch.
+ * Paths/URLs that depend on hosting come from NEXT_PUBLIC_* via paths.ts.
  */
 
 export const siteConfig = {
@@ -26,14 +30,11 @@ export const siteConfig = {
   founderName: "Kaushik Itagi",
   companyName: "ADILAKSHMI INFOTECH PRIVATE LIMITED",
 
-  /**
-   * GitHub Pages project site (no trailing slash).
-   * Custom domain: change this and clear basePath by deploying without GITHUB_PAGES.
-   */
-  siteUrl: "https://kaushik-i-b.github.io/oppuna",
+  /** Canonical site URL (from NEXT_PUBLIC_SITE_URL). */
+  siteUrl,
 
-  /** Previous root privacy page; marketing privacy now lives at /privacy/ */
-  legacyPrivacyUrl: "https://kaushik-i-b.github.io/oppuna/privacy/",
+  /** Confirmed UI languages to mention on the marketing site. */
+  languagesMention: ["English", "Hindi", "Spanish"] as const,
 
   social: {
     twitter: null as string | null,
@@ -46,32 +47,55 @@ export const siteConfig = {
     privacyPath: "/privacy",
     termsPath: "/terms",
     supportPath: "/support",
-    lastUpdated: "2026",
-    /** Play Store content rating */
-    ageGuidance: "Everyone",
+    lastUpdated: "2 August 2026",
+  },
+
+  officialSources: {
+    emergency112: "https://112.gov.in/",
+    teleManasProgramme:
+      "https://dghs.mohfw.gov.in/national-mental-health-programme.php",
+    kiranHelplines: "https://depwd.gov.in/en/others-helplines/",
   },
 
   /**
-   * India crisis resources verified against Government of India / MoHFW / MoSJE
-   * (KIRAN 1800-599-0019; Tele-MANAS 14416; emergency 112).
+   * India crisis resources for the marketing site.
+   * Tele-MANAS numbers confirmed via MoHFW / DGHS NMHP page (14416 and 1800-89-14416).
+   * KIRAN: listed without a 24/7 claim pending separate verification.
    */
   crisisIndia: [
     {
-      label: "Emergency (India)",
+      label: "Emergency services",
       phone: "112",
-      detail: "National emergency number",
-    },
-    {
-      label: "KIRAN Mental Health Helpline",
-      phone: "18005990019",
-      display: "1800-599-0019",
-      detail: "Government of India, 24/7 toll-free",
+      display: "112",
+      detail: "National emergency response",
+      sourceUrl: "https://112.gov.in/",
+      sourceLabel: "112.gov.in",
     },
     {
       label: "Tele-MANAS",
       phone: "14416",
       display: "14416",
-      detail: "National tele-mental health service, MoHFW, 24/7",
+      detail: "National 24/7 tele-mental-health service (short code)",
+      sourceUrl:
+        "https://dghs.mohfw.gov.in/national-mental-health-programme.php",
+      sourceLabel: "MoHFW / DGHS",
+    },
+    {
+      label: "Tele-MANAS (toll-free)",
+      phone: "18008914416",
+      display: "1800-89-14416",
+      detail: "National 24/7 tele-mental-health service",
+      sourceUrl:
+        "https://dghs.mohfw.gov.in/national-mental-health-programme.php",
+      sourceLabel: "MoHFW / DGHS",
+    },
+    {
+      label: "KIRAN",
+      phone: "18005990019",
+      display: "1800-599-0019",
+      detail: "Mental health support and rehabilitation",
+      sourceUrl: "https://depwd.gov.in/en/others-helplines/",
+      sourceLabel: "DEPwD helplines",
     },
   ],
 
@@ -92,10 +116,4 @@ export function getGooglePlayHref(): string {
 
 export function isGooglePlayLive(): boolean {
   return Boolean(siteConfig.googlePlayUrl);
-}
-
-export function absoluteUrl(path = "/"): string {
-  const base = siteConfig.siteUrl.replace(/\/$/, "");
-  if (!path || path === "/") return base;
-  return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }

@@ -14,7 +14,6 @@ export default function PrivacyPage() {
     <LegalDocument
       title="Privacy Policy"
       updated={siteConfig.legal.lastUpdated}
-      reviewNote="Adapted from the app’s Privacy Statement (docs/PRIVACY.md). Have counsel review before using as the sole store-listing policy."
     >
       <p>
         Oppuna is built around a single promise:{" "}
@@ -81,9 +80,10 @@ export default function PrivacyPage() {
 
       <h2>Not a medical service</h2>
       <p>
-        Oppuna is not a doctor, therapist, crisis service, or medical device. If
-        you are in danger or need medical help, contact local emergency services
-        immediately.
+        Oppuna supports everyday emotional wellness and self-reflection. It is
+        not a doctor, therapist, crisis service, or medical device. It does not
+        diagnose, treat, or replace professional care. If you are in danger or
+        need medical help, contact local emergency services immediately.
       </p>
 
       <h2>Contact</h2>
@@ -91,14 +91,6 @@ export default function PrivacyPage() {
         Questions:{" "}
         <a href={`mailto:${siteConfig.supportEmail}`}>
           {siteConfig.supportEmail}
-        </a>
-        . An earlier hosted copy also lives at{" "}
-        <a
-          href={siteConfig.legacyPrivacyUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {siteConfig.legacyPrivacyUrl}
         </a>
         .
       </p>

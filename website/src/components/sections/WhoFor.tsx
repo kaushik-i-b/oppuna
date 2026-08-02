@@ -15,7 +15,7 @@ export function WhoFor() {
       className="scroll-mt-24 border-y border-line bg-surface"
       aria-labelledby="who-heading"
     >
-      <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 py-16 md:grid-cols-[0.9fr_1.1fr] md:px-8 md:py-20">
+      <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 py-14 md:grid-cols-[0.9fr_1.1fr] md:px-8 md:py-16">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-sage">
             Who it is for
@@ -27,8 +27,11 @@ export function WhoFor() {
             Built for everyday emotional wellness
           </h2>
           <p className="mt-4 text-muted">
-            Oppuna is intended for general wellbeing. On Google Play it is rated{" "}
-            {siteConfig.legal.ageGuidance}.
+            Oppuna is designed for general, everyday emotional wellness. The
+            interface is available in{" "}
+            {siteConfig.languagesMention.slice(0, -1).join(", ")}, and{" "}
+            {siteConfig.languagesMention[siteConfig.languagesMention.length - 1]}
+            .
           </p>
         </div>
         <ul className="space-y-3">
