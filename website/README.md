@@ -88,7 +88,7 @@ Edit `src/config/site.ts`:
 | Field | Status |
 |-------|--------|
 | `googlePlayUrl` | Set (live) |
-| `supportEmail` | Set (`admin@adilakshmi.co` from Play) |
+| `supportEmail` | Set (`support@oppuna.com`) |
 | `companyName` | Set (ADILAKSHMI INFOTECH PRIVATE LIMITED) |
 | `social.*` | Optional |
 

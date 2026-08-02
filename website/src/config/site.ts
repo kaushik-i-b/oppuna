@@ -24,8 +24,8 @@ export const siteConfig = {
   googlePlayUrl:
     "https://play.google.com/store/apps/details?id=com.oppuna.care",
 
-  /** From Google Play developer contact */
-  supportEmail: "admin@adilakshmi.co",
+  /** Public support contact */
+  supportEmail: "support@oppuna.com",
 
   founderName: "Kaushik Itagi",
   companyName: "ADILAKSHMI INFOTECH PRIVATE LIMITED",
@@ -40,7 +40,8 @@ export const siteConfig = {
     twitter: null as string | null,
     instagram: null as string | null,
     linkedin: null as string | null,
-    github: "https://github.com/kaushik-i-b/oppuna",
+    /** Intentionally null — do not expose the public repository on the marketing site. */
+    github: null as string | null,
   },
 
   legal: {

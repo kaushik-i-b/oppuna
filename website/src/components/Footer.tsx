@@ -86,18 +86,6 @@ export function Footer() {
                     {siteConfig.supportEmail}
                   </a>
                 </li>
-                {siteConfig.social.github ? (
-                  <li>
-                    <a
-                      href={siteConfig.social.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-sage-deep"
-                    >
-                      GitHub
-                    </a>
-                  </li>
-                ) : null}
               </ul>
             </div>
           </div>

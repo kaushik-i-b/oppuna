@@ -34,7 +34,7 @@ Only advertise **Confirmed** items below.
 | Play URL | https://play.google.com/store/apps/details?id=com.oppuna.care |
 | Package | `com.oppuna.care` |
 | Developer | ADILAKSHMI INFOTECH PRIVATE LIMITED |
-| Support email (Play) | admin@adilakshmi.co |
+| Support email (public site) | support@oppuna.com |
 | Content rating (Play) | Everyone |
 
 ## Brand
