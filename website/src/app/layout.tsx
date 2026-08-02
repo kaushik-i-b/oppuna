@@ -19,7 +19,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  // Trailing slash helps metadata path joining stay under /oppuna/
+  // Trailing slash keeps relative metadata paths under the site origin.
   metadataBase: new URL(`${siteConfig.siteUrl}/`),
   title: {
     default: `${siteConfig.name} — Private wellness companion for Android`,

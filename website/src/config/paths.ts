@@ -1,14 +1,16 @@
 /**
- * GitHub Pages / local / custom-domain path helpers.
+ * Hosting path helpers.
  *
- * Set at build time:
- * - NEXT_PUBLIC_BASE_PATH=/oppuna  (empty for local or custom domain)
+ * Production (custom domain):
+ * - NEXT_PUBLIC_BASE_PATH=   (empty)
+ * - NEXT_PUBLIC_SITE_URL=https://oppuna.com
+ *
+ * Project Pages fallback (optional):
+ * - NEXT_PUBLIC_BASE_PATH=/oppuna
  * - NEXT_PUBLIC_SITE_URL=https://kaushik-i-b.github.io/oppuna
  *
- * next.config.ts also reads NEXT_PUBLIC_BASE_PATH for Next.js `basePath`,
- * so next/image and next/link auto-prefix app routes. Use `assetUrl` /
- * `absoluteUrl` for metadata, JSON-LD, and any raw href/src that would
- * otherwise bypass that prefix (especially paths starting with `/`).
+ * Use `assetUrl` / `absoluteUrl` for metadata, JSON-LD, and raw href/src.
+ * `appPath` is for next/link / next/image when basePath is applied by Next.
  */
 
 function normalizeBasePath(value: string | undefined): string {
@@ -18,22 +20,19 @@ function normalizeBasePath(value: string | undefined): string {
 }
 
 function normalizeSiteUrl(value: string | undefined): string {
-  const fallback = "http://localhost:3000";
+  const fallback = "https://oppuna.com";
   return (value || fallback).replace(/\/$/, "");
 }
 
-/** Project base path, e.g. `/oppuna` on GitHub Pages, else `""`. */
+/** Project base path — empty on oppuna.com / local custom-domain builds. */
 export const basePath = normalizeBasePath(process.env.NEXT_PUBLIC_BASE_PATH);
 
-/** Canonical origin + base path, no trailing slash. */
-export const siteUrl = normalizeSiteUrl(
-  process.env.NEXT_PUBLIC_SITE_URL ||
-    (basePath ? `https://kaushik-i-b.github.io${basePath}` : undefined),
-);
+/** Canonical origin, no trailing slash. */
+export const siteUrl = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 
 /**
  * Prefix a site-root path with the configured base path.
- * Example: assetUrl("/brand/icon.png") → "/oppuna/brand/icon.png" on Pages.
+ * On oppuna.com: assetUrl("/brand/icon.png") → "/brand/icon.png"
  */
 export function assetUrl(path: string): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
@@ -42,13 +41,18 @@ export function assetUrl(path: string): string {
 
 /**
  * Absolute URL for canonicals, Open Graph, JSON-LD, etc.
- * Uses string join so `/brand/...` stays under the site path
- * (unlike `new URL("/brand/...", siteUrl)`, which jumps to the origin root).
+ * Page paths get a trailing slash (matches Next `trailingSlash: true`).
+ * Asset paths (with a file extension) stay as-is.
  */
 export function absoluteUrl(path = "/"): string {
-  if (!path || path === "/") return siteUrl;
+  if (!path || path === "/") return `${siteUrl}/`;
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return `${siteUrl}${normalizedPath}`;
+  const isAsset = /\.[a-zA-Z0-9]+$/.test(normalizedPath);
+  if (isAsset) return `${siteUrl}${normalizedPath}`;
+  const withSlash = normalizedPath.endsWith("/")
+    ? normalizedPath
+    : `${normalizedPath}/`;
+  return `${siteUrl}${withSlash}`;
 }
 
 /**

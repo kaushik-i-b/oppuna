@@ -51,9 +51,18 @@ Only advertise **Confirmed** items below.
 - KIRAN: 1800-599-0019  
 - Tele-MANAS: 14416  
 
+## Live routes (custom domain root)
+
+| Page | URL |
+|------|-----|
+| Homepage | https://oppuna.com/ |
+| Privacy Policy | https://oppuna.com/privacy/ |
+| Terms of Use | https://oppuna.com/terms/ |
+| Support | https://oppuna.com/support/ |
+
 ## Placeholders remaining
 
-- [ ] Canonical production domain (`siteUrl` in `src/config/site.ts`)  
+- [x] Canonical production domain: `https://oppuna.com`
 - [ ] Optional social profiles  
 - [ ] Legal review of web Privacy/Terms  
 - [ ] Real phone UI screenshots when available  

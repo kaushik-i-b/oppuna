@@ -4,44 +4,39 @@ Next.js (App Router) · TypeScript · Tailwind CSS · Lucide
 
 See [`FEATURE_INVENTORY.md`](./FEATURE_INVENTORY.md) for verified features.
 
-## Live download
+## Live site
+
+**https://oppuna.com**
+
+| Page | URL |
+|------|-----|
+| Home | https://oppuna.com/ |
+| Privacy | https://oppuna.com/privacy/ |
+| Terms | https://oppuna.com/terms/ |
+| Support | https://oppuna.com/support/ |
 
 Google Play: https://play.google.com/store/apps/details?id=com.oppuna.care
 
-Configured in [`src/config/site.ts`](./src/config/site.ts) (`googlePlayUrl`, `supportEmail`).
+Configured in [`src/config/site.ts`](./src/config/site.ts) and [`src/config/paths.ts`](./src/config/paths.ts).
 
-## GitHub Pages (primary hosting)
+## GitHub Pages + custom domain
 
-Published URL:
+Workflow: [`.github/workflows/deploy-privacy.yml`](../.github/workflows/deploy-privacy.yml)
 
-```
-https://kaushik-i-b.github.io/oppuna/
-```
-
-- Privacy: `https://kaushik-i-b.github.io/oppuna/privacy/`
-- Terms: `https://kaushik-i-b.github.io/oppuna/terms/`
-- Support: `https://kaushik-i-b.github.io/oppuna/support/`
-
-Workflow: [`.github/workflows/deploy-privacy.yml`](../.github/workflows/deploy-privacy.yml)  
-Builds a static export with `GITHUB_PAGES=true` (base path `/oppuna`) and pushes to the `gh-pages` branch.
+Builds a **root** static export (`NEXT_PUBLIC_BASE_PATH` empty) for the custom domain and publishes to `gh-pages` with `CNAME=oppuna.com`.
 
 ### Enable Pages (once)
 
 1. Repo → **Settings → Pages**
-2. **Build and deployment → Source:** Deploy from a branch
-3. Branch: **gh-pages** / folder: **/ (root)** → Save
-4. Also set **Settings → Actions → General → Workflow permissions** to **Read and write**
-5. Run **Deploy website to GitHub Pages** (Actions → Run workflow), or merge to `main`
+2. Source: Deploy from branch **gh-pages** / **/(root)**
+3. Custom domain: **oppuna.com** (and `www` if configured)
+4. Actions → Workflow permissions: **Read and write**
 
-### Update Play Store privacy URL
-
-Point Play Console privacy policy to:
+Play Console privacy URL:
 
 ```
-https://kaushik-i-b.github.io/oppuna/privacy/
+https://oppuna.com/privacy/
 ```
-
-(The site root is now the marketing homepage.)
 
 ## Local development
 
@@ -51,60 +46,22 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000
-
-Routes: `/` · `/privacy` · `/terms` · `/support`
-
 ## Production / static export
 
 ```bash
 npm run lint
 npm run typecheck
-npm run build            # local static export → website/out
-npm run build:gh-pages   # same with /oppuna basePath
+npm run build            # local export
+npm run build:gh-pages   # production: empty base path + https://oppuna.com
 ```
 
-Serve the export locally:
+## Build env
 
-```bash
-npx serve out
-```
+| Variable | Production (oppuna.com) | Local |
+|----------|-------------------------|-------|
+| `NEXT_PUBLIC_BASE_PATH` | empty | empty |
+| `NEXT_PUBLIC_SITE_URL` | `https://oppuna.com` | `http://localhost:3000` (optional) |
 
-## Configuration
+Asset helpers: `assetUrl`, `absoluteUrl`, `appPath` in `src/config/paths.ts`.
 
-### Build env (hosting)
-
-| Variable | GitHub Pages | Local / custom domain |
-|----------|--------------|------------------------|
-| `NEXT_PUBLIC_BASE_PATH` | `/oppuna` | empty |
-| `NEXT_PUBLIC_SITE_URL` | `https://kaushik-i-b.github.io/oppuna` | your origin |
-
-Asset helpers live in `src/config/paths.ts` (`assetUrl`, `absoluteUrl`, `appPath`).
-
-### Product config
-
-Edit `src/config/site.ts`:
-
-| Field | Status |
-|-------|--------|
-| `googlePlayUrl` | Set (live) |
-| `supportEmail` | Set (`support@oppuna.com`) |
-| `companyName` | Set (ADILAKSHMI INFOTECH PRIVATE LIMITED) |
-| `social.*` | Optional |
-
-Internal legal checklist: [`LEGAL_REVIEW_REQUIRED.md`](./LEGAL_REVIEW_REQUIRED.md) (not rendered on the site).
-
-## Custom domain (Squarespace DNS → GitHub Pages)
-
-1. Pages → Custom domain → add `yourdomain.com`
-2. At your DNS host, add the records GitHub shows (usually A records to GitHub IPs + `www` CNAME)
-3. After DNS works, set `siteUrl` to `https://yourdomain.com` and redeploy **without** `GITHUB_PAGES` basePath (or with apex hosting configured accordingly)
-
-## Placeholders checklist
-
-- [x] `siteUrl` — GitHub Pages
-- [ ] Update Play Console privacy URL to `/privacy/`
-- [ ] Legal review of `/privacy` and `/terms`
-- [ ] Add real phone screenshots when available
-- [ ] Optional social URLs
-
+Internal legal checklist: [`LEGAL_REVIEW_REQUIRED.md`](./LEGAL_REVIEW_REQUIRED.md).

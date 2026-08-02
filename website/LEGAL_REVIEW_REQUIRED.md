@@ -7,7 +7,7 @@ Internal checklist before treating web legal pages as final store-listing copy.
 - [ ] Counsel review of `/privacy` (adapted from `docs/PRIVACY.md`)
 - [ ] Counsel review of `/terms` (adapted from `docs/TERMS.md`)
 - [ ] Confirm Play Console privacy URL points to  
-      `https://kaushik-i-b.github.io/oppuna/privacy/` (or your custom domain equivalent)
+      `https://oppuna.com/privacy/`
 - [ ] Re-verify India crisis numbers against current government sources before major launches
 
 ## Notes
