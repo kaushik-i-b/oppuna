@@ -1,14 +1,12 @@
-import Image from "next/image";
-
 type Props = {
   className?: string;
   caption?: string;
 };
 
-/** Phone frame with authentic Oppuna splash mark — no fabricated UI. */
+/** Phone frame with the Oppuna Living Leaf mark (splash-icon.png is bg-only). */
 export function PhoneMockup({
   className = "",
-  caption = "Oppuna splash — authentic brand mark from the Android app",
+  caption = "Oppuna splash — Living Leaf brand mark from the Android app",
 }: Props) {
   return (
     <figure className={`mx-auto w-full max-w-[280px] ${className}`}>
@@ -21,14 +19,58 @@ export function PhoneMockup({
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#4a8570] via-sage to-sage-deep" />
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 px-6 text-center text-white">
-          <Image
-            src="/brand/splash-icon.png"
-            alt=""
-            width={128}
-            height={128}
-            className="size-24 object-contain drop-shadow-lg"
-            priority
-          />
+          <svg
+            className="size-28 drop-shadow-lg"
+            viewBox="0 0 100 100"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="Oppuna leaf logo"
+          >
+            <defs>
+              <linearGradient
+                id="oppunaLeafGrad"
+                x1="30"
+                y1="6"
+                x2="70"
+                y2="94"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0" stopColor="#ffffff" />
+                <stop offset="1" stopColor="#e8f2ec" stopOpacity="0.92" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M50 5 C 30 26, 20 52, 27 78 C 31 90, 42 95, 50 95 C 58 95, 69 90, 73 78 C 80 52, 70 26, 50 5 Z"
+              fill="url(#oppunaLeafGrad)"
+            />
+            <g
+              stroke="#3D6B5A"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              opacity="0.9"
+              fill="none"
+            >
+              <path d="M50 16 L50 88" />
+              <path d="M50 34 C 42 36, 37 40, 34 47" />
+              <path d="M50 34 C 58 36, 63 40, 66 47" />
+              <path d="M50 50 C 43 52, 38 56, 36 63" />
+              <path d="M50 50 C 57 52, 62 56, 64 63" />
+              <path d="M50 66 C 45 68, 42 71, 41 76" />
+              <path d="M50 66 C 55 68, 58 71, 59 76" />
+            </g>
+            <g fill="#3D6B5A">
+              <path d="M50 4 C 46 9, 46 14, 50 18 C 54 14, 54 9, 50 4 Z" />
+              <path
+                d="M44 8 C 43 13, 45 17, 49 19 C 48 14, 47 10, 44 8 Z"
+                opacity="0.75"
+              />
+              <path
+                d="M56 8 C 57 13, 55 17, 51 19 C 52 14, 53 10, 56 8 Z"
+                opacity="0.75"
+              />
+            </g>
+          </svg>
           <div>
             <p className="font-display text-3xl font-semibold tracking-tight">
               Oppuna
