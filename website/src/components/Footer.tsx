@@ -77,16 +77,14 @@ export function Footer() {
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage">
                 Contact
               </p>
-              <ul className="mt-3 space-y-2 text-sm text-muted">
-                <li>
-                  <a
-                    href={`mailto:${siteConfig.supportEmail}`}
-                    className="hover:text-sage-deep"
-                  >
-                    {siteConfig.supportEmail}
-                  </a>
-                </li>
-              </ul>
+              <p className="mt-3 text-sm text-muted">
+                <a
+                  href={`mailto:${siteConfig.supportEmail}`}
+                  className="hover:text-sage-deep"
+                >
+                  {siteConfig.supportEmail}
+                </a>
+              </p>
             </div>
           </div>
         </div>

@@ -40,8 +40,6 @@ export const siteConfig = {
     twitter: null as string | null,
     instagram: null as string | null,
     linkedin: null as string | null,
-    /** Intentionally null — do not expose the public repository on the marketing site. */
-    github: null as string | null,
   },
 
   legal: {

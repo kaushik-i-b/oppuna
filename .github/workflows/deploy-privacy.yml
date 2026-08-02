@@ -56,16 +56,13 @@ jobs:
         run: |
           mkdir -p _site
           cp -R website/out/. _site/
-          # Keep legacy static assets from site/ when present
+          # Optional legacy pitch deck (contact details must stay free of public repo links)
           if [ -f site/pitch-deck.html ]; then
             cp site/pitch-deck.html _site/pitch-deck.html
           fi
           if [ -f site/favicon.svg ] && [ ! -f _site/favicon.svg ]; then
             cp site/favicon.svg _site/favicon.svg
           fi
-          # Preserve old privacy URL for Play Store: /oppuna/ → redirect note via copy
-          # New canonical privacy is /privacy/. Also keep a root-compatible privacy mirror
-          # only if marketing index is not privacy (it is marketing now).
           touch _site/.nojekyll
 
       - name: Publish to gh-pages branch
