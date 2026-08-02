@@ -6,12 +6,18 @@ import { logger } from '@/utils/logger';
 /** Android channel for local care reminders (no remote push). */
 export const CARE_REMINDER_CHANNEL_ID = 'oppuna-care-reminders';
 
-/** Stable id so we can replace the daily reminder cleanly. */
+/** Stable ids so we can replace daily reminders cleanly. */
 export const CARE_REMINDER_ID = 'oppuna-daily-care';
+export const MORNING_REMINDER_ID = 'oppuna-morning-plan';
+export const EVENING_REMINDER_ID = 'oppuna-evening-checkin';
 
-/** Default local time for the daily check-in nudge. */
+/** Default local times for wellness nudges. */
 export const DEFAULT_REMINDER_HOUR = 10;
 export const DEFAULT_REMINDER_MINUTE = 0;
+export const MORNING_REMINDER_HOUR = 9;
+export const MORNING_REMINDER_MINUTE = 0;
+export const EVENING_REMINDER_HOUR = 20;
+export const EVENING_REMINDER_MINUTE = 0;
 
 export interface CareReminderMessage {
   title: string;
@@ -24,28 +30,28 @@ export interface CareReminderMessage {
  */
 export const CARE_REMINDER_MESSAGES: CareReminderMessage[] = [
   {
-    title: 'A quiet check-in',
-    body: 'How are you feeling today? A 20-second mood note can help.',
+    title: 'Ready for today’s wellness plan?',
+    body: 'A few gentle minutes can help you show up for yourself.',
+  },
+  {
+    title: 'Your plan is waiting',
+    body: 'Open Oppuna when you are ready — no pressure, just a soft start.',
+  },
+  {
+    title: 'A quiet morning check-in',
+    body: 'How are you feeling? Your personalized plan can meet you there.',
   },
   {
     title: 'One kind minute',
-    body: 'Oppuna is here if you want to breathe, journal, or talk things through.',
-  },
-  {
-    title: 'Notice today',
-    body: 'A small Care Streak starts with showing up for yourself — even briefly.',
+    body: 'Oppuna is here if you want to breathe, journal, or continue your plan.',
   },
   {
     title: 'Gentle pause',
-    body: 'If your mind feels busy, try a short breath or grounding exercise.',
+    body: 'If your mind feels busy, try one small activity from today’s plan.',
   },
   {
     title: 'Your private space',
     body: 'Everything stays on your device. Open Oppuna when you are ready.',
-  },
-  {
-    title: 'Thoughts and feelings',
-    body: 'Naming what is on your mind can soften it. Want to write a few lines?',
   },
   {
     title: 'Still here',
@@ -53,17 +59,49 @@ export const CARE_REMINDER_MESSAGES: CareReminderMessage[] = [
   },
 ];
 
+export const EVENING_REMINDER_MESSAGES: CareReminderMessage[] = [
+  {
+    title: 'How did today go?',
+    body: 'A short evening check-in can close the day gently.',
+  },
+  {
+    title: 'Evening wind-down',
+    body: 'Notice one thing that went okay — or journal what happened today.',
+  },
+  {
+    title: 'Before you rest',
+    body: 'If you like, mark a plan activity done or log how you feel.',
+  },
+  {
+    title: 'Soft close',
+    body: 'You showed up in whatever way you could. That counts.',
+  },
+];
+
 const FALLBACK_REMINDER: CareReminderMessage = {
-  title: 'A quiet check-in',
-  body: 'How are you feeling today? A 20-second mood note can help.',
+  title: 'Ready for today’s wellness plan?',
+  body: 'A few gentle minutes can help you show up for yourself.',
 };
 
-export function pickCareReminderMessage(now = new Date()): CareReminderMessage {
+const FALLBACK_EVENING: CareReminderMessage = {
+  title: 'How did today go?',
+  body: 'A short evening check-in can close the day gently.',
+};
+
+function dayIndex(now: Date, length: number): number {
   const start = new Date(now.getFullYear(), 0, 0);
   const dayOfYear = Math.floor((now.getTime() - start.getTime()) / 86_400_000);
-  const index = ((dayOfYear % CARE_REMINDER_MESSAGES.length) + CARE_REMINDER_MESSAGES.length) %
-    CARE_REMINDER_MESSAGES.length;
+  return ((dayOfYear % length) + length) % length;
+}
+
+export function pickCareReminderMessage(now = new Date()): CareReminderMessage {
+  const index = dayIndex(now, CARE_REMINDER_MESSAGES.length);
   return CARE_REMINDER_MESSAGES[index] ?? FALLBACK_REMINDER;
+}
+
+export function pickEveningReminderMessage(now = new Date()): CareReminderMessage {
+  const index = dayIndex(now, EVENING_REMINDER_MESSAGES.length);
+  return EVENING_REMINDER_MESSAGES[index] ?? FALLBACK_EVENING;
 }
 
 export function areCareRemindersSupported(): boolean {
@@ -125,7 +163,8 @@ export async function cancelCareReminders(): Promise<void> {
   if (!areCareRemindersSupported()) return;
   try {
     await Notifications.cancelScheduledNotificationAsync(CARE_REMINDER_ID).catch(() => undefined);
-    // Safety: clear any legacy identifiers from earlier builds.
+    await Notifications.cancelScheduledNotificationAsync(MORNING_REMINDER_ID).catch(() => undefined);
+    await Notifications.cancelScheduledNotificationAsync(EVENING_REMINDER_ID).catch(() => undefined);
     const scheduled = await Notifications.getAllScheduledNotificationsAsync();
     await Promise.all(
       scheduled
@@ -140,40 +179,71 @@ export async function cancelCareReminders(): Promise<void> {
 export interface ScheduleCareRemindersOptions {
   hour?: number;
   minute?: number;
+  morningHour?: number;
+  morningMinute?: number;
+  eveningHour?: number;
+  eveningMinute?: number;
+}
+
+async function scheduleDaily(
+  identifier: string,
+  message: CareReminderMessage,
+  hour: number,
+  minute: number,
+): Promise<void> {
+  await Notifications.scheduleNotificationAsync({
+    identifier,
+    content: {
+      title: message.title,
+      body: message.body,
+      sound: false,
+      ...(Platform.OS === 'android' ? { channelId: CARE_REMINDER_CHANNEL_ID } : {}),
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DAILY,
+      hour,
+      minute,
+    },
+  });
 }
 
 /**
- * Schedules a repeating local daily reminder. Fully on-device — no push token, no network.
+ * Schedules morning + evening local reminders. Fully on-device — no push token, no network.
+ * Legacy single-id reminder is cancelled.
  */
 export async function scheduleCareReminders(
   options: ScheduleCareRemindersOptions = {},
 ): Promise<boolean> {
   if (!areCareRemindersSupported()) return false;
 
-  const hour = options.hour ?? DEFAULT_REMINDER_HOUR;
-  const minute = options.minute ?? DEFAULT_REMINDER_MINUTE;
-  const message = pickCareReminderMessage();
+  const morningHour = options.morningHour ?? options.hour ?? MORNING_REMINDER_HOUR;
+  const morningMinute = options.morningMinute ?? options.minute ?? MORNING_REMINDER_MINUTE;
+  const eveningHour = options.eveningHour ?? EVENING_REMINDER_HOUR;
+  const eveningMinute = options.eveningMinute ?? EVENING_REMINDER_MINUTE;
 
   try {
     configureHandler();
     await ensureAndroidChannel();
     await cancelCareReminders();
 
-    await Notifications.scheduleNotificationAsync({
-      identifier: CARE_REMINDER_ID,
-      content: {
-        title: message.title,
-        body: message.body,
-        sound: false,
-        ...(Platform.OS === 'android' ? { channelId: CARE_REMINDER_CHANNEL_ID } : {}),
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DAILY,
-        hour,
-        minute,
-      },
+    await scheduleDaily(
+      MORNING_REMINDER_ID,
+      pickCareReminderMessage(),
+      morningHour,
+      morningMinute,
+    );
+    await scheduleDaily(
+      EVENING_REMINDER_ID,
+      pickEveningReminderMessage(),
+      eveningHour,
+      eveningMinute,
+    );
+    logger.info('Care reminders scheduled', {
+      morningHour,
+      morningMinute,
+      eveningHour,
+      eveningMinute,
     });
-    logger.info('Care reminders scheduled', { hour, minute });
     return true;
   } catch (error) {
     logger.warn('Schedule care reminders failed', { error: String(error) });

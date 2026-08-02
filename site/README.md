@@ -1,15 +1,36 @@
-# Oppuna privacy policy site
+# Oppuna web pages
 
-A self-contained static privacy policy page (`index.html`) for Oppuna, ready to
-host anywhere. It has no build step and no dependencies.
+Static pages for Oppuna. No build step, no dependencies.
 
-## Google Play Console URL
-<<<<<<< HEAD
+| File | Purpose |
+|------|---------|
+| [`home.html`](home.html) | Marketing homepage (Sage brand) |
+| [`index.html`](index.html) | Privacy policy (Play Store / store listing URL) |
+| [`pitch-deck.html`](pitch-deck.html) | Investor pitch |
+| [`SQUARESPACE.md`](SQUARESPACE.md) | How to rebuild `home.html` on Squarespace |
+| [`favicon.svg`](favicon.svg) | Site icon |
 
-Paste this into **Play Console → App content → Privacy policy**:
-=======
+## Preview the homepage locally
 
-Paste this into **Play Console → App content → Privacy policy**:
+```bash
+open site/home.html
+```
+
+Or from the repo root:
+
+```bash
+npx --yes serve site
+```
+
+Then open `http://localhost:3000/home.html`.
+
+## Transfer to Squarespace
+
+Follow [`SQUARESPACE.md`](SQUARESPACE.md): match Site Styles to the Sage palette, then paste section copy into Fluid Engine. Or drop `home.html` into a Squarespace Code block if your plan allows it.
+
+## Privacy policy URL (Google Play)
+
+Paste into **Play Console → App content → Privacy policy**:
 
 ```
 https://kaushik-i-b.github.io/oppuna/
@@ -17,58 +38,22 @@ https://kaushik-i-b.github.io/oppuna/
 
 Google’s crawler must reach the page with no login and no password wall.
 
-## Hosting on GitHub Pages (free, permanent)
+## Hosting on GitHub Pages
 
-A workflow at `.github/workflows/deploy-privacy.yml` publishes this `site/`
-folder to GitHub Pages. To make it live:
+The workflow `.github/workflows/deploy-privacy.yml` publishes this `site/` folder.
 
-1. **Repo → Settings → Actions → General → Workflow permissions:** choose
-   **Read and write permissions**, then save.
-2. **Repo → Settings → Pages → Build and deployment → Source:** choose
-   **GitHub Actions**.
-   - This repo is public, so Pages is available on the free plan.
-3. Run the **"Deploy privacy policy to GitHub Pages"** workflow (Actions tab →
-   Run workflow). It also runs automatically on pushes to `main` that touch
-   `site/`.
+1. **Repo → Settings → Actions → General → Workflow permissions:** Read and write permissions  
+2. **Repo → Settings → Pages → Source:** GitHub Actions, or Deploy from branch `gh-pages` / `/ (root)`  
+3. Run **Deploy privacy policy to GitHub Pages** (or push changes under `site/`)
 
-If the workflow fails with `Resource not accessible by integration`, step 1 or
-2 above is still missing — fix those settings and re-run.
-
-The published URL will be:
->>>>>>> origin/main
+Published base URL:
 
 ```
 https://kaushik-i-b.github.io/oppuna/
 ```
 
-Google’s crawler must reach the page with no login and no password wall.
+Homepage (after deploy): `https://kaushik-i-b.github.io/oppuna/home.html`
 
-## Hosting on GitHub Pages (required once)
+## Hosting elsewhere
 
-The `gh-pages` branch already contains this site. The workflow
-`.github/workflows/deploy-privacy.yml` keeps that branch updated whenever
-`site/` changes on `main` (or when you run it manually).
-
-### Turn the site on (one setting)
-
-1. Open **Repo → Settings → Pages**
-2. Under **Build and deployment → Source**, choose **Deploy from a branch**
-3. Branch: **gh-pages** / folder: **/ (root)** → **Save**
-4. Wait ~1 minute, then open https://kaushik-i-b.github.io/oppuna/
-
-Also set **Settings → Actions → General → Workflow permissions** to
-**Read and write permissions** so future workflow runs can update `gh-pages`.
-
-### Re-publish
-
-Actions → **Deploy privacy policy to GitHub Pages** → **Run workflow**
-
-## Hosting anywhere else (free, drag-and-drop)
-
-Because it is a single static folder, you can also drop `site/` (or
-`oppuna-privacy-site.zip` at the repo root) onto any static host, e.g.:
-
-- **Netlify Drop:** https://app.netlify.com/drop — after upload, **claim the
-  site** and **turn off password protection** before using the URL in Play
-  Console.
-- **Cloudflare Pages**, **Vercel**, or **Surge**.
+Drop the `site/` folder onto Netlify Drop, Cloudflare Pages, Vercel, or Surge. For Play Console, turn off any password protection.

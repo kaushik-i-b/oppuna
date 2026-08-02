@@ -20,7 +20,7 @@ import {
   verifyModelIntegrity,
 } from '@/services/modelAssetService';
 import type { ChatMessage, GenerationOptions, LocalLLMProvider, TokenCallback } from '@/ai/providers';
-import { LlamaRnProvider, LocalLLMProviderError } from '@/ai/providers';
+import { LocalLLMProviderError } from '@/ai/providers/LocalLLMProvider';
 import type { LocalModelState, LocalModelStatus } from '@/ai/types';
 
 type ModelStateListener = (state: LocalModelState) => void;
@@ -98,8 +98,11 @@ export function setProviderFactoryForTests(
   providerFactory = factory;
 }
 
-function createProvider(modelPath: string): LocalLLMProvider {
+async function createProvider(modelPath: string): Promise<LocalLLMProvider> {
   if (providerFactory) return providerFactory(modelPath);
+  // Lazy-load so librnllama is not linked at app process start (avoids
+  // UnsatisfiedLinkError / early native crashes before UI can render).
+  const { LlamaRnProvider } = await import('@/ai/providers/LlamaRnProvider');
   const capability = getDeviceCapability();
   return new LlamaRnProvider({
     modelPath,
@@ -275,7 +278,7 @@ async function runInitialization(): Promise<LocalModelState> {
       return state;
     }
 
-    const provider = createProvider(modelPath);
+    const provider = await createProvider(modelPath);
     try {
       await withInitTimeout(
         provider.initialize(),
@@ -295,16 +298,18 @@ async function runInitialization(): Promise<LocalModelState> {
     }
 
     activeProvider = provider;
+    const maybeSized = provider as unknown as { getContextSize?: () => number };
+    const providerContextSize =
+      typeof maybeSized.getContextSize === 'function'
+        ? maybeSized.getContextSize()
+        : capability.recommendedContextSize;
     setState({
       status: 'ready',
       loadedAt: Date.now(),
       initDurationMs: Date.now() - started,
       error: null,
       providerId: provider.id,
-      contextSize:
-        provider instanceof LlamaRnProvider
-          ? provider.getContextSize()
-          : capability.recommendedContextSize,
+      contextSize: providerContextSize,
       fallbackActive: false,
     });
     logger.info('On-device model ready', {

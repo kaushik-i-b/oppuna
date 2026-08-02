@@ -69,7 +69,7 @@ describe('model recopy counter', () => {
     store['oppuna.localModel.recopyAttempts.v1'] = '1';
 
     NativeModules.OppunaModelAsset.prepareLocalModel.mockResolvedValue({
-      path: '/data/user/0/com.oppuna.app/files/ai-model/model.gguf',
+      path: '/data/user/0/com.oppuna.care/files/ai-model/model.gguf',
       copied: true,
       size: LOCAL_MODEL_CONFIG.expectedSize,
       sha256: LOCAL_MODEL_CONFIG.sha256,

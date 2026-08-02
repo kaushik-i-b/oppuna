@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -9,6 +9,8 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { RootStackParamList } from '@/navigation/types';
 import { Icon } from '@/ui';
+import { generateTodayPlan } from '@/wellness/planService';
+import { logger } from '@/utils/logger';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Disclaimer'>;
 
@@ -18,14 +20,28 @@ export function DisclaimerScreen({ navigation, route }: Props): React.ReactEleme
   const acceptDisclaimer = useSettingsStore((s) => s.acceptDisclaimer);
   const completeOnboarding = useSettingsStore((s) => s.completeOnboarding);
   const fromSettings = route.params?.fromSettings ?? false;
+  const [busy, setBusy] = useState(false);
 
-  const handleAgree = (): void => {
-    acceptDisclaimer();
-    completeOnboarding();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Main', params: { screen: 'Home' } }],
-    });
+  const handleAgree = async (): Promise<void> => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      acceptDisclaimer();
+      try {
+        await generateTodayPlan({ force: true, personalize: true });
+      } catch (error) {
+        logger.warn('First plan generation failed; continuing onboarding', {
+          error: String(error),
+        });
+      }
+      completeOnboarding();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main', params: { screen: 'Home' } }],
+      });
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -76,7 +92,12 @@ export function DisclaimerScreen({ navigation, route }: Props): React.ReactEleme
 
       {!fromSettings ? (
         <View style={{ marginTop: theme.spacing.xl }}>
-          <Button label={t('disclaimerScreen.agree')} onPress={handleAgree} />
+          <Button
+            label={t('disclaimerScreen.agree')}
+            onPress={() => void handleAgree()}
+            loading={busy}
+            disabled={busy}
+          />
         </View>
       ) : null}
     </Screen>

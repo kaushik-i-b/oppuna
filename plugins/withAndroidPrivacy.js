@@ -107,13 +107,13 @@ function withSecureScreenModule(config) {
         'java',
         'com',
         'oppuna',
-        'app',
+        'care',
       );
       ensureDir(javaPackagePath);
 
       writeFileIfChanged(
         path.join(javaPackagePath, 'OppunaSecureScreenModule.kt'),
-        `package com.oppuna.app
+        `package com.oppuna.care
 
 import android.view.WindowManager
 import com.facebook.react.bridge.ReactApplicationContext
@@ -144,7 +144,7 @@ class OppunaSecureScreenModule(
 
       writeFileIfChanged(
         path.join(javaPackagePath, 'OppunaSecureScreenPackage.kt'),
-        `package com.oppuna.app
+        `package com.oppuna.care
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule

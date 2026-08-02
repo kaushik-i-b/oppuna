@@ -7,12 +7,15 @@ import { Button, Loading, MoodBarChart, Screen, Text } from '@/components';
 import { MOOD_TAGS } from '@/constants/moods';
 import { breathingRepository, journalRepository, moodRepository } from '@/database';
 import { computeWeeklyInsights, type WeeklyInsight } from '@/database/repositories/moodRepository';
+import { wellnessPlanRepository } from '@/database/repositories/wellnessPlanRepository';
 import { useSaveCelebration } from '@/hooks/useSaveCelebration';
 import { useTranslation } from '@/hooks/useTranslation';
 import type { RootStackParamList } from '@/navigation/types';
+import { getCareStreak } from '@/services/careRetentionService';
 import { useTheme } from '@/theme/ThemeProvider';
 import { CareHero, FadeInView, Icon, SectionLabel, type OppunaIconName } from '@/ui';
 import { logger } from '@/utils/logger';
+import { computeWellnessScore } from '@/wellness/planService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Insights'>;
 
@@ -20,6 +23,9 @@ interface Stats {
   insight: WeeklyInsight;
   journalCount: number;
   breathingCount: number;
+  planCompletionPct: number | null;
+  streak: number;
+  wellnessScore: number;
 }
 
 interface MetricCard {
@@ -34,7 +40,7 @@ function tagLabel(key: string): string {
 }
 
 function statsSignature(stats: Stats): string {
-  return `${stats.insight.entryCount}:${stats.journalCount}:${stats.breathingCount}:${stats.insight.averageScore ?? 'x'}`;
+  return `${stats.insight.entryCount}:${stats.journalCount}:${stats.breathingCount}:${stats.insight.averageScore ?? 'x'}:${stats.planCompletionPct ?? 'x'}:${stats.streak}`;
 }
 
 export function InsightsScreen({ navigation }: Props): React.ReactElement {
@@ -46,19 +52,41 @@ export function InsightsScreen({ navigation }: Props): React.ReactElement {
 
   const load = useCallback(async () => {
     try {
-      const [moods, journalCount, breathingCount] = await Promise.all([
+      const [moods, journalCount, breathingCount, recentPlans, streak] = await Promise.all([
         moodRepository.list(1000),
         journalRepository.count(),
         breathingRepository.count(),
+        wellnessPlanRepository.getRecent(7),
+        getCareStreak(),
       ]);
+      const insight = computeWeeklyInsights(moods);
+      let planActs = 0;
+      let planDone = 0;
+      for (const plan of recentPlans) {
+        planActs += plan.activities.length;
+        planDone += plan.completedIds.length;
+      }
+      const today = recentPlans[0] ?? null;
+      const planCompletionPct =
+        planActs > 0 ? Math.round((planDone / planActs) * 100) : null;
       const next: Stats = {
-        insight: computeWeeklyInsights(moods),
+        insight,
         journalCount,
         breathingCount,
+        planCompletionPct,
+        streak: streak.currentStreak,
+        wellnessScore: computeWellnessScore({
+          streak: streak.currentStreak,
+          plan: today,
+          moodAverage: insight.averageScore,
+        }),
       };
       const sig = statsSignature(next);
       const hasData =
-        next.insight.entryCount > 0 || next.journalCount > 0 || next.breathingCount > 0;
+        next.insight.entryCount > 0 ||
+        next.journalCount > 0 ||
+        next.breathingCount > 0 ||
+        next.planCompletionPct != null;
 
       if (hasData && lastSignature.current !== null && lastSignature.current !== sig) {
         void celebrate({
@@ -109,7 +137,7 @@ export function InsightsScreen({ navigation }: Props): React.ReactElement {
             <View style={{ alignSelf: 'stretch', paddingHorizontal: theme.spacing.lg }}>
               <Button
                 label="Check in now"
-                onPress={() => navigation.navigate('Main', { screen: 'Mood' })}
+                onPress={() => navigation.navigate('MoodCheckIn')}
               />
             </View>
           </View>
@@ -120,6 +148,28 @@ export function InsightsScreen({ navigation }: Props): React.ReactElement {
   }
 
   const metrics: MetricCard[] = [];
+  metrics.push({
+    label: t('insights.wellnessScore'),
+    value: String(stats.wellnessScore),
+    icon: 'leaf',
+    hint: 'Private score',
+  });
+  if (stats.planCompletionPct != null) {
+    metrics.push({
+      label: t('insights.planCompletion'),
+      value: `${stats.planCompletionPct}%`,
+      icon: 'plan',
+      hint: 'Last 7 plans',
+    });
+  }
+  if (stats.streak > 0) {
+    metrics.push({
+      label: t('home.streak'),
+      value: String(stats.streak),
+      icon: 'check',
+      hint: 'Days showing up',
+    });
+  }
   if (insight.entryCount > 0) {
     metrics.push({
       label: 'Check-ins',
@@ -163,7 +213,7 @@ export function InsightsScreen({ navigation }: Props): React.ReactElement {
             leafVariant="celebrate"
             leafSize={64}
             title="Your week, quietly"
-            body="Gentle patterns from check-ins and care — private, on this device only."
+            body={t('insights.encouragement')}
           />
         </FadeInView>
 

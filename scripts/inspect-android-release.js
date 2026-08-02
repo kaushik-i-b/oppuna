@@ -74,7 +74,7 @@ function main() {
     minSdk: expoSdkDefaults.minSdk,
   };
 
-  if (report.applicationId !== 'com.oppuna.app') {
+  if (report.applicationId !== 'com.oppuna.care') {
     failures.push(`Unexpected applicationId: ${report.applicationId}`);
   }
   if (report.internetExplicit) failures.push('INTERNET permission is explicitly requested');

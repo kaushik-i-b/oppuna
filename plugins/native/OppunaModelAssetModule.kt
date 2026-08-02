@@ -1,4 +1,4 @@
-package com.oppuna.app
+package com.oppuna.care
 
 import android.app.ActivityManager
 import android.content.Context

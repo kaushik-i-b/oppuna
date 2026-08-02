@@ -11,6 +11,7 @@ describe('mentalHealthAgent', () => {
   it('encodes mental health guardrails in the system prompt', () => {
     const system = buildMentalHealthSystemPrompt();
     expect(system).toMatch(/mental wellness companion/i);
+    expect(system).toMatch(/daily wellness plan/i);
     expect(system).toMatch(/not a therapist/i);
     expect(system).toMatch(/do not diagnose/i);
     expect(system).toMatch(/medication/i);

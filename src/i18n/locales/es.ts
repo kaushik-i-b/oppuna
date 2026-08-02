@@ -40,6 +40,10 @@ export const es: DeepPartial<Translation> = {
     insights: 'Resumen',
     logMood: 'Registrar ánimo',
   },
+  chat: {
+    kannadaComingSoon:
+      'El chat de IA en canarés estará disponible pronto. Mientras tanto puedes seguir usando el apoyo guiado.',
+  },
   settings: {
     title: 'Ajustes',
     appearance: 'Apariencia',

@@ -1,16 +1,30 @@
 import { en, type Translation } from '@/i18n/locales/en';
 import { es } from '@/i18n/locales/es';
+import { pt } from '@/i18n/locales/pt';
+import { kn } from '@/i18n/locales/kn';
+import { ta } from '@/i18n/locales/ta';
+import { ml } from '@/i18n/locales/ml';
+import { te } from '@/i18n/locales/te';
 import { hi } from '@/i18n/locales/hi';
+import { ar } from '@/i18n/locales/ar';
+import { ru } from '@/i18n/locales/ru';
 import type { DeepPartial, LanguageCode } from '@/i18n/types';
 
-export { LANGUAGES } from '@/i18n/types';
+export { LANGUAGES, isLanguageCode, isAiChatComingSoon } from '@/i18n/types';
 export type { LanguageCode, LanguageMeta } from '@/i18n/types';
 export type { Translation } from '@/i18n/locales/en';
 
 const DICTIONARIES: Record<LanguageCode, DeepPartial<Translation>> = {
   en,
   es,
+  pt,
+  kn,
+  ta,
+  ml,
+  te,
   hi,
+  ar,
+  ru,
 };
 
 /** Dot-notation paths into the translation tree, e.g. "settings.title". */

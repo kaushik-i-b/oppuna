@@ -57,7 +57,7 @@ Hosted from `site/` via GitHub Pages. If that URL 404s, enable Pages (see `site/
 - [ ] In-app Privacy Policy works offline
 - [ ] Terms and Qwen notices accessible offline
 - [ ] `npm run inspect:android-release` passes (targetSdk ≥ 36, package id)
-- [ ] `android.versionCode` in `app.json` is **strictly greater** than every previously uploaded Play artifact (currently 8 for 2.0.0)
+- [ ] `android.versionCode` in `app.json` is **strictly greater** than every previously uploaded Play artifact for this applicationId (`com.oppuna.care`; latest local builds used versionCode 6)
 
 ## Build verification
 

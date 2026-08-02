@@ -5,6 +5,7 @@ export { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 export { Divider } from '@/components/ui/Divider';
 export { EmptyState } from '@/components/ui/EmptyState';
 export { Header } from '@/components/ui/Header';
+export { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 export { ListItem } from '@/components/ui/ListItem';
 export { Loading } from '@/components/ui/Loading';
 export { Logo } from '@/components/ui/Logo';

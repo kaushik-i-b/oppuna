@@ -8,6 +8,7 @@ import { MOOD_BY_KEY, MOOD_TAGS } from '@/constants/moods';
 import { moodRepository } from '@/database';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Icon, MoodMark } from '@/ui';
 import { formatDateTime } from '@/utils/date';
 import { logger } from '@/utils/logger';
 import type { MoodEntry } from '@/types';
@@ -62,7 +63,7 @@ export function MoodHistoryScreen({ navigation }: Props): React.ReactElement {
       {entries === null ? (
         <Loading label={t('common.loading')} />
       ) : entries.length === 0 ? (
-        <EmptyState emoji="🌤️" title={t('mood.noData')} />
+        <EmptyState icon="mood" title={t('mood.noData')} />
       ) : (
         <View style={{ flex: 1 }}>
           {entries.map((entry) => {
@@ -71,7 +72,7 @@ export function MoodHistoryScreen({ navigation }: Props): React.ReactElement {
               <View key={entry.id} style={{ paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.sm }}>
                 <Card>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
-                    <Text variant="title">{meta.emoji}</Text>
+                    <MoodMark mood={entry.mood} size={28} color={theme.colors[meta.colorKey]} />
                     <View style={{ flex: 1 }}>
                       <Text variant="bodyStrong">
                         {meta.label} · {entry.intensity}/10
@@ -83,9 +84,10 @@ export function MoodHistoryScreen({ navigation }: Props): React.ReactElement {
                     <Pressable
                       onPress={() => setPendingDelete(entry)}
                       hitSlop={10}
+                      accessibilityRole="button"
                       accessibilityLabel="Delete entry"
                     >
-                      <Text variant="subtitle">🗑️</Text>
+                      <Icon name="trash" size={20} color={theme.colors.danger} />
                     </Pressable>
                   </View>
                   {entry.note ? (

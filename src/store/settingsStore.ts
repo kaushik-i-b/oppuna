@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_CRISIS_REGION, type CrisisRegionCode } from '@/constants/crisis';
-import type { LanguageCode } from '@/i18n';
+import { isLanguageCode, type LanguageCode } from '@/i18n';
 import { cancelCareReminders } from '@/services/careReminderService';
 import { DEFAULT_COLOR_PALETTE, type ColorPaletteId } from '@/theme/colors';
 import type { ThemeMode } from '@/theme/types';
@@ -13,6 +13,8 @@ interface SettingsState {
   /** Brand ColorScheme palette (independent of light/dark). */
   colorPalette: ColorPaletteId;
   language: LanguageCode;
+  /** Optional first name from wellness onboarding. */
+  displayName: string;
   onboardingComplete: boolean;
   disclaimerAccepted: boolean;
   appLockEnabled: boolean;
@@ -24,6 +26,7 @@ interface SettingsState {
   setThemeMode: (mode: ThemeMode) => void;
   setColorPalette: (palette: ColorPaletteId) => void;
   setLanguage: (language: LanguageCode) => void;
+  setDisplayName: (name: string) => void;
   completeOnboarding: () => void;
   acceptDisclaimer: () => void;
   setAppLockEnabled: (enabled: boolean) => void;
@@ -37,6 +40,7 @@ const DEFAULTS = {
   themeMode: 'system' as ThemeMode,
   colorPalette: DEFAULT_COLOR_PALETTE,
   language: 'en' as LanguageCode,
+  displayName: '',
   onboardingComplete: false,
   disclaimerAccepted: false,
   appLockEnabled: false,
@@ -53,6 +57,7 @@ export const useSettingsStore = create<SettingsState>()(
       setThemeMode: (themeMode) => set({ themeMode }),
       setColorPalette: (colorPalette) => set({ colorPalette }),
       setLanguage: (language) => set({ language }),
+      setDisplayName: (displayName) => set({ displayName }),
       completeOnboarding: () => set({ onboardingComplete: true }),
       acceptDisclaimer: () => set({ disclaimerAccepted: true }),
       setAppLockEnabled: (appLockEnabled) => set({ appLockEnabled }),
@@ -71,6 +76,7 @@ export const useSettingsStore = create<SettingsState>()(
         themeMode: state.themeMode,
         colorPalette: state.colorPalette,
         language: state.language,
+        displayName: state.displayName,
         onboardingComplete: state.onboardingComplete,
         disclaimerAccepted: state.disclaimerAccepted,
         appLockEnabled: state.appLockEnabled,
@@ -78,6 +84,10 @@ export const useSettingsStore = create<SettingsState>()(
         crisisRegion: state.crisisRegion,
       }),
       onRehydrateStorage: () => (state) => {
+        // Drop removed languages (e.g. former Hindi `hi`) so the UI never hits a missing dictionary.
+        if (state && !isLanguageCode(state.language)) {
+          state.setLanguage('en');
+        }
         state?.setHydrated(true);
       },
     },

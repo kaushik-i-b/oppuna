@@ -16,7 +16,7 @@
   "sourceRepo": "bartowski/Qwen2.5-1.5B-Instruct-GGUF",
   "sourceFile": "Qwen2.5-1.5B-Instruct-Q4_K_M.gguf",
   "sourceUrl": "https://huggingface.co/bartowski/Qwen2.5-1.5B-Instruct-GGUF",
-  "packageId": "com.oppuna.app",
+  "packageId": "com.oppuna.care",
   "storageHeadroomBytes": 157286400,
   "licenseId": "apache-2.0",
   "licenseName": "Apache License, Version 2.0",

@@ -3,7 +3,6 @@ import {
   AppState,
   type AppStateStatus,
   FlatList,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -14,13 +13,23 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChatBubble, Chip, ConfirmDialog, Text } from '@/components';
 import { useToast } from '@/components/feedback/ToastProvider';
 import { chatRepository, safetyRepository } from '@/database';
+import { useAndroidKeyboardLift } from '@/hooks/useAndroidKeyboardLift';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSecureScreen } from '@/hooks/useSecureScreen';
 import { useHaptics } from '@/hooks/useHaptics';
-import { cancelGeneration, generateAIResponse, resetConversationMemory } from '@/ai';
+import {
+  assessSafety,
+  cancelGeneration,
+  CRISIS_REPLY,
+  generateAIResponse,
+  resetConversationMemory,
+} from '@/ai';
 import { DEFAULT_AGENT_ID } from '@/ai/agents';
+import { isAiChatComingSoon } from '@/i18n';
+import { chatComposerBottomPadding } from '@/navigation/layoutInsets';
+import { navigateRoot } from '@/navigation/rootNavigation';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import { ChatComposer, FadeInView, Icon, LivingLeaf, PressableScale, StatusPill } from '@/ui';
@@ -30,9 +39,9 @@ import type { AIMessage, LocalModelStatus } from '@/ai/types';
 const STREAM_FLUSH_MS = 40;
 
 const STARTERS = [
-  { label: 'I feel anxious', text: 'I feel anxious and could use some support.' },
-  { label: 'I need to talk', text: 'I need to talk about something on my mind.' },
-  { label: 'Help me slow down', text: 'Help me slow down and feel a bit calmer.' },
+  { label: 'Help with my plan', text: 'Can you help me stick with today’s wellness plan?' },
+  { label: 'I feel anxious', text: 'I feel anxious — what is one small plan-friendly step?' },
+  { label: 'Build a habit', text: 'Help me turn one wellness activity into a small daily habit.' },
 ] as const;
 
 function privacyPill(
@@ -57,13 +66,15 @@ function toAgentMessage(message: ChatMessage): AIMessage {
 
 export function ChatScreen(): React.ReactElement {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const toast = useToast();
   const insets = useSafeAreaInsets();
+  const { keyboardVisible, androidLift } = useAndroidKeyboardLift();
   const haptics = useHaptics();
   useSecureScreen(true);
   const navigation = useAppNavigation();
   const modelState = useModelStatus();
+  const showKannadaComingSoon = isAiChatComingSoon(language);
 
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -72,8 +83,6 @@ export function ChatScreen(): React.ReactElement {
   const [sending, setSending] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [userScrolledUp, setUserScrolledUp] = useState(false);
-  /** Android fallback lift when window resize does not clear the composer. */
-  const [androidKeyboardLift, setAndroidKeyboardLift] = useState(0);
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const streamingIdRef = useRef<string | null>(null);
   const streamBufferRef = useRef('');
@@ -81,6 +90,7 @@ export function ChatScreen(): React.ReactElement {
   const sendingRef = useRef(false);
   const mountedRef = useRef(true);
   const stickToBottomRef = useRef(true);
+  const wasKeyboardVisibleRef = useRef(false);
 
   const pill = privacyPill(modelState.status);
 
@@ -123,29 +133,20 @@ export function ChatScreen(): React.ReactElement {
     };
   }, []);
 
-  const scrollToEnd = useCallback((animated = true) => {
-    if (!stickToBottomRef.current) return;
+  const scrollToEnd = useCallback((animated = true, force = false) => {
+    if (!force && !stickToBottomRef.current) return;
     requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated }));
   }, []);
 
+  // Keep the transcript pinned when the IME opens (hook owns lift; Chat owns scroll).
   useEffect(() => {
-    if (Platform.OS !== 'android') return undefined;
-    const show = Keyboard.addListener('keyboardDidShow', () => {
-      // tabBarHideOnKeyboard removes ~58dp; compensate residual overlap on OEMs
-      // where adjustResize alone leaves the composer under the IME.
-      setAndroidKeyboardLift(24);
-      if (stickToBottomRef.current) {
-        requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: false }));
-      }
-    });
-    const hide = Keyboard.addListener('keyboardDidHide', () => {
-      setAndroidKeyboardLift(0);
-    });
-    return () => {
-      show.remove();
-      hide.remove();
-    };
-  }, []);
+    if (keyboardVisible && !wasKeyboardVisibleRef.current) {
+      stickToBottomRef.current = true;
+      setUserScrolledUp(false);
+      scrollToEnd(true, true);
+    }
+    wasKeyboardVisibleRef.current = keyboardVisible;
+  }, [keyboardVisible, scrollToEnd]);
 
   const flushStreamBuffer = useCallback(() => {
     const activeId = streamingIdRef.current;
@@ -184,6 +185,37 @@ export function ChatScreen(): React.ReactElement {
     async (text: string) => {
       const trimmed = text.trim();
       if (!trimmed || !sessionId || sendingRef.current) return;
+
+      // Crisis guardrail — navigate to emergency contacts immediately.
+      // Never wait on LLM / streaming / DB before opening Crisis.
+      const crisis = assessSafety(trimmed).crisis;
+      if (crisis) {
+        setInput('');
+        setSuggestions([]);
+        void haptics.selection();
+        navigateRoot('Crisis', { category: crisis });
+        void (async () => {
+          try {
+            await safetyRepository.record(crisis);
+            await chatRepository.addMessage({
+              sessionId,
+              role: 'user',
+              content: trimmed,
+            });
+            await chatRepository.addMessage({
+              sessionId,
+              role: 'assistant',
+              content: CRISIS_REPLY,
+              intent: 'crisis',
+              mood: null,
+            });
+          } catch (error) {
+            logger.error('Crisis persist failed', { error: String(error) });
+          }
+        })();
+        return;
+      }
+
       sendingRef.current = true;
       setSending(true);
       setInput('');
@@ -252,17 +284,20 @@ export function ChatScreen(): React.ReactElement {
           return;
         }
 
+        // Defense in depth — engine also flags crisis; route even if UI check was missed.
         if (response.crisis) {
           clearStreamingPlaceholder(streamId);
-          await safetyRepository.record(response.crisis);
-          await chatRepository.addMessage({
-            sessionId,
-            role: 'assistant',
-            content: response.reply,
-            intent: 'crisis',
-            mood: response.mood,
-          });
-          navigation.navigate('Crisis', { category: response.crisis });
+          navigateRoot('Crisis', { category: response.crisis });
+          void safetyRepository.record(response.crisis).catch(() => undefined);
+          void chatRepository
+            .addMessage({
+              sessionId,
+              role: 'assistant',
+              content: response.reply,
+              intent: 'crisis',
+              mood: response.mood,
+            })
+            .catch(() => undefined);
           return;
         }
 
@@ -290,7 +325,6 @@ export function ChatScreen(): React.ReactElement {
     [
       sessionId,
       messages,
-      navigation,
       scrollToEnd,
       toast,
       modelState.status,
@@ -326,167 +360,126 @@ export function ChatScreen(): React.ReactElement {
     messages[messages.length - 1]?.role === 'assistant' &&
     !messages[messages.length - 1]?.content;
 
-  return (
-    <View style={[styles.root, { backgroundColor: theme.colors.background, paddingTop: insets.top }]}>
-      <View
-        style={[
-          styles.header,
-          {
-            paddingHorizontal: theme.spacing.lg,
-            paddingBottom: theme.spacing.md,
-            borderBottomColor: theme.colors.border,
-            backgroundColor: theme.colors.background,
-          },
-        ]}
-      >
-        <View style={styles.headerBrand}>
-          <LivingLeaf
-            size={36}
-            variant={thinking ? 'thinking' : 'idle'}
-            showAura={false}
-          />
-          <View style={{ flex: 1, gap: 4, marginLeft: theme.spacing.sm }}>
-            <Text variant="title" style={{ fontSize: theme.fontSize.xl, fontWeight: '700' }}>
-              Oppuna
-            </Text>
-            <StatusPill label={pill.label} tone={pill.tone} />
-          </View>
-        </View>
-        <View style={{ flexDirection: 'row', gap: theme.spacing.md, alignItems: 'center' }}>
-          <PressableScale
-            onPress={() => navigation.navigate('VoiceMode')}
-            accessibilityRole="button"
-            accessibilityLabel="Voice mode"
-            style={[styles.headerBtn, { backgroundColor: theme.colors.surfaceInteractive }]}
-          >
-            <Icon name="mic" size={20} color={theme.colors.textMuted} />
-          </PressableScale>
-          <PressableScale
-            onPress={() => setConfirmClear(true)}
-            accessibilityRole="button"
-            accessibilityLabel={t('chat.clear')}
-            style={[styles.headerBtn, { backgroundColor: theme.colors.surfaceInteractive }]}
-          >
-            <Icon name="trash" size={20} color={theme.colors.textMuted} />
-          </PressableScale>
-        </View>
-      </View>
+  const composerPadBottom = chatComposerBottomPadding(
+    keyboardVisible,
+    insets.bottom,
+    theme.spacing.sm,
+  );
 
-      <KeyboardAvoidingView
+  const chatBody = (
+    <>
+      <FlatList
+        ref={listRef}
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
-      >
-        <FlatList
-          ref={listRef}
-          data={messages}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ChatBubble message={item} />}
-          automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-          contentContainerStyle={{
-            paddingHorizontal: theme.spacing.lg,
-            paddingTop: theme.spacing.md,
-            paddingBottom: theme.spacing.md,
-            flexGrow: 1,
-          }}
-          ListEmptyComponent={
-            <FadeInView delay={40} preset="soft" style={styles.empty}>
+        data={messages}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <ChatBubble message={item} />}
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+        contentContainerStyle={{
+          paddingHorizontal: theme.spacing.lg,
+          paddingTop: keyboardVisible ? theme.spacing.sm : theme.spacing.md,
+          paddingBottom: theme.spacing.md,
+          flexGrow: 1,
+        }}
+        ListEmptyComponent={
+          <FadeInView delay={40} preset="soft" style={styles.empty}>
+            <View
+              style={[
+                styles.emptyCard,
+                {
+                  backgroundColor: theme.colors.surfaceElevated,
+                  borderColor: theme.colors.border,
+                  borderRadius: theme.radius.xl,
+                  padding: theme.spacing.xl,
+                  ...theme.shadow,
+                },
+              ]}
+            >
+              <LivingLeaf size={88} variant="greet" />
+              <Text
+                variant="title"
+                center
+                style={{ marginTop: theme.spacing.lg, fontSize: theme.fontSize.xl }}
+              >
+                Supporting your plan
+              </Text>
+              <Text
+                variant="body"
+                color="textMuted"
+                center
+                style={{ marginTop: theme.spacing.sm, maxWidth: 280 }}
+              >
+                Chat is here for support — your personalized daily plan lives on the Plan tab.
+              </Text>
               <View
                 style={[
-                  styles.emptyCard,
-                  {
-                    backgroundColor: theme.colors.surfaceElevated,
-                    borderColor: theme.colors.border,
-                    borderRadius: theme.radius.xl,
-                    padding: theme.spacing.xl,
-                    ...theme.shadow,
-                  },
+                  styles.starters,
+                  { marginTop: theme.spacing.xl, gap: theme.spacing.sm },
                 ]}
               >
-                <LivingLeaf size={88} variant="greet" />
-                <Text
-                  variant="title"
-                  center
-                  style={{ marginTop: theme.spacing.lg, fontSize: theme.fontSize.xl }}
-                >
-                  What&apos;s on your mind?
-                </Text>
-                <Text
-                  variant="body"
-                  color="textMuted"
-                  center
-                  style={{ marginTop: theme.spacing.sm, maxWidth: 280 }}
-                >
-                  You don&apos;t need to make sense of it before you start. I&apos;m here to listen.
-                </Text>
-                <View
-                  style={[
-                    styles.starters,
-                    { marginTop: theme.spacing.xl, gap: theme.spacing.sm },
-                  ]}
-                >
-                  {STARTERS.map((s) => (
-                    <PressableScale
-                      key={s.label}
-                      onPress={() => void handleSend(s.text)}
-                      accessibilityRole="button"
-                      accessibilityLabel={s.label}
-                      style={[
-                        styles.starterChip,
-                        {
-                          backgroundColor: theme.colors.primaryMuted,
-                          borderRadius: theme.radius.pill,
-                          paddingHorizontal: theme.spacing.lg,
-                          paddingVertical: theme.spacing.sm,
-                        },
-                      ]}
-                    >
-                      <Text variant="caption" style={{ color: theme.colors.primary, fontWeight: '600' }}>
-                        {s.label}
-                      </Text>
-                    </PressableScale>
-                  ))}
-                </View>
+                {STARTERS.map((s) => (
+                  <PressableScale
+                    key={s.label}
+                    onPress={() => void handleSend(s.text)}
+                    accessibilityRole="button"
+                    accessibilityLabel={s.label}
+                    style={[
+                      styles.starterChip,
+                      {
+                        backgroundColor: theme.colors.primaryMuted,
+                        borderRadius: theme.radius.pill,
+                        paddingHorizontal: theme.spacing.lg,
+                        paddingVertical: theme.spacing.sm,
+                      },
+                    ]}
+                  >
+                    <Text variant="caption" style={{ color: theme.colors.primary, fontWeight: '600' }}>
+                      {s.label}
+                    </Text>
+                  </PressableScale>
+                ))}
               </View>
-            </FadeInView>
-          }
-          ListFooterComponent={
-            thinking ? (
-              <View
-                style={[
-                  styles.thinkingRow,
-                  {
-                    backgroundColor: theme.colors.surface,
-                    borderColor: theme.colors.border,
-                    borderRadius: theme.radius.lg,
-                  },
-                ]}
-              >
-                <LivingLeaf size={28} variant="thinking" showAura={false} />
-                <Text variant="caption" color="textMuted">
-                  Oppuna is thinking
-                </Text>
-              </View>
-            ) : null
-          }
-          onContentSizeChange={() => scrollToEnd(false)}
-          onScroll={(e) => {
-            const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
-            const distance =
-              contentSize.height - layoutMeasurement.height - contentOffset.y;
-            const nearBottom = distance < 80;
-            stickToBottomRef.current = nearBottom;
-            setUserScrolledUp(!nearBottom);
-          }}
-          scrollEventThrottle={16}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="interactive"
-          maintainVisibleContentPosition={
-            Platform.OS === 'ios' ? { minIndexForVisible: 0 } : undefined
-          }
-        />
+            </View>
+          </FadeInView>
+        }
+        ListFooterComponent={
+          thinking ? (
+            <View
+              style={[
+                styles.thinkingRow,
+                {
+                  backgroundColor: theme.colors.surface,
+                  borderColor: theme.colors.border,
+                  borderRadius: theme.radius.lg,
+                },
+              ]}
+            >
+              <LivingLeaf size={28} variant="thinking" showAura={false} />
+              <Text variant="caption" color="textMuted">
+                Oppuna is thinking
+              </Text>
+            </View>
+          ) : null
+        }
+        onContentSizeChange={() => scrollToEnd(false)}
+        onScroll={(e) => {
+          const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+          const distance =
+            contentSize.height - layoutMeasurement.height - contentOffset.y;
+          const nearBottom = distance < 80;
+          stickToBottomRef.current = nearBottom;
+          setUserScrolledUp(!nearBottom);
+        }}
+        scrollEventThrottle={16}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+        maintainVisibleContentPosition={
+          Platform.OS === 'ios' ? { minIndexForVisible: 0 } : undefined
+        }
+      />
 
-        {userScrolledUp ? (
+      {userScrolledUp ? (
+        <View style={styles.jumpLatestRow} pointerEvents="box-none">
           <PressableScale
             onPress={() => {
               stickToBottomRef.current = true;
@@ -507,41 +500,138 @@ export function ChatScreen(): React.ReactElement {
               Latest
             </Text>
           </PressableScale>
-        ) : null}
+        </View>
+      ) : null}
 
-        {suggestions.length > 0 ? (
-          <View
-            style={[
-              styles.suggestions,
-              { paddingHorizontal: theme.spacing.lg, gap: theme.spacing.sm },
-            ]}
-          >
-            {suggestions.map((s) => (
-              <Chip key={s} label={s} onPress={() => void handleSend(s)} />
-            ))}
+      {/* Hide suggestion chips while typing — reclaim space under tall IMEs. */}
+      {suggestions.length > 0 && !keyboardVisible ? (
+        <View
+          style={[
+            styles.suggestions,
+            { paddingHorizontal: theme.spacing.lg, gap: theme.spacing.sm },
+          ]}
+        >
+          {suggestions.map((s) => (
+            <Chip key={s} label={s} onPress={() => void handleSend(s)} />
+          ))}
+        </View>
+      ) : null}
+
+      <View
+        style={{
+          paddingHorizontal: theme.spacing.lg,
+          paddingTop: theme.spacing.sm,
+          paddingBottom: composerPadBottom,
+          backgroundColor: theme.colors.background,
+        }}
+      >
+        <ChatComposer
+          value={input}
+          onChangeText={setInput}
+          onSend={() => void handleSend(input)}
+          onCancel={() => void handleCancel()}
+          placeholder={t('chat.placeholder')}
+          sending={sending}
+        />
+      </View>
+    </>
+  );
+
+  return (
+    <View style={[styles.root, { backgroundColor: theme.colors.background, paddingTop: insets.top }]}>
+      <View
+        style={[
+          styles.header,
+          {
+            paddingHorizontal: theme.spacing.lg,
+            paddingTop: keyboardVisible ? 2 : 8,
+            paddingBottom: keyboardVisible ? theme.spacing.xs : theme.spacing.md,
+            borderBottomColor: theme.colors.border,
+            backgroundColor: theme.colors.background,
+          },
+        ]}
+      >
+        <View style={styles.headerBrand}>
+          <LivingLeaf
+            size={keyboardVisible ? 28 : 36}
+            variant={thinking ? 'thinking' : 'idle'}
+            showAura={false}
+          />
+          <View style={{ flex: 1, gap: keyboardVisible ? 0 : 4, marginLeft: theme.spacing.sm }}>
+            <Text
+              variant="title"
+              style={{
+                fontSize: keyboardVisible ? theme.fontSize.lg : theme.fontSize.xl,
+                fontWeight: '700',
+              }}
+            >
+              Oppuna
+            </Text>
+            {!keyboardVisible ? <StatusPill label={pill.label} tone={pill.tone} /> : null}
+          </View>
+        </View>
+        {!keyboardVisible ? (
+          <View style={{ flexDirection: 'row', gap: theme.spacing.md, alignItems: 'center' }}>
+            <PressableScale
+              onPress={() => navigation.navigate('VoiceMode')}
+              accessibilityRole="button"
+              accessibilityLabel="Voice mode"
+              style={[styles.headerBtn, { backgroundColor: theme.colors.surfaceInteractive }]}
+            >
+              <Icon name="mic" size={20} color={theme.colors.textMuted} />
+            </PressableScale>
+            <PressableScale
+              onPress={() => setConfirmClear(true)}
+              accessibilityRole="button"
+              accessibilityLabel={t('chat.clear')}
+              style={[styles.headerBtn, { backgroundColor: theme.colors.surfaceInteractive }]}
+            >
+              <Icon name="trash" size={20} color={theme.colors.textMuted} />
+            </PressableScale>
           </View>
         ) : null}
+      </View>
 
+      {showKannadaComingSoon && !keyboardVisible ? (
         <View
-          style={{
-            paddingHorizontal: theme.spacing.lg,
-            paddingTop: theme.spacing.sm,
-            paddingBottom:
-              Math.max(insets.bottom, theme.spacing.sm) +
-              (Platform.OS === 'android' ? androidKeyboardLift : 0),
-            backgroundColor: theme.colors.background,
-          }}
+          style={[
+            styles.langNotice,
+            {
+              marginHorizontal: theme.spacing.lg,
+              marginTop: theme.spacing.sm,
+              marginBottom: theme.spacing.xs,
+              paddingHorizontal: theme.spacing.md,
+              paddingVertical: theme.spacing.sm,
+              borderRadius: theme.radius.md,
+              backgroundColor: theme.colors.warningMuted,
+              borderColor: theme.colors.warning,
+            },
+          ]}
+          accessibilityRole="text"
         >
-          <ChatComposer
-            value={input}
-            onChangeText={setInput}
-            onSend={() => void handleSend(input)}
-            onCancel={() => void handleCancel()}
-            placeholder={t('chat.placeholder')}
-            sending={sending}
-          />
+          <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
+            {t('chat.kannadaComingSoon')}
+          </Text>
         </View>
-      </KeyboardAvoidingView>
+      ) : null}
+
+      {/*
+        Keyboard handling stays inside ChatScreen (not around Tab.Navigator).
+        Shared useAndroidKeyboardLift: Android IME lift + iOS KAV padding.
+      */}
+      {Platform.OS === 'ios' ? (
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior="padding"
+          keyboardVerticalOffset={insets.top}
+        >
+          {chatBody}
+        </KeyboardAvoidingView>
+      ) : (
+        <View style={[styles.flex, androidLift > 0 ? { paddingBottom: androidLift } : null]}>
+          {chatBody}
+        </View>
+      )}
 
       <ConfirmDialog
         visible={confirmClear}
@@ -564,7 +654,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingTop: 8,
   },
   headerBrand: { flex: 1, flexDirection: 'row', alignItems: 'center' },
   headerBtn: {
@@ -573,6 +662,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  langNotice: {
+    borderWidth: StyleSheet.hairlineWidth,
   },
   empty: {
     flex: 1,
@@ -598,10 +690,11 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
   },
   suggestions: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 },
+  jumpLatestRow: {
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   jumpLatest: {
-    position: 'absolute',
-    alignSelf: 'center',
-    bottom: 100,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 999,

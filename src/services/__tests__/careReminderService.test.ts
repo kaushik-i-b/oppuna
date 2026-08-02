@@ -1,7 +1,9 @@
 import {
   CARE_REMINDER_MESSAGES,
+  EVENING_REMINDER_MESSAGES,
   areCareRemindersSupported,
   pickCareReminderMessage,
+  pickEveningReminderMessage,
 } from '@/services/careReminderService';
 
 describe('careReminderService', () => {
@@ -13,8 +15,14 @@ describe('careReminderService', () => {
     expect(a).not.toEqual(b);
   });
 
+  it('provides evening check-in copy', () => {
+    const evening = pickEveningReminderMessage(new Date(2026, 0, 1));
+    expect(EVENING_REMINDER_MESSAGES).toContainEqual(evening);
+    expect(evening.title.toLowerCase()).toMatch(/how did today|evening|before you rest|soft close/);
+  });
+
   it('keeps reminder copy soft and non-clinical', () => {
-    for (const message of CARE_REMINDER_MESSAGES) {
+    for (const message of [...CARE_REMINDER_MESSAGES, ...EVENING_REMINDER_MESSAGES]) {
       expect(message.title.length).toBeGreaterThan(0);
       expect(message.body.length).toBeGreaterThan(10);
       expect(message.body.toLowerCase()).not.toMatch(/diagnos|therapy session|must|failed streak/);

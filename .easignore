@@ -11,6 +11,14 @@ dist/
 web-build/
 expo-env.d.ts
 
+# VCS / editor / huge local junk (must stay out of the 2 GB upload cap)
+.git/
+.cursor/
+agent-transcripts/
+tmp/
+tmp-*/
+*.log
+
 # native / secrets
 *.orig.*
 *.keystore
@@ -19,14 +27,16 @@ keystore-credentials.txt
 **/keystore-credentials.*
 **/signing-credentials.*
 **/*-upload-key.*
-release/*.apk
-release/*.aab
-release/*.keystore
-release/*.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
+
+# Local release outputs — never upload prior AAB/APK/APKS (multi-GB)
+release/
+**/*.apk
+**/*.aab
+**/*.apks
 
 # generated native projects (recreated by `expo prebuild` on EAS)
 /android/
@@ -54,7 +64,3 @@ coverage/
 
 # Keep other model sideload dirs out of the archive
 assets/models/
-
-# Agent / editor noise
-.cursor/
-agent-transcripts/

@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { Button, Chip, ConfirmDialog, Screen, Text, TextField } from '@/components';
+import { Button, Chip, ConfirmDialog, KeyboardSafeView, Screen, Text, TextField } from '@/components';
 import { useToast } from '@/components/feedback/ToastProvider';
 import { journalRepository } from '@/database';
 import { isJournalEntryValid } from '@/database/repositories/journalRepository';
@@ -100,9 +100,9 @@ export function JournalEditorScreen({ navigation, route }: Props): React.ReactEl
   }, [editingId, toast, t, navigation]);
 
   const insertPrompt = useCallback(() => {
-    const prompt = randomPrompt();
+    const prompt = kind === 'daily' ? t('journal.dailyPrompt') : randomPrompt();
     setBody((prev) => (prev ? `${prev}\n\n${prompt}\n` : `${prompt}\n`));
-  }, []);
+  }, [kind, t]);
 
   return (
     <>
@@ -123,15 +123,13 @@ export function JournalEditorScreen({ navigation, route }: Props): React.ReactEl
           ) : null
         }
       >
-        <KeyboardAvoidingView
-          style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
-        >
+        <KeyboardSafeView keyboardVerticalOffset={88}>
           <ScrollView
             style={styles.flex}
             contentContainerStyle={[styles.content, { padding: theme.spacing.lg }]}
             keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+            automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
             showsVerticalScrollIndicator={false}
           >
             {loaded ? (
@@ -227,7 +225,7 @@ export function JournalEditorScreen({ navigation, route }: Props): React.ReactEl
               <Button label={t('common.save')} onPress={() => void handleSave()} loading={saving} />
             </View>
           ) : null}
-        </KeyboardAvoidingView>
+        </KeyboardSafeView>
 
         <ConfirmDialog
           visible={confirmDelete}

@@ -18,6 +18,7 @@ export function LanguageScreen({ navigation, route }: Props): React.ReactElement
   const language = useSettingsStore((s) => s.language);
   const setLanguage = useSettingsStore((s) => s.setLanguage);
   const fromSettings = route.params?.fromSettings ?? false;
+  const selectedMeta = LANGUAGES.find((l) => l.code === language);
 
   return (
     <Screen
@@ -60,9 +61,12 @@ export function LanguageScreen({ navigation, route }: Props): React.ReactElement
                 },
               ]}
             >
-              <Text variant="bodyStrong" style={{ flex: 1 }}>
-                {lang.native}
-              </Text>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text variant="bodyStrong">{lang.native}</Text>
+                <Text variant="caption" color="textFaint">
+                  {lang.label}
+                </Text>
+              </View>
               {selected ? (
                 <Icon name="check" size={20} color={theme.colors.primary} />
               ) : null}
@@ -70,6 +74,16 @@ export function LanguageScreen({ navigation, route }: Props): React.ReactElement
           );
         })}
       </View>
+
+      {selectedMeta?.aiChatAvailable === false ? (
+        <Text
+          variant="caption"
+          color="textMuted"
+          style={{ marginTop: theme.spacing.md }}
+        >
+          {t('chat.kannadaComingSoon')}
+        </Text>
+      ) : null}
 
       {!fromSettings ? (
         <View style={{ marginTop: theme.spacing.xl }}>

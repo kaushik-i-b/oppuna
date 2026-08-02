@@ -107,6 +107,34 @@ const MIGRATIONS: ((db: SQLiteDatabase) => Promise<void>)[] = [
       );
     `);
   },
+  async (db) => {
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS wellness_plans (
+        id TEXT PRIMARY KEY NOT NULL,
+        date_key TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL DEFAULT '',
+        encouragement TEXT NOT NULL DEFAULT '',
+        explanation TEXT NOT NULL DEFAULT '',
+        estimated_minutes INTEGER NOT NULL DEFAULT 0,
+        activities_json TEXT NOT NULL DEFAULT '[]',
+        completed_json TEXT NOT NULL DEFAULT '[]',
+        context_json TEXT NOT NULL DEFAULT '{}',
+        created_at INTEGER NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_wellness_plans_date ON wellness_plans (date_key);
+
+      CREATE TABLE IF NOT EXISTS wellness_prefs (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        display_name TEXT NOT NULL DEFAULT '',
+        moods_json TEXT NOT NULL DEFAULT '[]',
+        goals_json TEXT NOT NULL DEFAULT '[]',
+        available_minutes INTEGER NOT NULL DEFAULT 15,
+        updated_at INTEGER NOT NULL
+      );
+      INSERT OR IGNORE INTO wellness_prefs (id, display_name, moods_json, goals_json, available_minutes, updated_at)
+        VALUES (1, '', '[]', '[]', 15, 0);
+    `);
+  },
 ];
 
 export async function runMigrations(db: SQLiteDatabase): Promise<void> {

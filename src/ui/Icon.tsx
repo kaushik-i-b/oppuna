@@ -10,6 +10,8 @@ export type OppunaIconName =
   | 'mood'
   | 'journal'
   | 'settings'
+  | 'plan'
+  | 'profile'
   | 'breathe'
   | 'ground'
   | 'sleep'
@@ -21,6 +23,8 @@ export type OppunaIconName =
   | 'trash'
   | 'send'
   | 'mic'
+  | 'play'
+  | 'pause'
   | 'back'
   | 'check'
   | 'close'
@@ -44,6 +48,8 @@ const MAP: Record<OppunaIconName, keyof typeof Ionicons.glyphMap> = {
   mood: 'happy-outline',
   journal: 'book-outline',
   settings: 'settings-outline',
+  plan: 'checkbox-outline',
+  profile: 'person-outline',
   breathe: 'leaf-outline',
   ground: 'scan-outline',
   sleep: 'moon-outline',
@@ -55,6 +61,8 @@ const MAP: Record<OppunaIconName, keyof typeof Ionicons.glyphMap> = {
   trash: 'trash-outline',
   send: 'arrow-up',
   mic: 'mic-outline',
+  play: 'play-outline',
+  pause: 'pause-outline',
   back: 'chevron-back',
   check: 'checkmark',
   close: 'close',
@@ -87,6 +95,11 @@ const FILLED: Partial<Record<OppunaIconName, keyof typeof Ionicons.glyphMap>> = 
   mood: 'happy',
   journal: 'book',
   settings: 'settings',
+  plan: 'checkbox',
+  profile: 'person',
+  mic: 'mic',
+  play: 'play',
+  pause: 'pause',
 };
 
 export function Icon({ name, size = 22, color, filled }: Props): React.ReactElement {

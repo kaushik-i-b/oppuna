@@ -8,7 +8,7 @@ const {
 
 describe('AAB artifact identity checks', () => {
   const expected = {
-    packageId: 'com.oppuna.app',
+    packageId: 'com.oppuna.care',
     versionCode: 5,
     versionName: '2.0.0',
     minTargetSdk: MIN_TARGET_SDK,
@@ -17,7 +17,7 @@ describe('AAB artifact identity checks', () => {
   function manifest(overrides = {}) {
     const versionCode = overrides.versionCode ?? 5;
     const versionName = overrides.versionName ?? '2.0.0';
-    const packageId = overrides.packageId ?? 'com.oppuna.app';
+    const packageId = overrides.packageId ?? 'com.oppuna.care';
     const targetSdk = overrides.targetSdk ?? 36;
     const allowBackup = overrides.allowBackup ?? 'false';
     const internet = overrides.internet ?? '';

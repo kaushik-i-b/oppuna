@@ -20,6 +20,12 @@ describe('SafetyEngine — crisis categories', () => {
   it('does not flag ordinary emotional distress as crisis', () => {
     expect(detectCrisis('I feel sad and anxious about work')).toBeNull();
   });
+
+  it('detects additional suicidal phrasings', () => {
+    expect(detectCrisis('I wish I was dead')).toBe('suicide');
+    expect(detectCrisis('I am thinking about killing myself')).toBe('suicide');
+    expect(detectCrisis('I want to end it all')).toBe('suicide');
+  });
 });
 
 describe('SafetyEngine intercepts before LLM inference', () => {

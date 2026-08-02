@@ -121,7 +121,7 @@ export function SelfCareScreen({ navigation }: Props): React.ReactElement {
       icon: 'mood',
       title: 'Log your mood',
       subtitle: 'Notice how today feels',
-      onPress: () => appNav.navigate('Main', { screen: 'Mood' }),
+      onPress: () => appNav.navigate('MoodCheckIn'),
     },
     {
       icon: 'insights',

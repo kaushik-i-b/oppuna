@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Oppuna — Private AI for your thoughts</title>
+    <meta
+      name="description"
+      content="Oppuna is a fully offline, privacy-first mental wellness companion. Journal, track moods, breathe, and chat with on-device AI. No account, no cloud, no tracking."
+    />
+    <meta name="theme-color" content="#3D6B5A" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,700&family=Outfit:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --sage: #3d6b5a;
+        --sage-deep: #2f5446;
+        --sage-soft: #dce8e2;
+        --bg: #f7f4ef;
+        --surface: #fffcf8;
+        --text: #1c2420;
+        --muted: #5a675f;
+        --line: rgba(28, 36, 32, 0.1);
+        --white: #ffffff;
+        --max: 1120px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        background: var(--bg);
+        font-family: "Outfit", system-ui, sans-serif;
+        font-size: 17px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      img,
+      svg {
+        display: block;
+        max-width: 100%;
+      }
+
+      .wrap {
+        width: min(100% - 40px, var(--max));
+        margin-inline: auto;
+      }
+
+      /* —— Nav —— */
+      .nav {
+        position: absolute;
+        inset: 0 0 auto;
+        z-index: 10;
+        padding: 22px 0;
+      }
+
+      .nav-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .nav-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--white);
+        font-family: "Fraunces", Georgia, serif;
+        font-weight: 650;
+        font-size: 1.2rem;
+        letter-spacing: 0.02em;
+      }
+
+      .nav-brand svg {
+        width: 28px;
+        height: 28px;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 0.92rem;
+        font-weight: 500;
+      }
+
+      .nav-links a:hover {
+        color: var(--white);
+      }
+
+      .nav-cta {
+        display: inline-flex;
+        align-items: center;
+        padding: 9px 16px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        color: var(--white);
+        transition: background 0.2s ease;
+      }
+
+      .nav-cta:hover {
+        background: rgba(255, 255, 255, 0.22);
+      }
+
+      /* —— Hero —— */
+      .hero {
+        position: relative;
+        min-height: 100vh;
+        min-height: 100svh;
+        display: flex;
+        align-items: flex-end;
+        overflow: hidden;
+        color: var(--white);
+        background:
+          radial-gradient(ellipse 80% 60% at 70% 20%, rgba(255, 255, 255, 0.12), transparent 55%),
+          radial-gradient(ellipse 50% 40% at 15% 80%, rgba(20, 50, 40, 0.35), transparent 50%),
+          linear-gradient(155deg, #4a8570 0%, var(--sage) 42%, var(--sage-deep) 100%);
+        padding: 120px 0 72px;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        pointer-events: none;
+      }
+
+      .hero-grid {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 48px;
+        align-items: end;
+        width: min(100% - 40px, var(--max));
+        margin-inline: auto;
+      }
+
+      .hero-copy {
+        max-width: 34rem;
+        animation: rise 0.9s ease both;
+      }
+
+      .hero h1 {
+        margin: 0 0 18px;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: clamp(3.4rem, 9vw, 5.6rem);
+        font-weight: 700;
+        line-height: 0.95;
+        letter-spacing: -0.03em;
+      }
+
+      .hero-tag {
+        margin: 0 0 14px;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: clamp(1.35rem, 3vw, 1.85rem);
+        font-weight: 500;
+        line-height: 1.25;
+        color: rgba(255, 255, 255, 0.95);
+      }
+
+      .hero-support {
+        margin: 0 0 32px;
+        max-width: 28rem;
+        font-size: 1.05rem;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 48px;
+        padding: 0 22px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.98rem;
+        border: 1px solid transparent;
+        transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn-primary {
+        background: var(--white);
+        color: var(--sage-deep);
+      }
+
+      .btn-primary:hover {
+        background: #f3f8f5;
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--white);
+        border-color: rgba(255, 255, 255, 0.35);
+      }
+
+      .btn-ghost:hover {
+        border-color: rgba(255, 255, 255, 0.7);
+      }
+
+      .hero-mark {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        animation: rise 1.05s 0.12s ease both;
+      }
+
+      .leaf-stage {
+        position: relative;
+        width: min(360px, 70vw);
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+      }
+
+      .leaf-aura {
+        position: absolute;
+        inset: 12%;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.22), transparent 68%);
+        animation: breathe 5.5s ease-in-out infinite;
+      }
+
+      .leaf {
+        width: 58%;
+        height: auto;
+        filter: drop-shadow(0 28px 40px rgba(20, 40, 32, 0.28));
+        animation: float 6.5s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotate(-2deg);
+        }
+        50% {
+          transform: translateY(-14px) rotate(2deg);
+        }
+      }
+
+      @keyframes breathe {
+        0%,
+        100% {
+          opacity: 0.55;
+          transform: scale(0.96);
+        }
+        50% {
+          opacity: 0.95;
+          transform: scale(1.04);
+        }
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(22px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .leaf,
+        .leaf-aura,
+        .hero-copy,
+        .hero-mark,
+        .reveal {
+          animation: none !important;
+        }
+      }
+
+      /* —— Sections —— */
+      section {
+        padding: 88px 0;
+      }
+
+      .section-label {
+        margin: 0 0 10px;
+        color: var(--sage);
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      h2 {
+        margin: 0 0 14px;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: clamp(2rem, 4vw, 2.75rem);
+        font-weight: 650;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+      }
+
+      .lede {
+        margin: 0;
+        max-width: 36rem;
+        color: var(--muted);
+        font-size: 1.08rem;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: 0.95fr 1.05fr;
+        gap: 48px;
+        align-items: start;
+      }
+
+      /* Features — list, not card grid clutter */
+      .feature-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .feature-list li {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        gap: 20px;
+        padding: 22px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .feature-list strong {
+        font-family: "Fraunces", Georgia, serif;
+        font-weight: 650;
+        font-size: 1.15rem;
+        line-height: 1.3;
+      }
+
+      .feature-list p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      /* Privacy band */
+      .privacy {
+        background:
+          radial-gradient(ellipse 70% 80% at 100% 0%, rgba(61, 107, 90, 0.12), transparent 50%),
+          linear-gradient(180deg, #eef4f0 0%, var(--bg) 100%);
+      }
+
+      .pillars {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        margin-top: 40px;
+      }
+
+      .pillar h3 {
+        margin: 0 0 8px;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.35rem;
+        font-weight: 650;
+      }
+
+      .pillar p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .pillar-rule {
+        width: 36px;
+        height: 2px;
+        background: var(--sage);
+        margin-bottom: 16px;
+      }
+
+      /* Steps */
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-top: 40px;
+        counter-reset: step;
+      }
+
+      .step {
+        position: relative;
+        padding-top: 8px;
+      }
+
+      .step::before {
+        counter-increment: step;
+        content: "0" counter(step);
+        display: block;
+        margin-bottom: 14px;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.1rem;
+        font-weight: 650;
+        color: var(--sage);
+      }
+
+      .step h3 {
+        margin: 0 0 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .step p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.98rem;
+      }
+
+      /* Download */
+      .download {
+        position: relative;
+        overflow: hidden;
+        color: var(--white);
+        background: linear-gradient(145deg, var(--sage) 0%, var(--sage-deep) 100%);
+        padding: 88px 0;
+      }
+
+      .download::after {
+        content: "";
+        position: absolute;
+        width: 420px;
+        height: 420px;
+        right: -80px;
+        bottom: -140px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.12), transparent 70%);
+        pointer-events: none;
+      }
+
+      .download .wrap {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 20px;
+        max-width: 640px;
+      }
+
+      .download h2 {
+        color: var(--white);
+      }
+
+      .download p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.84);
+        font-size: 1.08rem;
+      }
+
+      .download .btn-primary {
+        width: fit-content;
+        margin-top: 8px;
+      }
+
+      /* Footer */
+      footer {
+        padding: 48px 0 56px;
+        background: var(--surface);
+        border-top: 1px solid var(--line);
+      }
+
+      .footer-top {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 28px;
+      }
+
+      .footer-brand {
+        font-family: "Fraunces", Georgia, serif;
+        font-weight: 650;
+        font-size: 1.35rem;
+      }
+
+      .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .footer-links a:hover {
+        color: var(--sage);
+      }
+
+      .disclaimer {
+        margin: 0;
+        max-width: 52rem;
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.55;
+      }
+
+      .closing {
+        margin: 20px 0 0;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.05rem;
+        color: var(--sage-deep);
+      }
+
+      /* Reveal on scroll */
+      .reveal {
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 0.7s ease, transform 0.7s ease;
+      }
+
+      .reveal.is-in {
+        opacity: 1;
+        transform: none;
+      }
+
+      @media (max-width: 900px) {
+        .hero-grid,
+        .split,
+        .pillars,
+        .steps {
+          grid-template-columns: 1fr;
+        }
+
+        .feature-list li {
+          grid-template-columns: 1fr;
+          gap: 6px;
+        }
+
+        .nav-links a:not(.nav-cta) {
+          display: none;
+        }
+
+        .hero {
+          align-items: center;
+          padding-top: 110px;
+          padding-bottom: 56px;
+        }
+
+        .hero-mark {
+          order: -1;
+        }
+
+        .leaf-stage {
+          width: min(220px, 52vw);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="nav">
+      <div class="wrap nav-inner">
+        <a class="nav-brand" href="#top" aria-label="Oppuna home">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <path
+              d="M50 5 C 30 26, 20 52, 27 78 C 31 90, 42 95, 50 95 C 58 95, 69 90, 73 78 C 80 52, 70 26, 50 5 Z"
+              fill="#ffffff"
+            />
+          </svg>
+          Oppuna
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#features">Features</a>
+          <a href="#privacy">Privacy</a>
+          <a href="#how">How it works</a>
+          <a class="nav-cta" href="#download">Get the app</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-label="Oppuna">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <h1>Oppuna</h1>
+            <p class="hero-tag">Private AI for your thoughts</p>
+            <p class="hero-support">
+              Private mental wellness support, offline on your phone. No account.
+              No cloud. No tracking.
+            </p>
+            <div class="cta-row">
+              <a class="btn btn-primary" href="#download">Get the app</a>
+              <a class="btn btn-ghost" href="#privacy">Why offline</a>
+            </div>
+          </div>
+          <div class="hero-mark" aria-hidden="true">
+            <div class="leaf-stage">
+              <div class="leaf-aura"></div>
+              <svg class="leaf" viewBox="0 0 100 100" fill="none">
+                <defs>
+                  <linearGradient id="leafGrad" x1="30" y1="6" x2="70" y2="94" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="#ffffff" />
+                    <stop offset="1" stop-color="#e8f2ec" stop-opacity="0.9" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M50 5 C 30 26, 20 52, 27 78 C 31 90, 42 95, 50 95 C 58 95, 69 90, 73 78 C 80 52, 70 26, 50 5 Z"
+                  fill="url(#leafGrad)"
+                />
+                <g stroke="#3D6B5A" stroke-width="2.4" stroke-linecap="round" opacity="0.85" fill="none">
+                  <path d="M50 16 L50 88" />
+                  <path d="M50 34 C 42 36, 37 40, 34 47" />
+                  <path d="M50 34 C 58 36, 63 40, 66 47" />
+                  <path d="M50 50 C 43 52, 38 56, 36 63" />
+                  <path d="M50 50 C 57 52, 62 56, 64 63" />
+                  <path d="M50 66 C 45 68, 42 71, 41 76" />
+                  <path d="M50 66 C 55 68, 58 71, 59 76" />
+                </g>
+                <g fill="#3D6B5A">
+                  <path d="M50 4 C 46 9, 46 14, 50 18 C 54 14, 54 9, 50 4 Z" />
+                  <path d="M44 8 C 43 13, 45 17, 49 19 C 48 14, 47 10, 44 8 Z" opacity="0.75" />
+                  <path d="M56 8 C 57 13, 55 17, 51 19 C 52 14, 53 10, 56 8 Z" opacity="0.75" />
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="wrap split reveal">
+          <div>
+            <p class="section-label">Features</p>
+            <h2>A calm space that stays on your phone</h2>
+            <p class="lede">
+              Journal, track moods, breathe, and talk with an on-device companion —
+              all without an internet connection.
+            </p>
+          </div>
+          <ul class="feature-list">
+            <li>
+              <strong>Daily plan</strong>
+              <p>A gentle, personalized wellness plan shaped around your mood, goals, and time.</p>
+            </li>
+            <li>
+              <strong>Mood &amp; journal</strong>
+              <p>Log feelings, write freely, and review patterns — searchable, editable, deletable.</p>
+            </li>
+            <li>
+              <strong>Breathe &amp; ground</strong>
+              <p>Guided breathing, 5-4-3-2-1 grounding, and a soft sleep wind-down.</p>
+            </li>
+            <li>
+              <strong>On-device AI</strong>
+              <p>Chat with a local companion. Safety checks and guided fallbacks — no cloud.</p>
+            </li>
+            <li>
+              <strong>Your control</strong>
+              <p>App lock, export everything as JSON, or permanently delete all data.</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="privacy" class="privacy">
+        <div class="wrap reveal">
+          <p class="section-label">Privacy</p>
+          <h2>Privacy by architecture, not policy</h2>
+          <p class="lede">
+            Nothing you write, record, or track leaves your device. Oppuna blocks
+            outbound network access in production — there is no path to the cloud.
+          </p>
+          <div class="pillars">
+            <div class="pillar">
+              <div class="pillar-rule" aria-hidden="true"></div>
+              <h3>No account</h3>
+              <p>Open the app and begin. No sign-up, no email, no profile in the cloud.</p>
+            </div>
+            <div class="pillar">
+              <div class="pillar-rule" aria-hidden="true"></div>
+              <h3>No cloud</h3>
+              <p>On-device AI and local storage. Works in airplane mode, anywhere.</p>
+            </div>
+            <div class="pillar">
+              <div class="pillar-rule" aria-hidden="true"></div>
+              <h3>No tracking</h3>
+              <p>No ads, analytics, or telemetry. Your mind is not a product.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="how">
+        <div class="wrap reveal">
+          <p class="section-label">How it works</p>
+          <h2>Start gently. Stay private.</h2>
+          <p class="lede">
+            Thoughts, feelings, and small actions shape each other. Oppuna helps
+            you notice them — offline, at your pace.
+          </p>
+          <div class="steps">
+            <div class="step">
+              <h3>Choose your language</h3>
+              <p>Pick the language that feels most like home.</p>
+            </div>
+            <div class="step">
+              <h3>Shape a plan</h3>
+              <p>Share your mood, goals, and how much time you have today.</p>
+            </div>
+            <div class="step">
+              <h3>Understand privacy</h3>
+              <p>See how offline AI and local data keep everything yours.</p>
+            </div>
+            <div class="step">
+              <h3>Begin</h3>
+              <p>Journal, breathe, check in — or just sit with a quiet companion.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="download" class="download">
+        <div class="wrap reveal">
+          <p class="section-label" style="color: rgba(255, 255, 255, 0.7)">Download</p>
+          <h2>Peace of mind. On your terms. Offline.</h2>
+          <p>
+            A calm, private space to journal, track moods, and breathe. Fully offline.
+            Your data never leaves your phone.
+          </p>
+          <a class="btn btn-primary" href="#" id="store-link">Get Oppuna on Google Play</a>
+          <p style="font-size: 0.9rem; opacity: 0.75; margin-top: 4px">
+            Package: com.oppuna.care · Coming soon to more stores
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <div class="footer-top">
+          <div class="footer-brand">Oppuna</div>
+          <div class="footer-links">
+            <a href="index.html">Privacy policy</a>
+            <a href="#features">Features</a>
+            <a href="#download">Download</a>
+          </div>
+        </div>
+        <p class="disclaimer">
+          Oppuna is not a doctor, therapist, crisis service, or medical device. It does
+          not diagnose, treat, cure, prevent, or replace professional care. If you are
+          in danger or need immediate help, contact your local emergency services
+          right away.
+        </p>
+        <p class="closing">Built to work offline. No account, no cloud, no tracking.</p>
+      </div>
+    </footer>
+
+    <script>
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-in");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15 }
+      );
+      document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+    </script>
+  </body>
+</html>

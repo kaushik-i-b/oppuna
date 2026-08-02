@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StatusBar,
@@ -12,6 +11,7 @@ import {
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
 import { Header } from '@/components/ui/Header';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useTheme } from '@/theme/ThemeProvider';
 
 interface Props {
@@ -46,6 +46,8 @@ export function Screen({
       style={styles.flex}
       contentContainerStyle={[styles.scrollContent, padding, contentStyle]}
       keyboardShouldPersistTaps="handled"
+      keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
       showsVerticalScrollIndicator={false}
     >
       {children}
@@ -53,6 +55,9 @@ export function Screen({
   ) : (
     <View style={[styles.flex, padding, contentStyle]}>{children}</View>
   );
+
+  // When a header is shown, offset iOS KAV past status/header (~56 content + safe area handled by edges).
+  const iosOffset = title != null ? 64 : 8;
 
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={edges}>
@@ -62,13 +67,7 @@ export function Screen({
       />
       {title != null ? <Header title={title} onBack={onBack} right={headerRight} /> : null}
       {keyboardAvoiding ? (
-        <KeyboardAvoidingView
-          style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
-        >
-          {body}
-        </KeyboardAvoidingView>
+        <KeyboardSafeView keyboardVerticalOffset={iosOffset}>{body}</KeyboardSafeView>
       ) : (
         body
       )}

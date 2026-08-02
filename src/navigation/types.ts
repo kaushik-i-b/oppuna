@@ -4,15 +4,15 @@ import type { JournalKind, SafetyCategory } from '@/types';
 
 export type MainTabParamList = {
   Home: undefined;
-  Chat: undefined;
-  Mood: undefined;
+  Plan: undefined;
   Journal: undefined;
-  Settings: undefined;
+  Chat: undefined;
+  Profile: undefined;
 };
 
 export type RootStackParamList = {
   // Onboarding flow
-  Onboarding: undefined;
+  WellnessOnboarding: undefined;
   Language: { fromSettings?: boolean } | undefined;
   Privacy: { fromSettings?: boolean } | undefined;
 
@@ -21,6 +21,7 @@ export type RootStackParamList = {
 
   // Pushed feature screens
   VoiceMode: undefined;
+  MoodCheckIn: undefined;
   MoodHistory: undefined;
   Insights: undefined;
   JournalEditor: { id?: string; kind?: JournalKind } | undefined;
@@ -30,9 +31,9 @@ export type RootStackParamList = {
   SelfCare: undefined;
   DataExport: undefined;
   DeleteData: undefined;
+  EditProfile: undefined;
   Disclaimer: { fromSettings?: boolean } | undefined;
   Terms: undefined;
-  ThirdPartyLicenses: undefined;
   About: undefined;
   HowOppunaHelps: undefined;
   LocalAIDiagnostics: undefined;

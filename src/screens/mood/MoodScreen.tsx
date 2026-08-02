@@ -10,7 +10,7 @@ import { useSaveCelebration } from '@/hooks/useSaveCelebration';
 import { useTranslation } from '@/hooks/useTranslation';
 import { recordCareActivity } from '@/services/careRetentionService';
 import { useTheme } from '@/theme/ThemeProvider';
-import { CareHero, FadeInView, Icon, PressableScale, SectionLabel } from '@/ui';
+import { CareHero, FadeInView, Icon, MoodMark, PressableScale, SectionLabel } from '@/ui';
 import { logger } from '@/utils/logger';
 import type { MoodKey, MoodTag } from '@/types';
 
@@ -53,7 +53,7 @@ export function MoodScreen(): React.ReactElement {
       await celebrate({
         kind: 'mood',
         message: t('mood.saved'),
-        detail: `${moodMeta.emoji} ${moodMeta.label} · intensity ${intensity}/10`,
+        detail: `${moodMeta.label} · intensity ${intensity}/10`,
       });
       reset();
     } catch (error) {
@@ -70,6 +70,9 @@ export function MoodScreen(): React.ReactElement {
         title={t('mood.title')}
         scroll
         keyboardAvoiding
+        onBack={() => {
+          if (navigation.canGoBack()) navigation.goBack();
+        }}
         headerRight={
           <Pressable
             onPress={() => navigation.navigate('MoodHistory')}
@@ -191,9 +194,24 @@ export function MoodScreen(): React.ReactElement {
         </FadeInView>
 
         {mood ? (
-          <Text variant="caption" color="textFaint" center style={{ marginTop: theme.spacing.md }}>
-            {MOOD_BY_KEY[mood].emoji} {MOOD_BY_KEY[mood].label} · intensity {intensity}/10
-          </Text>
+          <View
+            style={{
+              marginTop: theme.spacing.md,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: theme.spacing.sm,
+            }}
+          >
+            <MoodMark
+              mood={mood}
+              size={18}
+              color={theme.colors[MOOD_BY_KEY[mood].colorKey]}
+            />
+            <Text variant="caption" color="textFaint">
+              {MOOD_BY_KEY[mood].label} · intensity {intensity}/10
+            </Text>
+          </View>
         ) : null}
       </Screen>
       {celebration}

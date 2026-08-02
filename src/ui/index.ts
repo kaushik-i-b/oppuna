@@ -1,5 +1,6 @@
 export { Icon, type OppunaIconName } from '@/ui/Icon';
 export { LivingLeaf, type LivingLeafVariant } from '@/ui/LivingLeaf';
+export { MoodMark } from '@/ui/MoodMark';
 export { StatusPill } from '@/ui/StatusPill';
 export { ChatComposer } from '@/ui/ChatComposer';
 export { PressableScale } from '@/ui/PressableScale';

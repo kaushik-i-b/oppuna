@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { AccessibilityInfo, Platform, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Platform, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -12,47 +13,48 @@ import Animated, {
 import { setAudioModeAsync, useAudioPlayer } from 'expo-audio';
 
 import { LivingLeaf } from '@/ui';
-import { Text } from '@/components/ui/Typography';
 import { APP } from '@/constants/app';
 import { logger } from '@/utils/logger';
 
-/**
- * Brand color that matches the native splash background in `app.json`
- * (`splash.backgroundColor`). Keeping it fixed makes the hand-off from the
- * OS splash screen to this in-app splash seamless in both light and dark mode.
- */
-const BRAND_BG = '#3D6B5A';
-const BRAND_FG = '#FFFFFF';
-const BRAND_FG_MUTED = 'rgba(255, 255, 255, 0.78)';
-const BRAND_GLOW = 'rgba(255, 255, 255, 0.12)';
+/** Matches native splash `backgroundColor` in app.json for a seamless handoff. */
+const BRAND = '#3D6B5A';
+const BRAND_DEEP = '#2F5446';
+const FG = '#FFFFFF';
 
-// Bundled offline ambient (~2.8s). Fully local — no network.
+const TITLE = 'Oppuna';
+const TAGLINE = 'Private AI for your thoughts';
+
 const SPLASH_AUDIO = require('../../assets/audio/splash.wav');
 
+/** Long enough for leaf + name + tagline to read before home. */
+export const SPLASH_DURATION_MS = 2600;
+
+const FONT = Platform.select({
+  ios: 'System',
+  android: 'sans-serif-medium',
+  default: 'System',
+});
+
 interface Props {
-  /** Show loading affordance while the app finishes bootstrapping. */
   loading?: boolean;
 }
 
 /**
- * Full-screen animated splash with soft offline ambient audio.
- * Introduces the Oppuna leaf while storage/model bootstrap completes.
+ * Calm brand splash: Soft Sage field, Living Leaf, wordmark.
+ * No particles, neon bloom, or fake-3D glass.
  */
 export function BrandSplash({ loading = true }: Props): React.ReactElement {
-  const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.82);
-  const textOpacity = useSharedValue(0);
-  const pulse = useSharedValue(1);
-  const glow = useSharedValue(0.35);
+  const enter = useSharedValue(0);
+  const breath = useSharedValue(1);
   const bar = useSharedValue(0.15);
 
   const player = useAudioPlayer(SPLASH_AUDIO);
 
   useEffect(() => {
     let cancelled = false;
-    let reduceMotion = false;
 
     const run = async (): Promise<void> => {
+      let reduceMotion = false;
       try {
         reduceMotion = await AccessibilityInfo.isReduceMotionEnabled();
       } catch {
@@ -61,49 +63,32 @@ export function BrandSplash({ loading = true }: Props): React.ReactElement {
       if (cancelled) return;
 
       if (reduceMotion) {
-        opacity.value = 1;
-        scale.value = 1;
-        textOpacity.value = 1;
-        pulse.value = 1;
-        glow.value = 0.5;
-        bar.value = withTiming(1, { duration: 1800 });
+        enter.value = 1;
+        breath.value = 1;
+        bar.value = withTiming(1, { duration: 1400 });
       } else {
-        opacity.value = withTiming(1, { duration: 550, easing: Easing.out(Easing.cubic) });
-        scale.value = withTiming(1, { duration: 780, easing: Easing.out(Easing.back(1.25)) });
-        textOpacity.value = withDelay(280, withTiming(1, { duration: 520 }));
-        pulse.value = withDelay(
-          700,
-          withRepeat(
-            withSequence(
-              withTiming(1.045, { duration: 1100, easing: Easing.inOut(Easing.sin) }),
-              withTiming(1, { duration: 1100, easing: Easing.inOut(Easing.sin) }),
-            ),
-            -1,
-            false,
-          ),
-        );
-        glow.value = withDelay(
+        enter.value = withTiming(1, { duration: 650, easing: Easing.out(Easing.cubic) });
+        breath.value = withDelay(
           500,
           withRepeat(
             withSequence(
-              withTiming(0.7, { duration: 1200, easing: Easing.inOut(Easing.sin) }),
-              withTiming(0.3, { duration: 1200, easing: Easing.inOut(Easing.sin) }),
+              withTiming(1.03, { duration: 1600, easing: Easing.inOut(Easing.sin) }),
+              withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.sin) }),
             ),
             -1,
             false,
           ),
         );
-        bar.value = withTiming(1, { duration: 2400, easing: Easing.out(Easing.cubic) });
+        bar.value = withTiming(1, { duration: 2000, easing: Easing.out(Easing.cubic) });
       }
 
-      // Soft ambient — local only. Fail quietly on web/unsupported devices.
       try {
         await setAudioModeAsync({
           playsInSilentMode: true,
           interruptionMode: Platform.OS === 'ios' ? 'mixWithOthers' : 'duckOthers',
         });
         if (cancelled) return;
-        player.volume = 0.62;
+        player.volume = 0.38;
         player.play();
       } catch (error) {
         logger.warn('Splash audio unavailable', { error: String(error) });
@@ -120,48 +105,53 @@ export function BrandSplash({ loading = true }: Props): React.ReactElement {
         // ignore
       }
     };
-    // player instance is stable enough for mount/unmount lifecycle
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const logoStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: scale.value * pulse.value }],
+  // Leaf + name + tagline fade in together (one composition, no staged leaf-only beat).
+  const markStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(enter.value, [0, 0.45, 1], [0, 1, 1]),
+    transform: [
+      { translateY: interpolate(enter.value, [0, 1], [10, 0]) },
+      { scale: interpolate(enter.value, [0, 1], [0.94, 1]) * breath.value },
+    ],
   }));
 
-  const glowStyle = useAnimatedStyle(() => ({
-    opacity: glow.value,
-    transform: [{ scale: 0.95 + glow.value * 0.2 }],
+  const titleStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(enter.value, [0, 0.45, 1], [0, 1, 1]),
+    transform: [{ translateY: interpolate(enter.value, [0, 1], [10, 0]) }],
   }));
 
-  const textStyle = useAnimatedStyle(() => ({ opacity: textOpacity.value }));
+  const taglineStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(enter.value, [0, 0.45, 1], [0, 1, 1]),
+    transform: [{ translateY: interpolate(enter.value, [0, 1], [10, 0]) }],
+  }));
 
   const barStyle = useAnimatedStyle(() => ({
-    width: `${Math.min(100, Math.max(8, bar.value * 100))}%`,
+    width: `${Math.min(100, Math.max(12, bar.value * 100))}%`,
     opacity: loading ? 0.9 : 0,
   }));
 
   return (
     <View style={styles.container} accessibilityLabel={`${APP.name} is starting`}>
-      <Animated.View style={[styles.glow, glowStyle]} />
+      <View style={styles.wash} />
 
-      <Animated.View style={[styles.logoWrap, logoStyle]}>
+      <Animated.View style={[styles.mark, markStyle]}>
         <LivingLeaf
-          size={140}
+          size={112}
           variant="greet"
-          color={BRAND_FG}
-          accentColor={BRAND_BG}
+          color={FG}
+          accentColor={BRAND_DEEP}
           showAura={false}
         />
       </Animated.View>
 
-      <Animated.View style={[styles.textWrap, textStyle]}>
-        <Text variant="display" center style={styles.name}>
-          {APP.name}
-        </Text>
-        <Text variant="body" center style={styles.tagline}>
-          {APP.tagline}
-        </Text>
+      <Animated.View style={titleStyle}>
+        <Text style={styles.title}>{TITLE}</Text>
+      </Animated.View>
+
+      <Animated.View style={taglineStyle}>
+        <Text style={styles.tagline}>{TAGLINE}</Text>
       </Animated.View>
 
       {loading ? (
@@ -178,32 +168,49 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: BRAND_BG,
-    padding: 32,
+    backgroundColor: BRAND,
+    paddingHorizontal: 40,
   },
-  glow: {
+  wash: {
     position: 'absolute',
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: BRAND_GLOW,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '45%',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
-  logoWrap: { marginBottom: 24, zIndex: 1 },
-  textWrap: { alignItems: 'center', gap: 8, maxWidth: 320, zIndex: 1 },
-  name: { color: BRAND_FG, letterSpacing: 1 },
-  tagline: { color: BRAND_FG_MUTED },
+  mark: {
+    marginBottom: 28,
+  },
+  title: {
+    fontFamily: FONT,
+    fontSize: 36,
+    fontWeight: '600',
+    letterSpacing: 0.8,
+    color: FG,
+    textAlign: 'center',
+  },
+  tagline: {
+    marginTop: 10,
+    fontFamily: FONT,
+    fontSize: 15,
+    fontWeight: '400',
+    letterSpacing: 0.15,
+    color: 'rgba(255,255,255,0.8)',
+    textAlign: 'center',
+  },
   progressTrack: {
     position: 'absolute',
     bottom: 56,
-    width: 120,
-    height: 3,
+    width: 88,
+    height: 2,
     borderRadius: 2,
-    backgroundColor: 'rgba(255,255,255,0.22)',
+    backgroundColor: 'rgba(255,255,255,0.18)',
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
     borderRadius: 2,
-    backgroundColor: BRAND_FG,
+    backgroundColor: FG,
   },
 });

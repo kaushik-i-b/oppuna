@@ -77,7 +77,7 @@ function loadLocalModelConfig() {
     sourceRepo: raw.sourceRepo,
     sourceFile: raw.sourceFile,
     sourceUrl: raw.sourceUrl ?? null,
-    packageId: raw.packageId ?? 'com.oppuna.app',
+    packageId: raw.packageId ?? 'com.oppuna.care',
     storageHeadroomBytes: raw.storageHeadroomBytes ?? 150 * 1024 * 1024,
     licenseId: raw.licenseId,
     licenseName: raw.licenseName ?? 'Apache License, Version 2.0',

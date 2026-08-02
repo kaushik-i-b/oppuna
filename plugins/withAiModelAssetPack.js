@@ -149,7 +149,7 @@ assetPack {
         'java',
         'com',
         'oppuna',
-        'app',
+        'care',
       );
       ensureDir(javaPackagePath);
 
@@ -166,7 +166,7 @@ assetPack {
 
       writeFileIfChanged(
         path.join(javaPackagePath, 'OppunaModelAssetPackage.kt'),
-        `package com.oppuna.app
+        `package com.oppuna.care
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule

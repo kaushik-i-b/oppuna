@@ -12,9 +12,9 @@ import { Icon, LivingLeaf } from '@/ui';
 type Props = NativeStackScreenProps<RootStackParamList, 'Privacy'>;
 
 const POINTS = [
-  'Works fully offline — no internet ever required.',
-  'No login, no cloud sync, no analytics, no tracking.',
-  'Your notes, moods, and chats stay only on this device.',
+  'Private by Design — no login, no cloud sync, no analytics, no tracking.',
+  'Offline AI — models and replies stay on this device.',
+  'Your journal, moods, and wellness plans stay yours on this phone.',
   'You can export or permanently delete your data anytime.',
 ];
 
