@@ -278,16 +278,6 @@ def build():
     )
     link = add_textbox(s, Inches(0.75), Inches(5.65), Inches(4.2), Inches(0.35), "https://oppuna.com", size=14, color=SAGE_SOFT)
     link_shape(link, "https://oppuna.com")
-    add_textbox(
-        s,
-        Inches(0.75),
-        Inches(6.85),
-        Inches(4.2),
-        Inches(0.35),
-        "ADILAKSHMI INFOTECH PRIVATE LIMITED",
-        size=10,
-        color=SAGE_SOFT,
-    )
     if home.exists():
         s.shapes.add_picture(str(home), Inches(6.55), Inches(0.55), height=Inches(6.4))
     add_notes(
