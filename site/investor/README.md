@@ -6,11 +6,11 @@ Hosted route (GitHub Pages / custom domain):
 
 | File | Purpose |
 |------|---------|
-| `Oppuna-Investor-Pitch-Deck.pptx` | Editable PowerPoint (16:9, 14 + 3 appendix) |
+| `Oppuna-Investor-Pitch-Deck.pptx` | Editable PowerPoint (16:9, 14 + 4 appendix) |
 | `Oppuna-Investor-Pitch-Deck.pdf` | PDF export |
 | `index.html` | Download + embedded PDF viewer |
 | `build_deck.py` | Regenerates the PPTX from brand assets |
-| `PLACEHOLDERS.md` | Unresolved fundraising / co-founder fields |
+| `PLACEHOLDERS.md` | Distribution notes (retention methodology, pricing hypothesis) |
 
 Regenerate:
 
