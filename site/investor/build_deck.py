@@ -218,16 +218,22 @@ def build():
     prs.slide_height = SLIDE_H
 
     icon = ASSETS / "icon.png"
-    # Prefer cleaner crops when present
-    splash = ASSETS / "screen_00_clean.jpg"
-    if not splash.exists():
-        splash = ASSETS / "screen_00.jpg"
-    home = ASSETS / "screen_02_clean.jpg"
+    # Current in-app screenshots (captured from running Oppuna web build of the Android app UI)
+    home = ASSETS / "app_home_phone.jpg"
     if not home.exists():
-        home = ASSETS / "screen_02.jpg"
-    journal = ASSETS / "screen_01_clean.jpg"
+        home = ASSETS / "app_home.jpg"
+    plan = ASSETS / "app_plan_phone.jpg"
+    if not plan.exists():
+        plan = ASSETS / "app_plan.jpg"
+    mood = ASSETS / "app_mood_phone.jpg"
+    if not mood.exists():
+        mood = ASSETS / "app_mood.jpg"
+    journal = ASSETS / "app_journal_editor_phone.jpg"
     if not journal.exists():
-        journal = ASSETS / "screen_01.jpg"
+        journal = ASSETS / "app_journal_phone.jpg"
+    chat = ASSETS / "app_chat_phone.jpg"
+    if not chat.exists():
+        chat = ASSETS / "app_chat.jpg"
     qr = ASSETS / "play-qr.png"
 
     # ═══════════════════════════════════════════════════════════
@@ -295,7 +301,7 @@ def build():
         "SOURCES\n"
         "- https://oppuna.com\n"
         "- Google Play: https://play.google.com/store/apps/details?id=com.oppuna.care\n"
-        "- Cover screenshot: official Google Play listing creative, Aug 2026.",
+        "- Cover screenshot: captured from the current Oppuna application UI (running build), Aug 2026.",
     )
 
     # ═══════════════════════════════════════════════════════════
@@ -490,30 +496,30 @@ def build():
     )
 
     # ═══════════════════════════════════════════════════════════
-    # 6 Product journey (3 steps — only 3 genuine screenshots available)
+    # 6 Product journey (5 current in-app screenshots)
     # ═══════════════════════════════════════════════════════════
     s = new_slide(prs)
     title_block(s, "One private space for the practices that build consistency.")
     steps = [
-        ("1. Open a private space", splash, "No account. Begin on the device."),
-        ("2. Check in and follow today’s care", home, "Mood, plan, talk, small actions."),
-        ("3. Journal and keep it local", journal, "Thoughts stay on this device."),
+        ("1. Check in", mood, "Mood on this device"),
+        ("2. Daily plan", plan, "Small structured steps"),
+        ("3. Journal", journal, "Thoughts stay local"),
+        ("4. Talk", chat, "On-device companion"),
+        ("5. Return home", home, "Observe patterns"),
     ]
     for i, (label, img, caption) in enumerate(steps):
-        left = MARGIN_L + Inches(i * 4.15)
-        add_textbox(s, left, Inches(1.5), Inches(3.9), Inches(0.4), label, size=15, color=SAGE_DEEP, bold=True)
+        left = MARGIN_L + Inches(i * 2.48)
+        add_textbox(s, left, Inches(1.48), Inches(2.35), Inches(0.4), label, size=13, color=SAGE_DEEP, bold=True, align=PP_ALIGN.CENTER)
         if img.exists():
-            s.shapes.add_picture(str(img), left + Inches(0.55), Inches(2.0), height=Inches(4.2))
-        add_textbox(s, left, Inches(6.35), Inches(3.9), Inches(0.4), caption, size=13, color=MUTED, align=PP_ALIGN.CENTER)
+            s.shapes.add_picture(str(img), left + Inches(0.2), Inches(1.95), height=Inches(4.35))
+        add_textbox(s, left, Inches(6.4), Inches(2.35), Inches(0.35), caption, size=12, color=MUTED, align=PP_ALIGN.CENTER)
     footer(s, "06")
     add_notes(
         s,
         "SPEAKER (~40s)\n"
-        "Walk the realistic journey with only verified screenshots from the Google Play listing. "
-        "Full journey in words: mood check-in → structured exercise or daily plan → journal / thought record / breathe / ground / talk → small next action → return to observe patterns.\n"
-        "Only three official listing screenshots were available; steps match those assets rather than fabricating screens.\n\n"
+        "Walk the realistic journey with current in-app screenshots: mood check-in → daily plan → journal / thought record → talk with companion → return home to observe patterns.\n\n"
         "SOURCES\n"
-        "- Screenshots: Google Play listing creatives for com.oppuna.care, Aug 2026\n"
+        "- Screenshots: captured from the current Oppuna application UI (running build), Aug 2026\n"
         "- Journey capabilities: https://oppuna.com",
     )
 
