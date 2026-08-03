@@ -43,7 +43,7 @@ Only advertise **Confirmed** items below.
 - Tagline: Private AI for your thoughts  
 - Sage: `#3D6B5A`, `#2F5446`, `#DCE8E2`, `#F7F4EF`, `#FFFCF8`, `#1C2420`  
 - Assets: `assets/icon.png`, `splash-icon.png`, `feature-image.png`  
-- Phone screenshots: not in repo — site uses authentic splash mark in a phone frame  
+- Phone screenshots: `assets/play-store/screenshots/` (10 branded Play Store mockups + taglines)  
 
 ## Crisis numbers on site (India, government sources)
 
@@ -65,4 +65,5 @@ Only advertise **Confirmed** items below.
 - [x] Canonical production domain: `https://oppuna.com`
 - [ ] Optional social profiles  
 - [ ] Legal review of web Privacy/Terms  
-- [ ] Real phone UI screenshots when available  
+- [x] Play Store screenshot set with taglines (`assets/play-store/screenshots/`)  
+- [ ] Optional: replace mockups with live device captures for non-secure screens  
