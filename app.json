@@ -2,7 +2,7 @@
   "expo": {
     "name": "Oppuna",
     "slug": "oppuna",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "oppuna",
@@ -26,7 +26,7 @@
     },
     "android": {
       "package": "com.oppuna.care",
-      "versionCode": 7,
+      "versionCode": 9,
       "allowBackup": false,
       "softwareKeyboardLayoutMode": "resize",
       "userInterfaceStyle": "automatic",

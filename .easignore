@@ -64,3 +64,7 @@ coverage/
 
 # Keep other model sideload dirs out of the archive
 assets/models/
+
+# Marketing site (separate Next.js app) — not part of the Android AAB
+website/
+website/**

@@ -11,6 +11,8 @@ module.exports = [
       'web-build/**',
       'coverage/**',
       'android/**',
+      'ios/**',
+      'website/**',
       'scripts/**',
       'plugins/**',
       'babel.config.js',

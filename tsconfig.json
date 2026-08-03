@@ -21,6 +21,9 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "website",
+    "android",
+    "ios"
   ]
 }
