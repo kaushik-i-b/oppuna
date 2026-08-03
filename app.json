@@ -107,7 +107,7 @@
         "modelFile": "model.gguf"
       },
       "eas": {
-        "projectId": "0e59d96f-8d41-4a4d-98d2-9e6d26dbadef"
+        "projectId": "3eedb5a0-8cdf-42ee-b4e0-c3402de4fa37"
       }
     },
     "owner": "oppuna",
@@ -115,7 +115,7 @@
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/0e59d96f-8d41-4a4d-98d2-9e6d26dbadef"
+      "url": "https://u.expo.dev/3eedb5a0-8cdf-42ee-b4e0-c3402de4fa37"
     }
   }
 }
