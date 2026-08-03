@@ -56,6 +56,15 @@ jobs:
           if [ -f site/pitch-deck.html ]; then
             cp site/pitch-deck.html _site/pitch-deck.html
           fi
+          if [ -d site/investor ]; then
+            # Static investor-deck route — does not alter marketing website pages
+            mkdir -p _site/investor/assets
+            cp site/investor/index.html \
+               site/investor/Oppuna-Investor-Pitch-Deck.pptx \
+               site/investor/Oppuna-Investor-Pitch-Deck.pdf \
+               _site/investor/
+            cp site/investor/assets/* _site/investor/assets/ 2>/dev/null || true
+          fi
           if [ -f site/favicon.svg ] && [ ! -f _site/favicon.svg ]; then
             cp site/favicon.svg _site/favicon.svg
           fi
