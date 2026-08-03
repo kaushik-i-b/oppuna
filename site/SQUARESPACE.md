@@ -137,7 +137,7 @@ A calm, private space to journal, track moods, and breathe. Fully offline. Your 
 
 **Button**  
 Get Oppuna on Google Play  
-*(paste store URL when live; package `com.oppuna.care`)*
+URL: `https://play.google.com/store/apps/details?id=com.oppuna.care`
 
 ---
 

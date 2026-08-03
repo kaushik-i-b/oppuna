@@ -85,6 +85,26 @@ Oppuna is not a doctor, therapist, crisis service, or medical device. It does no
 
 Peace of mind. On your terms. Offline.
 
+## Play Store phone screenshots (1080×1920)
+
+Branded marketing mockups live in `assets/play-store/screenshots/`.
+Regenerate with `python3 scripts/generate-play-store-screenshots.py`.
+
+| # | File | Tagline | Supporting line |
+| --- | --- | --- | --- |
+| 1 | `01-private-ai.png` | Private AI for your thoughts | Mental wellness support that lives only on your phone |
+| 2 | `02-fully-offline.png` | Works fully offline | Airplane mode. Full companion. Zero cloud. |
+| 3 | `03-ai-companion.png` | On-device AI companion | Chat processed locally — nothing is uploaded |
+| 4 | `04-mood-tracker.png` | Track your mood privately | Check-ins, tags, and trends — stored on device |
+| 5 | `05-journal.png` | A journal only you can read | Daily, gratitude, and thought records stay local |
+| 6 | `06-breathing.png` | Breathe your way back to calm | Guided 4-4-6, box breathing, and calm sessions |
+| 7 | `07-grounding.png` | Ground yourself in the moment | A guided 5-4-3-2-1 senses exercise |
+| 8 | `08-sleep.png` | Wind down without the noise | Gentle sleep checklist and spoken wind-down |
+| 9 | `09-daily-plan.png` | A daily plan at your pace | Personalized offline activities and progress |
+| 10 | `10-no-tracking.png` | No accounts. No tracking. | Privacy by architecture — not just a policy |
+
+Upload in this order in Play Console. See `assets/play-store/screenshots/TAGLINES.md`.
+
 ## Keywords
 wellness, mental health, offline, journal, mood tracker, breathing, mindfulness, private, anxiety, calm, self-care, grounding, sleep
 
