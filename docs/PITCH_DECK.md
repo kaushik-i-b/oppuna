@@ -12,22 +12,22 @@
 2. Problem and India context  
 3. Founder story and CBT insight  
 4. Solution  
-5. Available today  
+5. Available today (iOS App Store status stated once here)  
 6. Safety and privacy  
 7. Professional discovery and traction  
 8. Market and initial customer  
-9. Business model — Free / Premium / Verified Care Marketplace  
-10. Professional consultations — sustainable economics  
+9. Business model — Consumer Premium · Professional care · Marketplace  
+10. Professional consultations — launch model + Oppuna Care (under evaluation)  
 11. Go-to-market  
 12. Competition  
 13. Team  
 14. Use of funds — $750K allocation  
-15. What this round is intended to prove (0–6 / 7–12 / 13–18)  
+15. What this round is intended to prove  
 16. Raising $750K (terms under discussion)
 
 ### Appendix
 
-CBT framework · Product roadmap · Consultation unit economics · Crisis routing · App size · Illustrative Premium revenue · Sources · Verified Care Marketplace · Competition evidence  
+CBT · Roadmap · Professional-care unit economics · Crisis routing · App size · Illustrative Premium revenue · Sources · Verified Care Marketplace · Competition evidence  
 
 ## Guardrails
 
@@ -35,3 +35,4 @@ CBT framework · Product roadmap · Consultation unit economics · Crisis routin
 - Not an AI therapist; no CBT/psychotherapy delivery claims  
 - Discovery ≠ clinical validation  
 - Marketplace partners not claimed until documented agreements exist  
+- Care Plus and detailed provider-cost arithmetic are appendix-only / removed from core  
