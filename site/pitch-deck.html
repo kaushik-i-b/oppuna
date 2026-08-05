@@ -76,44 +76,118 @@
 
     @media (prefers-reduced-motion: reduce) {
       .slide { animation: none; }
-  
+      .progress { transition: none; }
+      .nav button { transition: none; }
+    }
+
     .stat-hero {
-      font-size: clamp(2.6rem, 6vw, 3.4rem);
+      font-size: clamp(4rem, 9vw, 5rem);
       font-weight: 800;
       color: var(--primary-light);
-      line-height: 1;
+      line-height: 0.95;
+      letter-spacing: -2px;
     }
     .slide-content:not(.dark) .stat-hero { color: var(--primary); }
 
-    .fund-phrases {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 10px;
+    .stat-secondary {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--primary-light);
+      line-height: 1.1;
     }
-    .fund-phrases .card { padding: 12px 14px; }
-    .fund-phrases .card h3 {
-      font-size: 0.84rem;
+    .slide-content:not(.dark) .stat-secondary { color: var(--primary); }
+
+    .traction-layout {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 16px;
+      align-items: stretch;
+      margin-top: 4px;
+    }
+
+    .traction-primary {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 280px;
+      padding: 28px 24px;
+    }
+
+    .traction-secondary {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .measuring-next {
+      opacity: 0.88;
+    }
+    .measuring-next h3 {
+      font-size: 0.88rem;
+      margin-bottom: 6px;
+      opacity: 0.9;
+    }
+    .measuring-next p,
+    .measuring-next ul {
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--dark-card-text);
+    }
+    .measuring-next ul {
+      list-style: none;
+    }
+    .measuring-next ul li {
+      padding-left: 12px;
+      position: relative;
       margin-bottom: 4px;
     }
-    .fund-phrases .card p {
-      font-size: 0.8rem;
-      line-height: 1.35;
-      color: var(--text-muted);
+    .measuring-next ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      opacity: 0.7;
     }
-    .slide-content.dark .fund-phrases .card p { color: var(--dark-card-text); }
 
-    .slide-compact {
-      justify-content: center;
-      overflow: hidden;
-    }
     .slide-content.dark .timeline-item ul,
     .slide-content.dark .timeline-item p {
       color: var(--dark-card-text);
     }
 
-    .progress { transition: none; }
-      .nav button { transition: none; }
+    /* Use of Funds: fit full table; no internal scroll / clip */
+    .slide.slide-funds {
+      justify-content: center;
+      overflow: visible !important;
+      overflow-y: visible !important;
+      max-height: none;
+      height: auto;
+    }
+    .slide-funds .funds-table {
+      width: 100%;
+      min-width: 0;
+      margin-top: 4px;
+      font-size: 0.95rem;
+    }
+    .slide-funds .funds-table th,
+    .slide-funds .funds-table td {
+      padding: 8px 12px;
+    }
+    .slide-funds .subtitle {
+      margin-bottom: 10px;
+    }
+    .slide-funds .alloc-bar {
+      margin: 12px 0 8px;
+    }
+    .slide-funds h2 {
+      margin-bottom: 4px;
+    }
+    .slide-funds > .source-note {
+      margin-top: 4px;
     }
 
     .slide-title {
@@ -855,6 +929,18 @@
         padding-top: 52px;
       }
       .slide-compact { overflow: auto; }
+      .slide.slide-funds {
+        overflow: visible !important;
+        overflow-y: visible !important;
+      }
+
+      .traction-layout {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .traction-primary { min-height: auto; padding: 20px 16px; }
+      .stat-hero { font-size: clamp(3.25rem, 14vw, 4.5rem); }
+      .stat-secondary { font-size: 1.85rem; }
 
       .slide-title {
         justify-content: center;
@@ -894,8 +980,7 @@
       .product-layout,
       .shot-row,
       .price-grid,
-      .fund-grid,
-      .fund-phrases {
+      .fund-grid {
         grid-template-columns: 1fr;
         display: grid;
         gap: 12px;
@@ -1077,7 +1162,7 @@
       <div>
         <div class="card" style="text-align:center; margin-bottom:12px;">
           <div class="stat-value">197.3M</div>
-          <div class="stat-label">People in India estimated to be living with mental disorders (2017)—need context, not Oppuna TAM</div>
+          <div class="stat-label">Estimated mental-disorder burden in India (2017)—public-health context, not commercial TAM</div>
         </div>
         <div class="card" style="text-align:center;">
           <div class="stat-value">Treatment gaps</div>
@@ -1209,23 +1294,28 @@
     <span class="slide-number"></span>
     <p class="eyebrow">Traction</p>
     <h2>Early launch signal and professional discovery</h2>
-    <div class="grid-2" style="align-items:stretch;">
-      <div class="card" style="text-align:center; display:flex; flex-direction:column; justify-content:center;">
+    <div class="traction-layout">
+      <div class="card traction-primary">
         <div class="stat-hero">100+</div>
-        <div class="stat-label" style="margin-top:10px; font-size:1.05rem;">Android downloads within the first three days of public launch</div>
-        <p class="source-note" style="margin-top:12px;">Source: Google Play Console. Downloads—not active, retained or paying users.</p>
+        <div class="stat-label" style="margin-top:14px; font-size:1.12rem; line-height:1.35;">Android downloads within the first three days of public launch</div>
+        <p class="source-note" style="margin-top:14px;">Google Play Console · Downloads, not retained users</p>
       </div>
-      <div>
-        <div class="card" style="text-align:center; margin-bottom:12px;">
-          <div class="stat-value">11</div>
-          <div class="stat-label">Psychiatrists interviewed</div>
+      <div class="traction-secondary">
+        <div class="card" style="text-align:center; padding:18px;">
+          <div class="stat-secondary">11</div>
+          <div class="stat-label" style="margin-top:6px;">Psychiatrists interviewed</div>
           <p class="source-note" style="margin-top:8px;">Qualitative early product discovery—not clinical validation or endorsement.</p>
         </div>
-        <div class="card">
+        <div class="card measuring-next">
           <h3>Measuring next</h3>
-          <p style="margin-top:8px; line-height:1.65; font-size:0.92rem;">
-            Onboarding completion · First journal or AI-reflection completion · D7 / D30 retention · Weekly journaling frequency · Repeat AI-reflection usage · Premium willingness to pay
-          </p>
+          <ul>
+            <li>Onboarding completion</li>
+            <li>First journal or AI-reflection completion</li>
+            <li>D7/D30 retention</li>
+            <li>Weekly journaling frequency</li>
+            <li>Repeat AI-reflection usage</li>
+            <li>Premium willingness to pay</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -1415,12 +1505,12 @@
   </section>
 
   <!-- 13. Use of funds -->
-  <section class="slide slide-content dark slide-compact" data-slide="13" data-section="core" aria-label="Use of funds">
+  <section class="slide slide-content dark slide-funds" data-slide="13" data-section="core" aria-label="Use of funds">
     <span class="slide-number"></span>
     <p class="eyebrow">Use of funds</p>
     <h2>$750K to prove trusted and repeatable growth</h2>
     <p class="subtitle">Approximately 18 months of runway.</p>
-    <div class="table-wrap"><table>
+    <table class="funds-table">
       <thead>
         <tr><th>Investment area</th><th>Allocation</th><th>Percentage</th></tr>
       </thead>
@@ -1433,16 +1523,9 @@
         <tr><td>Contingency reserve</td><td>$60K</td><td>8%</td></tr>
         <tr><td><strong>Total</strong></td><td><strong>$750K</strong></td><td><strong>100%</strong></td></tr>
       </tbody>
-    </table></div>
+    </table>
     <div class="alloc-bar" aria-hidden="true"><span class="g"></span><span class="p"></span><span class="c"></span><span class="l"></span><span class="o"></span><span class="r"></span></div>
-    <div class="fund-phrases">
-      <div class="card"><h3>Growth — $240K</h3><p>Acquisition, content, professional channels and ASO</p></div>
-      <div class="card"><h3>Product — $120K</h3><p>Smaller models, reliability, privacy and safety</p></div>
-      <div class="card"><h3>Clinical — $105K</h3><p>Paid advisors, structured reviews and safety testing</p></div>
-      <div class="card"><h3>Legal — $105K</h3><p>Company, privacy, provider and marketplace readiness</p></div>
-      <div class="card"><h3>Operations — $120K</h3><p>Founder runway and specialist support</p></div>
-      <div class="card"><h3>Reserve — $60K</h3><p>Compliance, platform and safety contingencies</p></div>
-    </div>
+    <p class="source-note">Detailed allocation rationale is available in the appendix.</p>
   </section>
 
   <!-- 14. Proposed targets -->
