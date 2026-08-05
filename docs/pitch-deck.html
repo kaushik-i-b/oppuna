@@ -76,7 +76,43 @@
 
     @media (prefers-reduced-motion: reduce) {
       .slide { animation: none; }
-      .progress { transition: none; }
+  
+    .stat-hero {
+      font-size: clamp(2.6rem, 6vw, 3.4rem);
+      font-weight: 800;
+      color: var(--primary-light);
+      line-height: 1;
+    }
+    .slide-content:not(.dark) .stat-hero { color: var(--primary); }
+
+    .fund-phrases {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .fund-phrases .card { padding: 12px 14px; }
+    .fund-phrases .card h3 {
+      font-size: 0.84rem;
+      margin-bottom: 4px;
+    }
+    .fund-phrases .card p {
+      font-size: 0.8rem;
+      line-height: 1.35;
+      color: var(--text-muted);
+    }
+    .slide-content.dark .fund-phrases .card p { color: var(--dark-card-text); }
+
+    .slide-compact {
+      justify-content: center;
+      overflow: hidden;
+    }
+    .slide-content.dark .timeline-item ul,
+    .slide-content.dark .timeline-item p {
+      color: var(--dark-card-text);
+    }
+
+    .progress { transition: none; }
       .nav button { transition: none; }
     }
 
@@ -818,6 +854,7 @@
         justify-content: flex-start;
         padding-top: 52px;
       }
+      .slide-compact { overflow: auto; }
 
       .slide-title {
         justify-content: center;
@@ -857,7 +894,8 @@
       .product-layout,
       .shot-row,
       .price-grid,
-      .fund-grid {
+      .fund-grid,
+      .fund-phrases {
         grid-template-columns: 1fr;
         display: grid;
         gap: 12px;
@@ -1113,7 +1151,7 @@
     <span class="slide-number"></span>
     <p class="eyebrow">Product</p>
     <h2>Available today</h2>
-    <p class="subtitle">Confirmed capabilities in the current Android app—not a roadmap list.</p>
+    <p class="subtitle">Shipping today on Android.</p>
     <div class="product-layout">
       <div>
         <div class="grid-4">
@@ -1126,7 +1164,7 @@
           <div class="card"><h3>Export &amp; delete</h3><p>User-controlled data portability and wipe</p></div>
           <div class="card"><h3>Android + on-device AI</h3><p>Optional local Qwen model via llama.rn</p></div>
         </div>
-        <p class="source-note" style="margin-top:12px;">iOS: submitted, currently in App Store review</p>
+        <p class="source-note" style="margin-top:12px;">iOS application submitted and currently under App Store review.</p>
       </div>
       <div class="shot-row" aria-label="App screenshots">
         <img src="https://oppuna.com/pitch-assets/03-ai-companion.png" alt="Oppuna AI companion screen" width="360" height="640" loading="lazy">
@@ -1160,68 +1198,79 @@
             Source: <a href="https://telemanas.mohfw.gov.in/" target="_blank" rel="noopener noreferrer">telemanas.mohfw.gov.in</a>
           </p>
         </div>
-        <div class="boundary">Next step: formal professional review of escalation language, thresholds and safety test scenarios.</div>
+        <div class="boundary">Next: formal professional review of escalation language, thresholds and safety scenarios.</div>
       </div>
     </div>
-    <p class="source-note">Described as crisis-language pattern routing—not clinical crisis detection.</p>
+    <p class="source-note">Crisis-language pattern routing—not clinical crisis detection.</p>
   </section>
 
-  <!-- 7. Professional discovery and traction -->
-  <section class="slide slide-content dark" data-slide="7" data-section="core" aria-label="Professional discovery and traction">
+  <!-- 7. Traction -->
+  <section class="slide slide-content dark" data-slide="7" data-section="core" aria-label="Traction">
     <span class="slide-number"></span>
     <p class="eyebrow">Traction</p>
-    <h2>Early professional signal and a working product</h2>
-    <div class="grid-2">
-      <div>
-        <div class="card" style="text-align:center; margin-bottom:14px;">
-          <div class="stat-value">11</div>
-          <div class="stat-label">Psychiatrists interviewed during early product discovery</div>
-        </div>
-        <ul class="bullets" style="font-size:1rem;">
-          <li>Recurring feedback highlighted structured journaling, identifying lifestyle patterns and arriving better prepared for consultations</li>
-          <li>Working Android product with journaling, AI-assisted conversations, wellness tools and privacy controls</li>
-          <li>Production build and privacy pages available</li>
-        </ul>
+    <h2>Early launch signal and professional discovery</h2>
+    <div class="grid-2" style="align-items:stretch;">
+      <div class="card" style="text-align:center; display:flex; flex-direction:column; justify-content:center;">
+        <div class="stat-hero">100+</div>
+        <div class="stat-label" style="margin-top:10px; font-size:1.05rem;">Android downloads within the first three days of public launch</div>
+        <p class="source-note" style="margin-top:12px;">Source: Google Play Console. Downloads—not active, retained or paying users.</p>
       </div>
-      <div class="card" style="display:flex; flex-direction:column; justify-content:center;">
-        <h3>What this is</h3>
-        <p style="margin-top:10px; font-size:1.02rem; line-height:1.6;">Qualitative discovery feedback—not clinical validation.</p>
-        <p style="margin-top:14px; line-height:1.6;">Oppuna has not been approved, certified or endorsed by these psychiatrists. Interview findings are directional input for product design.</p>
+      <div>
+        <div class="card" style="text-align:center; margin-bottom:12px;">
+          <div class="stat-value">11</div>
+          <div class="stat-label">Psychiatrists interviewed</div>
+          <p class="source-note" style="margin-top:8px;">Qualitative early product discovery—not clinical validation or endorsement.</p>
+        </div>
+        <div class="card">
+          <h3>Measuring next</h3>
+          <p style="margin-top:8px; line-height:1.65; font-size:0.92rem;">
+            Onboarding completion · First journal or AI-reflection completion · D7 / D30 retention · Weekly journaling frequency · Repeat AI-reflection usage · Premium willingness to pay
+          </p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 8. Market and initial customer -->
-  <!--
-    Bottom-up market model still requires before investor distribution:
-    - Confirmed customer segment
-    - Final digital-only subscription price
-    - Paid-conversion assumption
-    - Acquisition-cost assumption
-    - Professional consultation economics
-    - Institutional contract value
-  -->
+  <!-- 8. Market -->
   <section class="slide slide-content" data-slide="8" data-section="core" aria-label="Market and initial customer">
     <span class="slide-number"></span>
     <p class="eyebrow">Market</p>
     <h2>Start with people already seeking continuity around care</h2>
-    <p class="subtitle">Digitally active adults in India who are using, considering or returning from professional mental-health support and want private reflection between consultations.</p>
-    <div class="grid-2">
+    <p class="subtitle">Oppuna’s initial customer is a digitally active adult in India who is using, considering or returning from professional mental-health support and wants a private place to reflect between consultations.</p>
+    <div class="grid-3">
       <div class="card">
-        <h3>Initial customer</h3>
-        <p style="margin-top:8px; line-height:1.6;">People already close to professional care who need a private between-session layer—not a disease-burden total treated as commercial TAM.</p>
+        <h3>Beachhead customer</h3>
+        <p style="margin-top:8px; line-height:1.55;">
+          Aware of mental wellness<br>
+          Android or iOS smartphone<br>
+          Journals, seeks care or structured reflection<br>
+          Values privacy and on-device processing<br>
+          Reachable via stores, professionals, communities or institutions
+        </p>
       </div>
       <div class="card">
-        <h3>Expansion path</h3>
-        <p style="margin-top:8px; line-height:1.7;">
-          1. Individual users seeking private reflection<br>
-          2. Referrals through psychologists, psychiatrists and clinics<br>
-          3. Employer and institutional wellness programmes<br>
-          4. Clinic and platform integrations
+        <h3>Initial distribution</h3>
+        <p style="margin-top:8px; line-height:1.55;">
+          1. App stores and wellness content<br>
+          2. Referrals from psychiatrists, psychologists and counsellors<br>
+          3. Verified-provider and clinic partnerships<br>
+          4. Employer and institutional programmes
+        </p>
+      </div>
+      <div class="card">
+        <h3>Commercial proof required</h3>
+        <p style="margin-top:8px; line-height:1.55;">
+          10,000–25,000 monthly active users<br>
+          At least 1,000 paid digital subscriptions<br>
+          15–25 verified professional or institutional relationships<br>
+          Measured CAC, retention, paid conversion and contribution margin
         </p>
       </div>
     </div>
-    <p class="source-note">No invented monetary TAM / SAM / SOM. Illustrative digital-only revenue scenarios live in the appendix.</p>
+    <p class="source-note">India’s documented mental-health burden and treatment gap establish public-health context—not Oppuna’s commercial market size. A defensible bottom-up estimate will be built from observed channel, activation and payment data during structured beta.
+      Sources: <a href="https://www.thelancet.com/journals/lanpsy/article/PIIS2215-0366%2819%2930475-4/fulltext" target="_blank" rel="noopener noreferrer">The Lancet Psychiatry</a> ·
+      <a href="https://indianmhs.nimhans.ac.in/phase1/Docs/Report2.pdf" target="_blank" rel="noopener noreferrer">NIMHANS NMHS</a>
+    </p>
   </section>
 
   <!-- 9. Business model -->
@@ -1236,9 +1285,9 @@
         <div class="price">₹299/month or ₹2,499/year</div>
         <ul>
           <li>Advanced private AI-assisted reflection</li>
-          <li>Guided journaling and organisation</li>
+          <li>Guided journaling and thought organisation</li>
           <li>Insights and export features</li>
-          <li>Does not include professional consultations</li>
+          <li>No professional consultations included</li>
         </ul>
       </div>
       <div class="price-card">
@@ -1246,16 +1295,14 @@
         <div class="price">Separate at launch</div>
         <ul>
           <li>Consultations purchased separately through verified providers</li>
-          <li>See next slide for the proposed Oppuna Care membership model</li>
-          <li>Transparent listing, booking or platform fee may apply</li>
+          <li>A bundled Care membership may be tested only after provider costs, demand, legal requirements and contribution margins are validated</li>
         </ul>
       </div>
       <div class="price-card">
         <div class="tier">Verified Care Marketplace — proposed</div>
-        <div class="price">Professional discovery</div>
+        <div class="price">Discovery layer</div>
         <ul>
-          <li>Professional listing subscriptions</li>
-          <li>Institutional subscriptions</li>
+          <li>Professional and institutional listings</li>
           <li>Transparent completed-booking fees</li>
           <li>Sponsored educational sessions</li>
           <li>Clearly labelled featured placement</li>
@@ -1263,41 +1310,15 @@
       </div>
     </div>
     <div class="boundary" style="margin-top:14px;"><strong>Oppuna will never target promotions using private journals, AI conversations, inferred emotions or mental-health vulnerability. Private emotional data will not be sold or shared with advertisers.</strong></div>
-    <p class="source-note">Proposed pricing will be tested through structured beta programmes. Illustrative marketplace fee ranges are in the appendix.</p>
-    <p class="source-note">Consultation membership pricing is gated on provider cost, support, compliance and margin — full unit economics in the appendix.</p>
+    <p class="source-note">All pricing and marketplace models are proposed and subject to user, partner and legal validation.</p>
   </section>
 
-  <!-- 10. Professional Care Layer -->
-  <section class="slide slide-content" data-slide="10" data-section="core" aria-label="Professional Care Layer">
+  <!-- 10. Go-to-market -->
+  <section class="slide slide-content" data-slide="10" data-section="core" aria-label="Go-to-market">
     <span class="slide-number"></span>
-    <p class="eyebrow">Proposed</p>
-    <h2>Professional consultations — introduced with sustainable economics</h2>
-    <div class="grid-2" style="margin-top:8px;">
-      <div class="card">
-        <h3>Launch model</h3>
-        <p style="margin-top:8px; line-height:1.6;">Professional consultations are purchased separately through verified providers.</p>
-        <p style="margin-top:10px; line-height:1.6;">Oppuna may earn a transparent listing, booking or platform fee, subject to legal, professional and marketplace review.</p>
-      </div>
-      <div class="card">
-        <h3>Oppuna Care — proposed ₹1,499/month or ₹14,999/year</h3>
-        <ul class="bullets" style="font-size:0.92rem; margin-top:8px;">
-          <li>Up to six included consultation credits annually</li>
-          <li>One credit unlocks after every two paid months</li>
-          <li>Final session duration and provider type depend on partner agreements</li>
-          <li>Future credits stop when membership is cancelled</li>
-          <li>Pricing launches only after validating provider costs, support, cancellations, payment fees, compliance and operating margin</li>
-        </ul>
-      </div>
-    </div>
-    <div class="boundary" style="margin-top:14px;"><strong>Oppuna Care is a proposed model under evaluation—not a currently available plan.</strong> Detailed unit economics are in the appendix.</div>
-  </section>
-
-  <!-- 11. Go-to-market -->
-  <section class="slide slide-content dark" data-slide="11" data-section="core" aria-label="Go-to-market">
-    <span class="slide-number"></span>
-    <p class="eyebrow">Proposed GTM</p>
+    <p class="eyebrow">Go-to-market</p>
     <h2>Earn trust through professionals, communities and institutions</h2>
-    <p class="subtitle">Proposed go-to-market plan—not achieved distribution.</p>
+    <p class="subtitle">Initial go-to-market strategy.</p>
     <div class="timeline">
       <div class="timeline-item">
         <div class="phase">Phase 1</div>
@@ -1314,8 +1335,7 @@
         <ul>
           <li>Educational mental-wellness content</li>
           <li>Play Store optimisation</li>
-          <li>Community partnerships</li>
-          <li>Privacy-centred referral programme</li>
+          <li>Community partnerships and privacy-centred referrals</li>
         </ul>
       </div>
       <div class="timeline-item">
@@ -1337,16 +1357,12 @@
     </div>
   </section>
 
-  <!-- 12. Competition -->
-  <!--
-    Maintainer note: every competitor claim must be verified against current official
-    product and privacy documentation before investor distribution.
-  -->
-  <section class="slide slide-content" data-slide="12" data-section="core" aria-label="Competition and differentiation">
+  <!-- 11. Competition -->
+  <section class="slide slide-content dark" data-slide="11" data-section="core" aria-label="Competition and differentiation">
     <span class="slide-number"></span>
     <p class="eyebrow">Competition</p>
     <h2>Continuity-first and private by architecture</h2>
-    <p class="subtitle">Competitive labels are directional; verify against current competitor documentation before distribution.</p>
+    <p class="subtitle">Based on public product documentation.</p>
     <div class="table-wrap"><table>
       <thead>
         <tr>
@@ -1375,8 +1391,8 @@
     </div>
   </section>
 
-  <!-- 13. Team -->
-  <section class="slide slide-content dark" data-slide="13" data-section="core" aria-label="Team">
+  <!-- 12. Team -->
+  <section class="slide slide-content" data-slide="12" data-section="core" aria-label="Team">
     <span class="slide-number"></span>
     <p class="eyebrow">Team</p>
     <h2>Founder-led build. Clinical and growth capability next.</h2>
@@ -1398,57 +1414,39 @@
     </div>
   </section>
 
-  <!-- 14. Use of funds -->
-  <section class="slide slide-content" data-slide="14" data-section="core" aria-label="Use of funds">
+  <!-- 13. Use of funds -->
+  <section class="slide slide-content dark slide-compact" data-slide="13" data-section="core" aria-label="Use of funds">
     <span class="slide-number"></span>
     <p class="eyebrow">Use of funds</p>
     <h2>$750K to prove trusted and repeatable growth</h2>
-    <p class="subtitle">18 months of runway focused on distribution, clinical safety, legal readiness and company building—not a large engineering team.</p>
+    <p class="subtitle">Approximately 18 months of runway.</p>
     <div class="table-wrap"><table>
       <thead>
         <tr><th>Investment area</th><th>Allocation</th><th>Percentage</th></tr>
       </thead>
       <tbody>
         <tr><td>Growth and distribution</td><td>$240K</td><td>32%</td></tr>
-        <tr><td>Product, AI and safety engineering</td><td>$120K</td><td>16%</td></tr>
-        <tr><td>Clinical advisory and structured research</td><td>$105K</td><td>14%</td></tr>
+        <tr><td>Product, AI and safety</td><td>$120K</td><td>16%</td></tr>
+        <tr><td>Clinical advisory and research</td><td>$105K</td><td>14%</td></tr>
         <tr><td>Legal, privacy and compliance</td><td>$105K</td><td>14%</td></tr>
-        <tr><td>People and company operations</td><td>$120K</td><td>16%</td></tr>
-        <tr><td>Contingency and runway reserve</td><td>$60K</td><td>8%</td></tr>
+        <tr><td>People and operations</td><td>$120K</td><td>16%</td></tr>
+        <tr><td>Contingency reserve</td><td>$60K</td><td>8%</td></tr>
         <tr><td><strong>Total</strong></td><td><strong>$750K</strong></td><td><strong>100%</strong></td></tr>
       </tbody>
     </table></div>
     <div class="alloc-bar" aria-hidden="true"><span class="g"></span><span class="p"></span><span class="c"></span><span class="l"></span><span class="o"></span><span class="r"></span></div>
-    <div class="fund-grid">
-      <div class="card">
-        <h3>Growth and distribution — $240K</h3>
-        <p>Performance marketing, content, community and professional channels, ASO, referrals, provider onboarding, listing and booking tests, consent-based marketplace discovery and verification processes.</p>
-      </div>
-      <div class="card">
-        <h3>Product, AI and safety — $120K</h3>
-        <p>App-size reduction, smaller on-device models evaluated (including Qwen3-0.6B Q4), Android/iOS reliability, privacy controls, consent-based analytics and specialist contractors when required.</p>
-      </div>
-      <div class="card">
-        <h3>Clinical advisory and research — $105K</h3>
-        <p>Paid advisors, structured reviews, safety-scenario and crisis-routing review, user research. Discovery and advisory work is not clinical validation or endorsement.</p>
-      </div>
-      <div class="card">
-        <h3>Legal, privacy and compliance — $105K</h3>
-        <p>Company docs, regulatory review, privacy assessment, provider contracts, marketplace terms, credential verification, trademarks, insurance and healthcare-advertising review.</p>
-      </div>
-      <div class="card">
-        <h3>People and operations — $120K</h3>
-        <p>Reasonable founder salary for full-time execution, support, finance and administration, plus growth/design contractors—not a large permanent tech team.</p>
-      </div>
-      <div class="card">
-        <h3>Reserve — $60K</h3>
-        <p>Platform-policy changes, unexpected compliance requirements, product and safety contingencies, runway protection.</p>
-      </div>
+    <div class="fund-phrases">
+      <div class="card"><h3>Growth — $240K</h3><p>Acquisition, content, professional channels and ASO</p></div>
+      <div class="card"><h3>Product — $120K</h3><p>Smaller models, reliability, privacy and safety</p></div>
+      <div class="card"><h3>Clinical — $105K</h3><p>Paid advisors, structured reviews and safety testing</p></div>
+      <div class="card"><h3>Legal — $105K</h3><p>Company, privacy, provider and marketplace readiness</p></div>
+      <div class="card"><h3>Operations — $120K</h3><p>Founder runway and specialist support</p></div>
+      <div class="card"><h3>Reserve — $60K</h3><p>Compliance, platform and safety contingencies</p></div>
     </div>
   </section>
 
-  <!-- 15. Milestones -->
-  <section class="slide slide-content dark" data-slide="15" data-section="core" aria-label="What this round is intended to prove">
+  <!-- 14. Proposed targets -->
+  <section class="slide slide-content" data-slide="14" data-section="core" aria-label="Proposed targets">
     <span class="slide-number"></span>
     <p class="eyebrow">Proposed targets</p>
     <h2>What this round is intended to prove</h2>
@@ -1457,12 +1455,8 @@
         <div class="phase">Months 0–6</div>
         <h4>Strengthen the foundation</h4>
         <ul>
-          <li>iOS: submitted, currently in App Store review</li>
-          <li>Improve Android and iOS reliability</li>
-          <li>Reduce initial app-download size</li>
-          <li>Evaluate Qwen3-0.6B Q4 or another smaller on-device model</li>
-          <li>Establish a clinical advisory group</li>
-          <li>Complete core privacy, safety and legal reviews</li>
+          <li>Complete and stabilise the iOS launch, improve Android reliability and reduce initial download size</li>
+          <li>Establish clinical advisory, privacy, safety and legal foundations</li>
           <li>Conduct a structured beta with 500 users</li>
         </ul>
       </div>
@@ -1470,77 +1464,60 @@
         <div class="phase">Months 7–12</div>
         <h4>Validate engagement and monetisation</h4>
         <ul>
-          <li>Measure seven-day and 30-day retention</li>
-          <li>Test ₹299 monthly and ₹2,499 annual Premium pricing</li>
-          <li>Validate willingness to pay for professional consultations</li>
-          <li>Pilot marketplace discovery with a small group of verified providers</li>
-          <li>Test professional listing and booking models</li>
-          <li>Measure user trust and provider demand</li>
-          <li>Target of 5,000 monthly active users</li>
-          <li>Demonstrate recurring journaling and reflection behaviour</li>
+          <li>Target 5,000 monthly active users while measuring D7/D30 retention and recurring journaling</li>
+          <li>Test ₹299/month and ₹2,499/year Premium pricing</li>
+          <li>Pilot verified-provider discovery and measure user and provider demand</li>
         </ul>
       </div>
       <div class="timeline-item">
         <div class="phase">Months 13–18</div>
         <h4>Prove repeatable growth</h4>
         <ul>
-          <li>Target 10,000–25,000 monthly active users</li>
-          <li>Target at least 1,000 paid subscriptions</li>
+          <li>Target 10,000–25,000 monthly active users and at least 1,000 paid subscriptions</li>
           <li>Establish 15–25 verified professional or institutional relationships</li>
-          <li>Validate provider acquisition cost and marketplace revenue</li>
-          <li>Determine CAC, retention and contribution margin</li>
-          <li>Validate whether Care membership economics are sustainable</li>
-          <li>Prepare evidence for the next funding round</li>
+          <li>Determine CAC, retention, contribution margin and readiness for the next round</li>
         </ul>
       </div>
     </div>
-    <p class="source-note">These are operating targets, not forecasts or guarantees. Marketplace partners and institutional customers are not claimed to exist until supported by documented agreements.</p>
+    <p class="source-note">Operating targets—not forecasts or guarantees.</p>
   </section>
 
-  <!-- 16. Ask -->
-  <!--
-    The fundraising amount and milestones must be reconciled with a detailed
-    18-month hiring plan, burn model and user-growth forecast before investor distribution.
-  -->
-  <section class="slide slide-content" data-slide="16" data-section="core" aria-label="Raising $750K in pre-seed funding">
+  <!-- 15. Ask -->
+  <section class="slide slide-content dark" data-slide="15" data-section="core" aria-label="Raising $750K in pre-seed funding">
     <span class="slide-number"></span>
     <p class="eyebrow">The ask</p>
     <h2>Raising $750K in pre-seed funding</h2>
     <div class="ask-amount">$750K</div>
-    <p class="subtitle">Oppuna is raising $750K to provide approximately 18 months of runway and determine whether privacy-first, on-device support can become a trusted and commercially sustainable layer around professional mental-health care.</p>
+    <p class="subtitle">Approximately 18 months of runway to determine whether privacy-first, on-device support can become a trusted and commercially sustainable layer around professional mental-health care.</p>
     <div class="grid-2">
       <div class="card">
         <h3>Why Oppuna can remain capital-efficient</h3>
         <p style="margin-top:8px; line-height:1.65;">
           Founder-built Android product<br>
-          iOS: submitted, currently in App Store review<br>
           Shared React Native and TypeScript architecture supports Android and iOS<br>
-          Founder experience in software architecture, cloud and AI<br>
-          Current technical operating costs are low<br>
-          No large engineering team required at the current stage<br>
-          Capital concentrated on distribution, safety, compliance and validation
+          Founder experience in software, cloud and AI<br>
+          Capital concentrated on growth, safety, compliance and validation
         </p>
       </div>
       <div class="card">
         <h3>Outcome of this round</h3>
-        <p style="margin-top:8px; line-height:1.65;">A lighter, safer and clinically informed product with measurable retention, validated pricing, early professional distribution, clearer consultation economics and evidence of repeatable growth.</p>
-        <p style="margin-top:14px; font-weight:600;">Instrument and round terms: under discussion</p>
-        <p class="source-note" style="margin-top:8px;">Open to SAFE or priced round based on investor preference.</p>
+        <p style="margin-top:8px; line-height:1.65;">A lighter, safer product with measurable retention, validated pricing, early professional distribution, clearer consultation economics and evidence of repeatable growth.</p>
+        <p style="margin-top:14px; font-weight:600;">Round structure and investment terms are being finalised with appropriate legal advice.</p>
       </div>
     </div>
     <p class="center-label" style="margin-top:18px;">support@oppuna.com · github.com/kaushik-i-b/oppuna · oppuna.com</p>
   </section>
 
   <!-- Appendix divider -->
-  <section class="slide slide-appendix-title" data-slide="17" data-section="appendix" aria-label="Appendix">
+  <section class="slide slide-appendix-title" data-slide="16" data-section="appendix" aria-label="Appendix">
     <span class="slide-number"></span>
     <p class="eyebrow" style="color:var(--primary-light);">Deeper discussion</p>
     <h1>Appendix</h1>
-    <p class="tagline">Detail for diligence conversations—not required for the core investor narrative.</p>
+    <p class="tagline">Supporting detail for deeper diligence conversations.</p>
   </section>
 
   <!-- A1. Detailed CBT framework -->
-  <section class="slide slide-content" data-slide="18" data-section="appendix" aria-label="Appendix CBT framework">
+  <section class="slide slide-content" data-slide="17" data-section="appendix" aria-label="Appendix CBT framework">
     <span class="slide-number"></span>
     <p class="appendix-badge">Appendix</p>
     <p class="eyebrow">Context</p>
@@ -1562,7 +1539,7 @@
   </section>
 
   <!-- A2. Product roadmap -->
-  <section class="slide slide-content dark" data-slide="19" data-section="appendix" aria-label="Appendix product roadmap">
+  <section class="slide slide-content dark" data-slide="18" data-section="appendix" aria-label="Appendix product roadmap">
     <span class="slide-number"></span>
     <p class="appendix-badge">Appendix</p>
     <p class="eyebrow">Planned</p>
@@ -1578,7 +1555,7 @@
           <li>Stronger crisis-language thresholds and referrals</li>
           <li>Smaller, faster Android delivery</li>
           <li>Evaluate Qwen3-0.6B Q4 or another smaller on-device model</li>
-          <li>iOS: submitted, currently in App Store review</li>
+          <li>Complete and stabilise the iOS launch</li>
         </ul>
       </div>
       <div class="timeline-item">
@@ -1596,14 +1573,30 @@
     </div>
   </section>
 
-  <!-- A3. Professional-care unit economics -->
-  <section class="slide slide-content" data-slide="20" data-section="appendix" aria-label="Appendix professional-care unit economics">
+  <!-- A3. Professional-care model and unit economics -->
+  <section class="slide slide-content" data-slide="19" data-section="appendix" aria-label="Appendix professional-care model and unit economics">
     <span class="slide-number"></span>
     <p class="appendix-badge">Appendix</p>
-    <p class="eyebrow">Under evaluation</p>
-    <h2>Professional-care unit economics</h2>
-    <p class="subtitle">Detail for diligence. Core deck covers launch model and one proposed Oppuna Care membership only.</p>
-    <div class="table-wrap"><table>
+    <p class="eyebrow">Proposed</p>
+    <h2>Professional-care model and unit economics</h2>
+    <p class="subtitle">Oppuna Care and Care Plus are proposed—not currently available products.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Launch model</h3>
+        <p style="margin-top:8px; line-height:1.6;">Consultations purchased separately through verified providers. Oppuna may earn a transparent listing, booking or platform fee, subject to legal and professional review.</p>
+        <p style="margin-top:10px; line-height:1.6;"><strong>Oppuna Care — proposed ₹1,499/month or ₹14,999/year</strong><br>Up to six included consultation credits annually. One credit unlocks after every two paid months. Future credits stop on cancellation.</p>
+      </div>
+      <div class="card">
+        <h3>Option set</h3>
+        <p style="margin-top:8px; line-height:1.65;">
+          · Pay per consultation<br>
+          · Oppuna Care (progressive credits)<br>
+          · Oppuna Care Plus — proposed ₹2,499/month or ₹24,999/year for higher-cost sessions<br>
+          · Discounted credits, shorter check-ins or employer-funded consultations
+        </p>
+      </div>
+    </div>
+    <div class="table-wrap" style="margin-top:12px;"><table>
       <thead>
         <tr><th>Provider cost per session</th><th>Six-session annual cost</th></tr>
       </thead>
@@ -1614,29 +1607,41 @@
         <tr><td>₹3,000</td><td>₹18,000</td></tr>
       </tbody>
     </table></div>
-    <p class="body-copy" style="margin-top:14px;">A consultation membership will only launch when membership revenue can cover provider payments, support, cancellations, payment processing, compliance and a sustainable contribution margin.</p>
-    <div class="card" style="margin-top:12px;">
-      <h3>Option set</h3>
-      <p style="margin-top:8px; line-height:1.7;">
-        · Pay per consultation with transparent platform fee<br>
-        · Oppuna Care — proposed ₹1,499/month or ₹14,999/year (progressive credit unlock; up to six included consultation credits annually)<br>
-        · Oppuna Care Plus — proposed ₹2,499/month or ₹24,999/year (relocated from core deck): one full-session credit after every two paid months; up to six included consultation credits annually; intended for higher-cost or longer professional sessions; subject to professional availability and final unit economics<br>
-        · Six discounted consultation credits<br>
-        · Two included consultations plus four discounted sessions<br>
-        · Six shorter 20–30 minute wellness check-ins<br>
-        · Employer- or sponsor-funded consultations
-      </p>
+    <p class="source-note" style="margin-top:10px;">Membership launches only when revenue covers provider payments, support, cancellations, payment processing, compliance and contribution margin. Credits unlock progressively and cannot all be consumed in month one. Providers remain responsible for clinical services. Oppuna does not diagnose or replace professional care.</p>
+  </section>
+
+  <!-- A3b. Detailed use of funds -->
+  <section class="slide slide-content dark" data-slide="20" data-section="appendix" aria-label="Appendix detailed use of funds">
+    <span class="slide-number"></span>
+    <p class="appendix-badge">Appendix</p>
+    <p class="eyebrow">$750K</p>
+    <h2>Detailed use of funds</h2>
+    <div class="fund-grid">
+      <div class="card">
+        <h3>Growth and distribution — $240K</h3>
+        <p>Performance marketing, content, community and professional channels, ASO, referrals, provider onboarding, listing and booking tests, consent-based marketplace discovery and verification.</p>
+      </div>
+      <div class="card">
+        <h3>Product, AI and safety — $120K</h3>
+        <p>App-size reduction, smaller on-device models evaluated (including Qwen3-0.6B Q4), Android and iOS reliability, privacy controls, consent-based analytics and specialist contractors when required.</p>
+      </div>
+      <div class="card">
+        <h3>Clinical advisory and research — $105K</h3>
+        <p>Paid advisors, structured reviews, safety-scenario and crisis-routing review, and user research. Discovery and advisory work is not clinical validation or endorsement.</p>
+      </div>
+      <div class="card">
+        <h3>Legal, privacy and compliance — $105K</h3>
+        <p>Company documents, regulatory review, privacy assessment, provider contracts, marketplace terms, credential verification, trademarks and insurance preparation.</p>
+      </div>
+      <div class="card">
+        <h3>People and operations — $120K</h3>
+        <p>Reasonable founder salary for full-time execution, support, finance and administration, plus growth and design contractors—not a large permanent engineering team.</p>
+      </div>
+      <div class="card">
+        <h3>Reserve — $60K</h3>
+        <p>Platform-policy changes, unexpected compliance requirements, product and safety contingencies, and runway protection.</p>
+      </div>
     </div>
-    <ul class="bullets" style="font-size:0.95rem; margin-top:12px;">
-      <li>Credits unlock progressively</li>
-      <li>Credits cannot all be consumed during the first month</li>
-      <li>Cancellation prevents future credits from unlocking</li>
-      <li>Rollover and missed-appointment rules will apply</li>
-      <li>Providers remain responsible for professional and clinical services</li>
-      <li>Oppuna does not diagnose or replace professional care</li>
-      <li>All pricing remains subject to partner, legal and clinical review</li>
-    </ul>
-    <p class="source-note">Use “up to six included consultation credits.” Oppuna Care and Care Plus are proposed—not currently available plans. Do not pair digital Premium (₹2,499/year) with included hour-long sessions.</p>
   </section>
 
   <!-- A4. Crisis-routing methodology -->
@@ -1695,7 +1700,7 @@
         100,000 paying users ≈ ₹25 crore / year
       </p>
     </div>
-    <div class="boundary" style="margin-top:16px;">Illustrative scenarios—not forecasts or current revenue. Do not combine this digital-only example with included professional consultations.</div>
+    <div class="boundary" style="margin-top:16px;">Illustrative arithmetic scenarios—not TAM, forecasts or current revenue. Separate from professional consultation memberships.</div>
   </section>
 
   <!-- A7. Detailed sources -->
@@ -1762,7 +1767,7 @@
       <li>Cloud AI companions: conversation-first, usually account and server dependent</li>
       <li>Generic journals: capture tools without continuity design or crisis-resource routing</li>
     </ul>
-    <div class="boundary" style="margin-top:16px;">Re-verify every competitor cell against official product and privacy documentation immediately before investor distribution.</div>
+    <div class="boundary" style="margin-top:16px;">Based on public product and privacy documentation.</div>
     <p class="center-label" style="margin-top:20px;">support@oppuna.com · oppuna.com</p>
   </section>
 
