@@ -4,39 +4,34 @@
 
 ## Structure
 
-**13 core investor slides** + **Appendix** (diligence detail).
+**16 core investor slides** + **Appendix**.
 
-### Core (1–13)
+### Core (1–16)
 
 1. Title  
 2. Problem and India context  
 3. Founder story and CBT insight  
-4. Solution (before / between / after care)  
+4. Solution  
 5. Available today  
 6. Safety and privacy  
 7. Professional discovery and traction  
 8. Market and initial customer  
-9. Business model  
-10. Go-to-market  
-11. Competition and differentiation  
-12. Team  
-13. Raise and milestones (+ contact)
+9. Business model — Free / Premium / Verified Care Marketplace  
+10. Professional consultations — sustainable economics  
+11. Go-to-market  
+12. Competition  
+13. Team  
+14. Use of funds — $750K allocation  
+15. What this round is intended to prove (0–6 / 7–12 / 13–18)  
+16. Raising $750K (terms under discussion)
 
 ### Appendix
 
-1. Detailed CBT framework  
-2. Product roadmap  
-3. Premium consultation options and unit economics  
-4. Crisis-routing methodology and future safety testing  
-5. App-size explanation and reduction plan  
-6. Illustrative ₹999 digital-only revenue scenarios  
-7. Detailed sources  
-8. Detailed competition evidence  
+CBT framework · Product roadmap · Consultation unit economics · Crisis routing · App size · Illustrative Premium revenue · Sources · Verified Care Marketplace · Competition evidence  
 
 ## Guardrails
 
-- Not an AI therapist; no diagnosis or treatment claims  
+- Proposed pricing and milestones are targets, not forecasts  
+- Not an AI therapist; no CBT/psychotherapy delivery claims  
 - Discovery ≠ clinical validation  
-- Roadmap features labelled planned / proposed  
-- Market scenarios are illustrative, not forecasts  
-- Six-consultation Premium model is appendix-only and under evaluation  
+- Marketplace partners not claimed until documented agreements exist  
