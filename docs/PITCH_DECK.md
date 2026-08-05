@@ -1,41 +1,42 @@
 # Oppuna — Investor Pitch Deck
 
-> Private emotional-wellness support around professional care.
->
-> Present from `site/pitch-deck.html` (or `docs/pitch-deck.html`). GitHub Pages: [kaushik-i-b.github.io/oppuna/pitch-deck.html](https://kaushik-i-b.github.io/oppuna/pitch-deck.html).
+> Present from `site/pitch-deck.html`. Live: [oppuna.com/pitch-deck.html](https://oppuna.com/pitch-deck.html).
 
-## Hosted link
+## Structure
 
-| Link | Notes |
-|------|-------|
-| [kaushik-i-b.github.io/oppuna/pitch-deck.html](https://kaushik-i-b.github.io/oppuna/pitch-deck.html) | Published deck (`site/` via GitHub Pages) |
+**13 core investor slides** + **Appendix** (diligence detail).
 
-## Slide order (19)
+### Core (1–13)
 
-1. **Cover** — Oppuna positioning around professional care  
-2. **Problem** — Support between sessions without giving up privacy  
-3. **Mental-health burden in India** — Evidence-led need + sources  
-4. **Founder story** — Built from lived experience  
-5. **How CBT shaped the idea** — CBT primer, cycle, founder link, boundary  
-6. **Professional discovery** — 11 psychiatrist interviews (qualitative)  
-7. **Solution** — Continuity before, between and after care  
-8. **Available today** — Confirmed live product capabilities  
-9. **Role around care** — Before / between / after + CBT-informed future note  
-10. **Planned roadmap** — 3–6 and 6–12 month proposals (incl. Premium Membership)  
-11. **Product improvements** — Safer, lighter, trusted + targets  
-12. **Market opportunity** — Evidence + illustrative revenue (price pending)  
-13. **Business model** — Free core; Planned Premium; B2B  
-14. **Planned Premium Membership** — Proposed benefits, unit economics, alternatives  
-15. **Traction** — Built product; early professional signal; pre-launch  
-16. **Competition** — Continuity-first and private vs cloud-first  
-17. **Team** — Founder-led; advisors next  
-18. **Funding ask** — Pre-seed use of funds  
-19. **Closing / contact**
+1. Title  
+2. Problem and India context  
+3. Founder story and CBT insight  
+4. Solution (before / between / after care)  
+5. Available today  
+6. Safety and privacy  
+7. Professional discovery and traction  
+8. Market and initial customer  
+9. Business model  
+10. Go-to-market  
+11. Competition and differentiation  
+12. Team  
+13. Raise and milestones (+ contact)
 
-## Language guardrails
+### Appendix
 
-- Not an AI therapist, diagnosis, treatment, cure or emergency service  
-- Complements professional care; does not replace it  
-- Professional interviews ≠ clinical validation  
-- Roadmap items labelled planned / proposed / in development  
-- Market figures cited with sources; revenue scenarios are illustrative only  
+1. Detailed CBT framework  
+2. Product roadmap  
+3. Premium consultation options and unit economics  
+4. Crisis-routing methodology and future safety testing  
+5. App-size explanation and reduction plan  
+6. Illustrative ₹999 digital-only revenue scenarios  
+7. Detailed sources  
+8. Detailed competition evidence  
+
+## Guardrails
+
+- Not an AI therapist; no diagnosis or treatment claims  
+- Discovery ≠ clinical validation  
+- Roadmap features labelled planned / proposed  
+- Market scenarios are illustrative, not forecasts  
+- Six-consultation Premium model is appendix-only and under evaluation  

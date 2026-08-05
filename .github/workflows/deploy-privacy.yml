@@ -56,6 +56,10 @@ jobs:
           if [ -f site/pitch-deck.html ]; then
             cp site/pitch-deck.html _site/pitch-deck.html
           fi
+          if [ -d site/pitch-assets ]; then
+            mkdir -p _site/pitch-assets
+            cp -R site/pitch-assets/. _site/pitch-assets/
+          fi
           if [ -f site/favicon.svg ] && [ ! -f _site/favicon.svg ]; then
             cp site/favicon.svg _site/favicon.svg
           fi
