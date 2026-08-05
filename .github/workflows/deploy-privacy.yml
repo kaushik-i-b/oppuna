@@ -63,8 +63,12 @@ jobs:
           if [ -f site/favicon.svg ] && [ ! -f _site/favicon.svg ]; then
             cp site/favicon.svg _site/favicon.svg
           fi
-          # Ensure custom domain CNAME is always present
-          echo "oppuna.com" > _site/CNAME
+          # Prefer version-controlled CNAME from repo root; always write one for Pages.
+          if [ -f CNAME ]; then
+            cp CNAME _site/CNAME
+          else
+            echo "oppuna.com" > _site/CNAME
+          fi
           touch _site/.nojekyll
 
       - name: Publish to gh-pages branch
