@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Oppuna — Investor Pitch Deck</title>
-  <meta name="description" content="Oppuna investor pitch: private AI-assisted emotional-wellness support before, between and after professional care.">
+  <meta name="description" content="Oppuna investor pitch: Therapy lasts one hour. Recovery happens during the other 167. AI-powered emotional wellness before, between, and after professional care.">
   <style>
     :root {
       --primary: #0E7C66;
@@ -1122,16 +1122,233 @@
         padding: 40px;
       }
     }
+
+    .arch-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 20px 0 8px;
+      flex-wrap: wrap;
+    }
+    .arch-box {
+      background: var(--surface);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+    .slide-content.dark .arch-box {
+      background: #1F2E28;
+      border-color: var(--primary-light);
+      color: #ECF3EF;
+    }
+    .arch-arrow {
+      font-size: 1.4rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .slide-content.dark .arch-arrow { color: var(--primary-light); }
+    .arch-guard {
+      background: #FBE6E3;
+      border: 2px solid var(--danger);
+      color: var(--danger);
+      font-size: 0.85rem;
+      margin-top: 12px;
+      text-align: center;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-weight: 600;
+      max-width: 920px;
+    }
+
+    /* —— Rewrite helpers: takeaway, 167-hour visual, milestones —— */
+    .takeaway {
+      margin-top: 18px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: var(--primary-muted);
+      color: var(--primary-dark);
+      font-size: 0.98rem;
+      font-weight: 700;
+      max-width: 860px;
+      line-height: 1.4;
+    }
+    .slide-content.dark .takeaway {
+      background: #1E3A33;
+      color: var(--primary-light);
+    }
+    .takeaway::before {
+      content: "Takeaway · ";
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      opacity: 0.85;
+    }
+
+    .hour-visual {
+      display: grid;
+      grid-template-columns: 1fr 2.2fr;
+      gap: 14px;
+      margin: 8px 0 4px;
+      max-width: 920px;
+    }
+    .hour-card {
+      border-radius: 16px;
+      padding: 22px 18px;
+      text-align: center;
+      border: 1px solid #DDE5E0;
+      background: var(--surface);
+    }
+    .hour-card.therapy {
+      background: var(--primary-muted);
+      border-color: transparent;
+    }
+    .hour-card .num {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+    .hour-card .label {
+      margin-top: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .hour-card .sub {
+      margin-top: 4px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .hour-card.life .num { color: var(--primary-dark); }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .why-grid .card h3 { font-size: 1rem; margin-bottom: 6px; }
+    .why-grid .card p { font-size: 0.88rem; }
+
+    .milestone-rail {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .milestone {
+      border-top: 3px solid var(--primary);
+      padding-top: 12px;
+    }
+    .slide-content.dark .milestone { border-color: var(--primary-light); }
+    .milestone .when {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      color: var(--primary);
+    }
+    .slide-content.dark .milestone .when { color: var(--primary-light); }
+    .milestone h4 {
+      font-size: 1.05rem;
+      margin: 6px 0 8px;
+    }
+    .milestone ul {
+      list-style: none;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    .milestone ul li {
+      padding-left: 12px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+    .milestone ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+    .slide-content.dark .milestone ul { color: var(--dark-card-text); }
+    .slide-content.dark .milestone ul li::before { background: var(--primary-light); }
+
+    .pay-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .pay-grid .card {
+      text-align: left;
+      padding: 14px;
+    }
+    .pay-grid .card h3 { font-size: 0.92rem; }
+    .pay-grid .card p { font-size: 0.84rem; }
+
+    .gtm-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .comp-note {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 920px;
+      line-height: 1.45;
+    }
+    .slide-content.dark .comp-note { color: var(--dark-muted); }
+
+    .vision-line {
+      font-size: clamp(1.55rem, 3.2vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1.35;
+      max-width: 820px;
+      margin: 8px auto 0;
+      opacity: 0.96;
+    }
+
+    .ask-split {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 16px;
+      margin-top: 8px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .hour-visual { grid-template-columns: 1fr 1fr; }
+      .why-grid, .pay-grid, .gtm-grid, .milestone-rail { grid-template-columns: 1fr 1fr; }
+      .ask-split { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .hour-visual, .why-grid, .pay-grid, .gtm-grid, .milestone-rail { grid-template-columns: 1fr; }
+      .hour-card .num { font-size: 2.4rem; }
+    }
+
   </style>
+
 </head>
 <body>
 
-<div class="progress" id="progress" role="progressbar" aria-valuemin="1" aria-valuenow="1" aria-valuemax="26" aria-label="Deck progress"></div>
+<div class="progress" id="progress" role="progressbar" aria-valuemin="1" aria-valuenow="1" aria-valuemax="20" aria-label="Deck progress"></div>
 
 <div class="deck" id="deck" aria-live="polite">
 
-  <!-- 1. Title -->
-  <section class="slide slide-title active" data-slide="1" data-section="core" aria-label="Title">
+  <!-- 1. Vision -->
+  <section class="slide slide-title active" data-slide="1" data-section="core" aria-label="Vision">
     <span class="slide-number"></span>
     <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M50 8 C30 8 18 28 18 48 C18 68 32 82 50 88 C68 82 82 68 82 48 C82 28 70 8 50 8Z" fill="rgba(255,255,255,0.15)" stroke="white" stroke-width="1.5"/>
@@ -1142,716 +1359,565 @@
       <circle cx="50" cy="12" r="5" fill="white" stroke="#0A5F4E" stroke-width="1"/>
     </svg>
     <h1>Oppuna</h1>
-    <p class="tagline">A private place to express, understand and organise your thoughts—before, between and after professional care.</p>
+    <p class="vision-line">Therapy lasts one hour.<br>Recovery happens during the other 167.</p>
+    <p class="tagline" style="margin-top:28px;">AI-powered emotional wellness that supports people<br>before, between, and after professional care.</p>
     <p class="footer-line">Kaushik Itagi · Founder · Investor pitch</p>
   </section>
 
-  <!-- 2. Problem and India context -->
-  <section class="slide slide-content" data-slide="2" data-section="core" aria-label="Problem and India context">
+  <!-- 2. Problem -->
+  <section class="slide slide-content" data-slide="2" data-section="core" aria-label="Problem">
     <span class="slide-number"></span>
     <p class="eyebrow">Problem</p>
-    <h2>People need support between sessions—without giving up privacy</h2>
-    <p class="subtitle">Professional care can help, but most of life happens outside the consulting room. People still need a private space to process thoughts, record experiences and prepare for their next conversation.</p>
-    <div class="grid-2">
-      <ul class="bullets">
-        <li>Intimate thoughts are often routed through accounts, cloud storage and third-party AI services</li>
-        <li>Users may fear vulnerable information being stored, analysed or exposed</li>
-        <li>Privacy policies alone do not create trust—privacy must be built into the product</li>
-        <li>Professional support is essential but often periodic</li>
-      </ul>
-      <div>
-        <div class="card" style="text-align:center; margin-bottom:12px;">
-          <div class="stat-value">197.3M</div>
-          <div class="stat-label">Estimated mental-disorder burden in India (2017)—public-health context, not commercial TAM</div>
-        </div>
-        <div class="card" style="text-align:center;">
-          <div class="stat-value">Treatment gaps</div>
-          <div class="stat-label">NIMHANS reported substantial treatment gaps across conditions</div>
-        </div>
+    <h2>Therapy alone cannot cover the week</h2>
+    <p class="subtitle">Most people who seek care get one hour with a professional—and then face the remaining 167 hours alone.</p>
+    <div class="hour-visual">
+      <div class="hour-card therapy">
+        <div class="num">1</div>
+        <div class="label">Hour in session</div>
+        <div class="sub">Guided, structured, scarce</div>
+      </div>
+      <div class="hour-card life">
+        <div class="num">167</div>
+        <div class="label">Hours between sessions</div>
+        <div class="sub">Where anxiety spikes, habits form, and progress is won or lost</div>
       </div>
     </div>
-    <div class="quote">“I want help, but I don’t want anyone else to know what I’m going through.”</div>
-    <p class="source-note">
-      Sources:
-      <a href="https://www.thelancet.com/journals/lanpsy/article/PIIS2215-0366%2819%2930475-4/fulltext" target="_blank" rel="noopener noreferrer">The Lancet Psychiatry</a> ·
-      <a href="https://indianmhs.nimhans.ac.in/phase1/Docs/Report2.pdf" target="_blank" rel="noopener noreferrer">NIMHANS National Mental Health Survey</a>
-    </p>
+    <ul class="bullets" style="margin-top:16px;">
+      <li><strong>~197M</strong> people in India live with mental disorders—treatment gaps remain large</li>
+      <li>Therapist supply cannot scale to continuous support; waitlists and cost limit frequency</li>
+      <li>Between sessions, people need somewhere private to process, track, and cope—today that gap is filled by silence, social media, or cloud apps that harvest intimate data</li>
+    </ul>
+    <div class="takeaway">The market need is continuity of care—not another meditation library.</div>
+    <p class="source-note">Sources: <a href="https://www.thelancet.com/journals/lanpsy/article/PIIS2215-0366%2819%2930475-4/fulltext" target="_blank" rel="noopener noreferrer">The Lancet Psychiatry</a> · <a href="https://indianmhs.nimhans.ac.in/phase1/Docs/Report2.pdf" target="_blank" rel="noopener noreferrer">NIMHANS NMHS</a></p>
   </section>
 
-  <!-- 3. Founder story and CBT insight -->
-  <section class="slide slide-content dark" data-slide="3" data-section="core" aria-label="Founder story and CBT insight">
+  <!-- 3. Why Now -->
+  <section class="slide slide-content dark" data-slide="3" data-section="core" aria-label="Why now">
     <span class="slide-number"></span>
-    <p class="eyebrow">Founder</p>
-    <h2>Built from lived experience</h2>
-    <p class="body-copy">I experienced anxiety personally, and CBT played an important role in my recovery. I realised that progress did not happen only during therapy sessions. It also came from recording my thoughts, recognising recurring patterns, practising healthier responses and making gradual lifestyle changes between sessions.</p>
-    <p class="body-copy">That experience inspired Oppuna.</p>
-    <div class="pull-quote">“Therapy may happen periodically, but managing our thoughts happens every day.”</div>
-    <p class="body-copy" style="margin-top:16px;">Cognitive Behavioural Therapy (CBT) helps people recognise connections between thoughts, emotions and behaviours and practise healthier responses.</p>
-    <p class="source-note">Personal founder experience—not a universal clinical claim. CBT-inspired reflection concepts may inform product design, but Oppuna does not provide CBT or deliver psychotherapy.</p>
+    <p class="eyebrow">Why now</p>
+    <h2>Four forces make this investable now</h2>
+    <div class="why-grid">
+      <div class="card">
+        <h3>AI maturity</h3>
+        <p>Small on-device models finally run on phones—emotional support no longer requires shipping journals to the cloud.</p>
+      </div>
+      <div class="card">
+        <h3>Demand surge</h3>
+        <p>Post-pandemic awareness normalised seeking help; digital mental-health usage is mainstream, not niche.</p>
+      </div>
+      <div class="card">
+        <h3>Therapist shortage</h3>
+        <p>Clinical capacity cannot meet continuous need. Software that extends care between visits is infrastructure, not a gadget.</p>
+      </div>
+      <div class="card">
+        <h3>Willingness to pay</h3>
+        <p>Consumers already subscribe to Calm, Headspace, Wysa and peers—proving digital mental wellness is a paid category.</p>
+      </div>
+    </div>
+    <div class="takeaway">The category is proven. Trust and continuity are still unsolved.</div>
   </section>
 
   <!-- 4. Solution -->
   <section class="slide slide-content" data-slide="4" data-section="core" aria-label="Solution">
     <span class="slide-number"></span>
     <p class="eyebrow">Solution</p>
-    <h2>Oppuna supports the work that happens between sessions</h2>
-    <p class="subtitle">Oppuna is a private, AI-assisted emotional-wellness companion where people can express thoughts, journal and organise what they are feeling—before, between and after professional care.</p>
+    <h2>Oppuna turns the other 167 hours into supported recovery</h2>
+    <p class="subtitle">Not a chatbot. An AI-powered emotional wellness platform that stays with the person when the clinician cannot.</p>
     <div class="continuity">
       <div class="card">
         <h3>Before care</h3>
         <ul>
-          <li>Capture concerns</li>
-          <li>Record thoughts</li>
-          <li>Notice patterns</li>
+          <li>Name what’s happening</li>
+          <li>Capture concerns privately</li>
+          <li>Arrive prepared for the first session</li>
         </ul>
       </div>
       <div class="card">
         <h3>Between sessions</h3>
         <ul>
-          <li>Journal consistently</li>
-          <li>Practise reflection</li>
-          <li>Track observations</li>
+          <li>24/7 emotional support</li>
+          <li>Mood, journal, coping tools</li>
+          <li>Progress the clinician never sees unless the user chooses</li>
         </ul>
       </div>
       <div class="card">
         <h3>After care</h3>
         <ul>
-          <li>Remember key points</li>
-          <li>Continue reflection</li>
-          <li>Prepare for next visit</li>
+          <li>Remember what helped</li>
+          <li>Keep practising</li>
+          <li>Future: share insights with a therapist—only with consent</li>
         </ul>
       </div>
     </div>
-    <div class="features">
-      <span class="pill">Private by design</span>
-      <span class="pill">On-device first</span>
-      <span class="pill">Non-judgmental</span>
-      <span class="pill">Not an AI therapist</span>
-    </div>
-    <div class="boundary">Oppuna complements professional care. It does not diagnose conditions, provide psychotherapy or replace qualified professionals.</div>
+    <div class="boundary">Oppuna complements professional care. It does not diagnose, treat, or replace clinicians.</div>
+    <div class="takeaway">Why Oppuna: private continuity around care—on the user’s device, on their terms.</div>
   </section>
 
-  <!-- 5. Product today -->
-  <section class="slide slide-content dark" data-slide="5" data-section="core" aria-label="Product today">
+  <!-- 5. Why customers pay -->
+  <section class="slide slide-content dark" data-slide="5" data-section="core" aria-label="Why customers will pay">
     <span class="slide-number"></span>
-    <p class="eyebrow">Product</p>
-    <h2>Available today</h2>
-    <p class="subtitle">Shipping today on Android.</p>
-    <div class="product-layout">
-      <div>
-        <div class="grid-4">
-          <div class="card"><h3>AI-assisted conversations</h3><p>Supportive chat with local safety routing</p></div>
-          <div class="card"><h3>Journaling &amp; notes</h3><p>Daily, structured reflection and thought organisation</p></div>
-          <div class="card"><h3>Self-reflection tools</h3><p>Wellness-plan prompts and check-ins</p></div>
-          <div class="card"><h3>Breathing &amp; grounding</h3><p>Guided calm and senses exercises</p></div>
-          <div class="card"><h3>Voice notes</h3><p>Private local audio capture</p></div>
-          <div class="card"><h3>Local storage</h3><p>On-device SQLite by default</p></div>
-          <div class="card"><h3>Export &amp; delete</h3><p>User-controlled data portability and wipe</p></div>
-          <div class="card"><h3>Android + on-device AI</h3><p>Optional local Qwen model via llama.rn</p></div>
-        </div>
-        <p class="source-note" style="margin-top:12px;">iOS application submitted and currently under App Store review.</p>
+    <p class="eyebrow">Willingness to pay</p>
+    <h2>What is Oppuna worth paying for?</h2>
+    <p class="subtitle">Users do not pay for features. They pay for outcomes they cannot get from a weekly session alone.</p>
+    <div class="pay-grid">
+      <div class="card">
+        <h3>Immediate support</h3>
+        <p>Help at 2am—without waiting for the next appointment.</p>
       </div>
-      <div class="shot-row" aria-label="App screenshots">
-        <img src="https://oppuna.com/pitch-assets/03-ai-companion.png" alt="Oppuna AI companion screen" width="360" height="640" loading="lazy">
-        <img src="https://oppuna.com/pitch-assets/05-journal.png" alt="Oppuna journal screen" width="360" height="640" loading="lazy">
+      <div class="card">
+        <h3>Less isolation</h3>
+        <p>A private companion when friends and clinicians are unavailable.</p>
+      </div>
+      <div class="card">
+        <h3>Better sessions</h3>
+        <p>Tracked moods and journals make therapy time higher-leverage.</p>
+      </div>
+      <div class="card">
+        <h3>Visible progress</h3>
+        <p>Continuous insight between visits—proof that effort is compounding.</p>
+      </div>
+      <div class="card">
+        <h3>Affordable leverage</h3>
+        <p>A fraction of one extra therapy session—available every day.</p>
       </div>
     </div>
+    <div class="quote">One extra therapy session in India can cost ₹1,000–₹3,000. Oppuna Premium is proposed at ₹299/month—roughly the price of extending care across the whole month.</div>
+    <div class="takeaway">Customers pay for continuous emotional support that makes scarce clinical time work harder.</div>
   </section>
 
-  <!-- 6. Safety and privacy -->
-  <section class="slide slide-content" data-slide="6" data-section="core" aria-label="Safety and privacy">
+  <!-- 6. Market -->
+  <section class="slide slide-content" data-slide="6" data-section="core" aria-label="Market opportunity">
     <span class="slide-number"></span>
-    <p class="eyebrow">Safety</p>
-    <h2>Safety and privacy are product architecture—not feature tags</h2>
-    <div class="grid-2">
-      <ul class="bullets">
-        <li>Predefined high-risk language patterns trigger immediate crisis-resource routing</li>
-        <li>Routing can happen locally without uploading journal content</li>
-        <li>Users are directed toward professional or emergency assistance</li>
-        <li>Oppuna does not attempt to diagnose, assess or independently manage an emergency</li>
-        <li>Journals remain on the device by default</li>
-        <li>Users can export or delete their information</li>
-      </ul>
-      <div>
-        <div class="card" style="margin-bottom:12px;">
-          <h3>Verified Indian resources</h3>
-          <p style="margin-top:8px; line-height:1.7;">
-            <strong>Tele-MANAS:</strong> 14416 or 1-800-891-4416<br>
-            <strong>Emergency:</strong> 112
-          </p>
-          <p class="source-note" style="margin-top:10px;">
-            Source: <a href="https://telemanas.mohfw.gov.in/" target="_blank" rel="noopener noreferrer">telemanas.mohfw.gov.in</a>
-          </p>
-        </div>
-        <div class="boundary">Next: formal professional review of escalation language, thresholds and safety scenarios.</div>
+    <p class="eyebrow">Market</p>
+    <h2>A venture-scale category with a clear beachhead</h2>
+    <div class="grid-3">
+      <div class="card" style="text-align:center;">
+        <div class="stat-value">~$15–35B</div>
+        <div class="stat-label"><strong>TAM</strong> — Global digital mental health &amp; wellness apps (illustrative range from public market reports, 2026–2034)</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="stat-value">~$1–3B</div>
+        <div class="stat-label"><strong>SAM</strong> — English/Hindi smartphone users seeking paid digital emotional support in India + similar emerging markets</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="stat-value">~$30–80M</div>
+        <div class="stat-label"><strong>SOM (5yr)</strong> — Privacy-conscious adults already in or near professional care who will pay for between-session continuity</div>
       </div>
     </div>
-    <p class="source-note">Crisis-language pattern routing—not clinical crisis detection.</p>
+    <ul class="bullets" style="margin-top:18px;">
+      <li><strong>Beachhead:</strong> Digitally active adults in India using, considering, or returning from professional mental-health care</li>
+      <li><strong>Assumption:</strong> 10–25M addressable smartphone users in beachhead × 2–5% paid conversion × ₹2,000–₹3,000 annual ARPU → SOM band</li>
+      <li><strong>Expansion:</strong> Clinical partnerships → employer wellness → consent-based provider marketplace</li>
+    </ul>
+    <div class="takeaway">We are not inventing demand—we are capturing the continuity layer of an existing paid category.</div>
+    <p class="source-note">TAM/SAM/SOM are planning ranges with transparent assumptions—not audited forecasts. Public-health burden ≠ commercial TAM.</p>
   </section>
 
-  <!-- 7. Traction -->
-  <section class="slide slide-content dark" data-slide="7" data-section="core" aria-label="Traction">
+  <!-- 7. Competition -->
+  <section class="slide slide-content dark" data-slide="7" data-section="core" aria-label="Competition">
+    <span class="slide-number"></span>
+    <p class="eyebrow">Competition</p>
+    <h2>Customers already pay for this category</h2>
+    <p class="subtitle">Proof of a paid market—and where Oppuna wins.</p>
+    <div class="table-wrap"><table>
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Est. reach</th>
+          <th>Paid model</th>
+          <th>Core focus</th>
+          <th>Oppuna edge</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Wysa</strong></td>
+          <td>6M+ users (reported)</td>
+          <td>~$75–$99/yr Premium</td>
+          <td>AI CBT chat + coaching</td>
+          <td>On-device / privacy-first continuity</td>
+        </tr>
+        <tr>
+          <td><strong>Woebot</strong></td>
+          <td>Pioneer; consumer app wound down 2025</td>
+          <td>Enterprise / clinical</td>
+          <td>Structured CBT check-ins</td>
+          <td>Consumer continuity still underserved</td>
+        </tr>
+        <tr>
+          <td><strong>Headspace</strong></td>
+          <td>85M+ downloads; ~2M paid</td>
+          <td>~$70/yr</td>
+          <td>Meditation + content</td>
+          <td>Care continuity, not content library</td>
+        </tr>
+        <tr>
+          <td><strong>Calm</strong></td>
+          <td>~4M paid (est.)</td>
+          <td>~$70/yr</td>
+          <td>Sleep &amp; meditation</td>
+          <td>Emotional support around therapy</td>
+        </tr>
+        <tr>
+          <td><strong>Youper</strong></td>
+          <td>2–3M users (reported historically)</td>
+          <td>~$70/yr</td>
+          <td>AI mood coaching</td>
+          <td>Local-first + clinician adjacency</td>
+        </tr>
+      </tbody>
+    </table></div>
+    <p class="comp-note"><strong>Oppuna differentiation:</strong> between-session continuity · on-device AI option · no account required · journals stay local · crisis routing without uploading content · designed to complement clinicians.</p>
+    <div class="takeaway">The question is not “will people pay?”—it is “who earns their trust?”</div>
+    <p class="source-note">Figures are public estimates from industry reports and company claims; see appendix for diligence notes.</p>
+  </section>
+
+  <!-- 8. Business model -->
+  <section class="slide slide-content" data-slide="8" data-section="core" aria-label="Business model">
+    <span class="slide-number"></span>
+    <p class="eyebrow">Business model</p>
+    <h2>Who pays—and why the model compounds</h2>
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="tier">Consumer — Free</div>
+        <div class="price">₹0</div>
+        <ul>
+          <li>Core journaling, mood, breathing, grounding</li>
+          <li>Safety routing and private local storage</li>
+          <li>Earns trust before monetisation</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <div class="tier">Consumer — Premium</div>
+        <div class="price">₹299/mo · ₹2,499/yr</div>
+        <ul>
+          <li>Advanced on-device AI reflection</li>
+          <li>Deeper insights and export tools</li>
+          <li>Worth it vs. one extra therapy session</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <div class="tier">Future B2B</div>
+        <div class="price">Clinics · Employers · Marketplace</div>
+        <ul>
+          <li>Psychologist / clinic partnerships</li>
+          <li>Employer wellness programmes</li>
+          <li>Verified provider discovery (consent-based)</li>
+        </ul>
+      </div>
+    </div>
+    <ul class="bullets" style="margin-top:16px;">
+      <li><strong>Who pays first:</strong> Individuals who want daily support between paid clinical care</li>
+      <li><strong>Why they stay:</strong> Private continuity they cannot get from weekly sessions or cloud chatbots</li>
+      <li><strong>Why it scales:</strong> High gross-margin software + distribution through professionals who already have patient relationships</li>
+    </ul>
+    <div class="takeaway">Land with consumer trust. Expand through the clinicians those consumers already trust.</div>
+    <p class="source-note">Pricing proposed—subject to willingness-to-pay validation. Private emotional data is never sold or used for ads.</p>
+  </section>
+
+  <!-- 9. GTM -->
+  <section class="slide slide-content dark" data-slide="9" data-section="core" aria-label="Go-to-market">
+    <span class="slide-number"></span>
+    <p class="eyebrow">Go-to-market</p>
+    <h2>Distribution through trust—not just ads</h2>
+    <p class="subtitle">Acquisition compounds when professionals and communities recommend Oppuna for the hours they cannot cover.</p>
+    <div class="gtm-grid">
+      <div class="card">
+        <h3>Psychologist partnerships</h3>
+        <p>Referral loops with clinicians who want better between-session adherence.</p>
+      </div>
+      <div class="card">
+        <h3>Organic content</h3>
+        <p>Educational wellness content that ranks and converts privacy-conscious seekers.</p>
+      </div>
+      <div class="card">
+        <h3>Community ambassadors</h3>
+        <p>Peer advocates in universities, workplaces, and support communities.</p>
+      </div>
+      <div class="card">
+        <h3>University outreach</h3>
+        <p>Campus mental-health programmes and student peer networks.</p>
+      </div>
+      <div class="card">
+        <h3>Social + SEO</h3>
+        <p>Search and social for “between therapy,” anxiety journaling, private AI support.</p>
+      </div>
+      <div class="card">
+        <h3>Referral loops</h3>
+        <p>Privacy-safe invite paths—share the app, never the journal.</p>
+      </div>
+      <div class="card">
+        <h3>Store presence</h3>
+        <p>Play Store / App Store optimisation with clear continuity positioning.</p>
+      </div>
+      <div class="card">
+        <h3>Institutional pilots</h3>
+        <p>Clinic and employer pilots after consumer retention is proven.</p>
+      </div>
+    </div>
+    <div class="metric-chips" aria-label="GTM metrics">
+      <span>CAC by channel</span>
+      <span>Activated users</span>
+      <span>D7 / D30 retention</span>
+      <span>Clinician referrals</span>
+      <span>Paid conversion</span>
+    </div>
+    <div class="takeaway">GTM is a trust network: clinicians, campuses, and content—amplified by paid growth once unit economics work.</div>
+  </section>
+
+  <!-- 10. Traction -->
+  <section class="slide slide-content" data-slide="10" data-section="core" aria-label="Traction">
     <span class="slide-number"></span>
     <p class="eyebrow">Traction</p>
-    <h2>Early launch signal and professional discovery</h2>
+    <h2>Shipped product. Early signal. Professional interest.</h2>
     <div class="traction-layout">
       <div class="card traction-primary">
         <div class="stat-hero">100+</div>
-        <div class="stat-label" style="margin-top:14px; font-size:1.12rem; line-height:1.35;">Android downloads within the first three days of public launch</div>
-        <p class="source-note" style="margin-top:14px;">Google Play Console · Downloads, not retained users</p>
+        <div class="stat-label" style="margin-top:14px; font-size:1.12rem; line-height:1.35;">Android downloads in the first three days on Google Play</div>
+        <p class="source-note" style="margin-top:14px;">Play Console · Downloads, not retained users</p>
       </div>
       <div class="traction-secondary">
         <div class="card" style="text-align:center; padding:18px;">
           <div class="stat-secondary">11</div>
           <div class="stat-label" style="margin-top:6px;">Psychiatrists interviewed</div>
-          <p class="source-note" style="margin-top:8px;">Qualitative early product discovery—not clinical validation or endorsement.</p>
+          <p class="source-note" style="margin-top:8px;">Qualitative discovery—not clinical endorsement.</p>
         </div>
-        <div class="card measuring-next">
-          <h3>Measuring next</h3>
-          <ul>
-            <li>Onboarding completion</li>
-            <li>First journal or AI-reflection completion</li>
-            <li>D7/D30 retention</li>
-            <li>Weekly journaling frequency</li>
-            <li>Repeat AI-reflection usage</li>
-            <li>Premium willingness to pay</li>
+        <div class="card">
+          <h3>Also true today</h3>
+          <ul class="bullets" style="font-size:0.88rem; margin-top:6px;">
+            <li>Live on Google Play</li>
+            <li>iOS under App Store review</li>
+            <li>Production Android + on-device AI</li>
+            <li>Public product site + privacy policy</li>
+            <li>Open development on GitHub</li>
           </ul>
         </div>
       </div>
     </div>
+    <div class="takeaway">Pre-seed traction = real product in market + clinician discovery + early download velocity.</div>
   </section>
 
-  <!-- 8. Market -->
-  <section class="slide slide-content" data-slide="8" data-section="core" aria-label="Market and initial customer">
-    <span class="slide-number"></span>
-    <p class="eyebrow">Market</p>
-    <h2>Start with people already seeking continuity around care</h2>
-    <p class="subtitle">Oppuna’s initial customer is a digitally active adult in India who is using, considering or returning from professional mental-health support and wants a private place to reflect between consultations.</p>
-    <div class="grid-3">
-      <div class="card">
-        <h3>Beachhead customer</h3>
-        <p style="margin-top:8px; line-height:1.55;">
-          Aware of mental wellness<br>
-          Android or iOS smartphone<br>
-          Journals, seeks care or structured reflection<br>
-          Values privacy and on-device processing<br>
-          Reachable via stores, professionals, communities or institutions
-        </p>
-      </div>
-      <div class="card">
-        <h3>Initial distribution</h3>
-        <p style="margin-top:8px; line-height:1.55;">
-          1. App stores and wellness content<br>
-          2. Referrals from psychiatrists, psychologists and counsellors<br>
-          3. Verified-provider and clinic partnerships<br>
-          4. Employer and institutional programmes
-        </p>
-      </div>
-      <div class="card">
-        <h3>Commercial proof required</h3>
-        <p style="margin-top:8px; line-height:1.55;">
-          10,000–25,000 monthly active users<br>
-          At least 1,000 paid digital subscriptions<br>
-          15–25 verified professional or institutional relationships<br>
-          Measured CAC, retention, paid conversion and contribution margin
-        </p>
-      </div>
-    </div>
-    <p class="source-note">India’s documented mental-health burden and treatment gap establish public-health context—not Oppuna’s commercial market size. A defensible bottom-up estimate will be built from observed channel, activation and payment data during structured beta.
-      Sources: <a href="https://www.thelancet.com/journals/lanpsy/article/PIIS2215-0366%2819%2930475-4/fulltext" target="_blank" rel="noopener noreferrer">The Lancet Psychiatry</a> ·
-      <a href="https://indianmhs.nimhans.ac.in/phase1/Docs/Report2.pdf" target="_blank" rel="noopener noreferrer">NIMHANS NMHS</a>
-    </p>
-  </section>
-
-  <!-- 9. Business model -->
-  <section class="slide slide-content dark" data-slide="9" data-section="core" aria-label="Business model">
-    <span class="slide-number"></span>
-    <p class="eyebrow">Business model</p>
-    <h2>Business model — earn trust before monetising continuity</h2>
-    <p class="subtitle">A free private core builds trust. Three proposed revenue engines follow.</p>
-    <div class="price-grid">
-      <div class="price-card">
-        <div class="tier">Consumer Premium — proposed</div>
-        <div class="price">₹299/month or ₹2,499/year</div>
-        <ul>
-          <li>Advanced private AI-assisted reflection</li>
-          <li>Guided journaling and thought organisation</li>
-          <li>Insights and export features</li>
-          <li>No professional consultations included</li>
-        </ul>
-      </div>
-      <div class="price-card">
-        <div class="tier">Professional care</div>
-        <div class="price">Separate at launch</div>
-        <ul>
-          <li>Consultations purchased separately through verified providers</li>
-          <li>A bundled Care membership may be tested only after provider costs, demand, legal requirements and contribution margins are validated</li>
-        </ul>
-      </div>
-      <div class="price-card">
-        <div class="tier">Verified Care Marketplace — proposed</div>
-        <div class="price">Discovery layer</div>
-        <ul>
-          <li>Professional and institutional listings</li>
-          <li>Transparent completed-booking fees</li>
-          <li>Sponsored educational sessions</li>
-          <li>Clearly labelled featured placement</li>
-        </ul>
-      </div>
-    </div>
-    <div class="boundary" style="margin-top:14px;"><strong>Oppuna will never target promotions using private journals, AI conversations, inferred emotions or mental-health vulnerability. Private emotional data will not be sold or shared with advertisers.</strong></div>
-    <p class="source-note">All pricing and marketplace models are proposed and subject to user, partner and legal validation.</p>
-  </section>
-
-  <!-- 10. Go-to-market -->
-  <section class="slide slide-content" data-slide="10" data-section="core" aria-label="Go-to-market">
-    <span class="slide-number"></span>
-    <p class="eyebrow">Go-to-market</p>
-    <h2>Earn trust through professionals, communities and institutions</h2>
-    <p class="subtitle">Initial go-to-market strategy.</p>
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="phase">Phase 1</div>
-        <h4>Structured beta</h4>
-        <ul>
-          <li>Recruit through professional referrals and founder-led outreach</li>
-          <li>Interview users and professionals</li>
-          <li>Measure activation, journaling consistency and retention</li>
-        </ul>
-      </div>
-      <div class="timeline-item">
-        <div class="phase">Phase 2</div>
-        <h4>Consumer growth</h4>
-        <ul>
-          <li>Educational mental-wellness content</li>
-          <li>Play Store optimisation</li>
-          <li>Community partnerships and privacy-centred referrals</li>
-        </ul>
-      </div>
-      <div class="timeline-item">
-        <div class="phase">Phase 3</div>
-        <h4>Institutional distribution</h4>
-        <ul>
-          <li>Clinic pilots</li>
-          <li>Employer-wellness programmes</li>
-          <li>SDK/API partnerships after privacy and safety validation</li>
-        </ul>
-      </div>
-    </div>
-    <div class="metric-chips" aria-label="Channel metrics to track">
-      <span>Cost per activated user</span>
-      <span>7-day &amp; 30-day retention</span>
-      <span>Weekly journal activity</span>
-      <span>Referral conversion</span>
-      <span>Pilot-to-contract conversion</span>
-    </div>
-  </section>
-
-  <!-- 11. Competition -->
-  <section class="slide slide-content dark" data-slide="11" data-section="core" aria-label="Competition and differentiation">
-    <span class="slide-number"></span>
-    <p class="eyebrow">Competition</p>
-    <h2>Continuity-first and private by architecture</h2>
-    <p class="subtitle">Based on public product documentation.</p>
-    <div class="table-wrap"><table>
-      <thead>
-        <tr>
-          <th></th>
-          <th>Oppuna</th>
-          <th>Meditation apps</th>
-          <th>Cloud AI companions</th>
-          <th>Generic journals</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>Primary product focus</td><td>Between-session continuity</td><td>Meditation / content</td><td>Conversational companion</td><td>Note-taking</td></tr>
-        <tr><td>Between-session reflection</td><td>Core</td><td>Limited</td><td>Available</td><td>Limited</td></tr>
-        <tr><td>AI delivery model</td><td>On-device option</td><td>Varies</td><td>Cloud-dependent</td><td>Usually none</td></tr>
-        <tr><td>Account requirement</td><td>None required</td><td>Usually required</td><td>Usually required</td><td>Varies</td></tr>
-        <tr><td>Default data location</td><td>On device</td><td>Cloud-dependent</td><td>Cloud-dependent</td><td>Varies</td></tr>
-        <tr><td>Professional-care continuity</td><td>Core design</td><td>Limited</td><td>Limited</td><td>Limited</td></tr>
-        <tr><td>Crisis-resource routing</td><td>Local pattern routing</td><td>Requires verification</td><td>Requires verification</td><td>Limited</td></tr>
-      </tbody>
-    </table></div>
-    <div class="features">
-      <span class="pill">On-device-first</span>
-      <span class="pill">Local journals by default</span>
-      <span class="pill">No account required</span>
-      <span class="pill">Export &amp; delete controls</span>
-    </div>
-  </section>
-
-  <!-- 12. Team -->
-  <section class="slide slide-content" data-slide="12" data-section="core" aria-label="Team">
-    <span class="slide-number"></span>
-    <p class="eyebrow">Team</p>
-    <h2>Founder-led build. Clinical and growth capability next.</h2>
-    <div class="grid-2">
-      <div class="card">
-        <h3>Kaushik Itagi — Founder and AI/Product Architect</h3>
-        <p style="margin-top:10px; line-height:1.65;">Senior software, cloud and AI architect who designed and shipped Oppuna end-to-end across mobile, AI, privacy and local-data architecture. Lived experience with anxiety and CBT informed the product’s continuity thesis.</p>
-        <p style="margin-top:12px; font-size:0.9rem; color:var(--text-faint);">React Native · Expo · TypeScript · on-device AI · SQLite · cloud and AI architecture</p>
-      </div>
-      <div class="card">
-        <h3>With investment</h3>
-        <p style="margin-top:10px; line-height:1.75;">
-          <strong>Clinical advisory group</strong> — safety review and CBT-inspired reflection design<br><br>
-          <strong>Growth and partnerships lead</strong> — beta, clinics, institutions<br><br>
-          <strong>Product and trust-focused design</strong> — onboarding and store presence
-        </p>
-        <p class="source-note" style="margin-top:12px;">Advisors and hires are planned—not yet joined under formal agreements.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 13. Use of funds -->
-  <section class="slide slide-content dark slide-funds" data-slide="13" data-section="core" aria-label="Use of funds">
-    <span class="slide-number"></span>
-    <p class="eyebrow">Use of funds</p>
-    <h2>$750K to prove trusted and repeatable growth</h2>
-    <p class="subtitle">Approximately 18 months of runway.</p>
-    <table class="funds-table">
-      <thead>
-        <tr><th>Investment area</th><th>Allocation</th><th>Percentage</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Growth and distribution</td><td>$240K</td><td>32%</td></tr>
-        <tr><td>Product, AI and safety</td><td>$120K</td><td>16%</td></tr>
-        <tr><td>Clinical advisory and research</td><td>$105K</td><td>14%</td></tr>
-        <tr><td>Legal, privacy and compliance</td><td>$105K</td><td>14%</td></tr>
-        <tr><td>People and operations</td><td>$120K</td><td>16%</td></tr>
-        <tr><td>Contingency reserve</td><td>$60K</td><td>8%</td></tr>
-        <tr><td><strong>Total</strong></td><td><strong>$750K</strong></td><td><strong>100%</strong></td></tr>
-      </tbody>
-    </table>
-    <div class="alloc-bar" aria-hidden="true"><span class="g"></span><span class="p"></span><span class="c"></span><span class="l"></span><span class="o"></span><span class="r"></span></div>
-    <p class="source-note">Detailed allocation rationale is available in the appendix.</p>
-  </section>
-
-  <!-- 14. Proposed targets -->
-  <section class="slide slide-content" data-slide="14" data-section="core" aria-label="Proposed targets">
-    <span class="slide-number"></span>
-    <p class="eyebrow">Proposed targets</p>
-    <h2>What this round is intended to prove</h2>
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="phase">Months 0–6</div>
-        <h4>Strengthen the foundation</h4>
-        <ul>
-          <li>Complete and stabilise the iOS launch, improve Android reliability and reduce initial download size</li>
-          <li>Establish clinical advisory, privacy, safety and legal foundations</li>
-          <li>Conduct a structured beta with 500 users</li>
-        </ul>
-      </div>
-      <div class="timeline-item">
-        <div class="phase">Months 7–12</div>
-        <h4>Validate engagement and monetisation</h4>
-        <ul>
-          <li>Target 5,000 monthly active users while measuring D7/D30 retention and recurring journaling</li>
-          <li>Test ₹299/month and ₹2,499/year Premium pricing</li>
-          <li>Pilot verified-provider discovery and measure user and provider demand</li>
-        </ul>
-      </div>
-      <div class="timeline-item">
-        <div class="phase">Months 13–18</div>
-        <h4>Prove repeatable growth</h4>
-        <ul>
-          <li>Target 10,000–25,000 monthly active users and at least 1,000 paid subscriptions</li>
-          <li>Establish 15–25 verified professional or institutional relationships</li>
-          <li>Determine CAC, retention, contribution margin and readiness for the next round</li>
-        </ul>
-      </div>
-    </div>
-    <p class="source-note">Operating targets—not forecasts or guarantees.</p>
-  </section>
-
-  <!-- 15. Ask -->
-  <section class="slide slide-content dark" data-slide="15" data-section="core" aria-label="Raising $750K in pre-seed funding">
+  <!-- 11. Funding ask -->
+  <section class="slide slide-content dark" data-slide="11" data-section="core" aria-label="Funding ask">
     <span class="slide-number"></span>
     <p class="eyebrow">The ask</p>
-    <h2>Raising $750K in pre-seed funding</h2>
-    <div class="ask-amount">$750K</div>
-    <p class="subtitle">Approximately 18 months of runway to determine whether privacy-first, on-device support can become a trusted and commercially sustainable layer around professional mental-health care.</p>
-    <div class="grid-2">
-      <div class="card">
-        <h3>Why Oppuna can remain capital-efficient</h3>
-        <p style="margin-top:8px; line-height:1.65;">
-          Founder-built Android product<br>
-          Shared React Native and TypeScript architecture supports Android and iOS<br>
-          Founder experience in software, cloud and AI<br>
-          Capital concentrated on growth, safety, compliance and validation
-        </p>
+    <h2>Raising $750K to turn signal into a growth engine</h2>
+    <div class="ask-amount">$750K · Pre-seed</div>
+    <p class="subtitle">~18 months of runway. Capital goes almost entirely to users, distribution, and partnerships.</p>
+    <div class="ask-split">
+      <div>
+        <table class="funds-table">
+          <thead><tr><th>Use of funds</th><th>%</th><th>Focus</th></tr></thead>
+          <tbody>
+            <tr><td><strong>User acquisition &amp; marketing</strong></td><td>40%</td><td>Content, social, ASO, paid tests</td></tr>
+            <tr><td><strong>Partnerships &amp; GTM</strong></td><td>20%</td><td>Clinicians, campuses, communities</td></tr>
+            <tr><td><strong>Product refinement</strong></td><td>18%</td><td>Retention, insights, iOS polish</td></tr>
+            <tr><td>Engineering (brief)</td><td>10%</td><td>Reliability, size, on-device AI</td></tr>
+            <tr><td>Clinical / legal / ops</td><td>12%</td><td>Safety review, compliance, runway</td></tr>
+          </tbody>
+        </table>
       </div>
       <div class="card">
-        <h3>Outcome of this round</h3>
-        <p style="margin-top:8px; line-height:1.65;">A lighter, safer product with measurable retention, validated pricing, early professional distribution, clearer consultation economics and evidence of repeatable growth.</p>
-        <p style="margin-top:14px; font-weight:600;">Round structure and investment terms are being finalised with appropriate legal advice.</p>
+        <h3>Why this team</h3>
+        <p style="margin-top:8px; line-height:1.6;"><strong>Kaushik Itagi</strong> — Founder who shipped Oppuna end-to-end (mobile, on-device AI, privacy architecture). Lived experience with anxiety and CBT shaped the 167-hour thesis.</p>
+        <p style="margin-top:12px; line-height:1.6;">With this round: growth lead, clinical advisors, trust-focused design—not a large engineering army.</p>
+        <p style="margin-top:12px; font-weight:600;">Prove: retention, paid conversion, clinician referral loops.</p>
       </div>
     </div>
-    <p class="center-label" style="margin-top:18px;">support@oppuna.com · github.com/kaushik-i-b/oppuna · oppuna.com</p>
+    <div class="takeaway">We are raising to acquire users and partnerships—not to invent the product from scratch.</div>
+  </section>
+
+  <!-- 12. Roadmap -->
+  <section class="slide slide-content" data-slide="12" data-section="core" aria-label="Roadmap">
+    <span class="slide-number"></span>
+    <p class="eyebrow">Roadmap</p>
+    <h2>From launched product to category position</h2>
+    <div class="milestone-rail">
+      <div class="milestone">
+        <div class="when">Now</div>
+        <h4>Foundation</h4>
+        <ul>
+          <li>Android live on Play</li>
+          <li>iOS through review</li>
+          <li>Clinician discovery ongoing</li>
+          <li>Store &amp; brand assets shipping</li>
+        </ul>
+      </div>
+      <div class="milestone">
+        <div class="when">6 months</div>
+        <h4>Activation</h4>
+        <ul>
+          <li>Structured beta (500+)</li>
+          <li>Retention instrumentation</li>
+          <li>First clinician referral pilots</li>
+          <li>Premium price tests</li>
+        </ul>
+      </div>
+      <div class="milestone">
+        <div class="when">12 months</div>
+        <h4>Monetisation</h4>
+        <ul>
+          <li>~5K MAU target</li>
+          <li>Paid conversion learning</li>
+          <li>Campus + community loops</li>
+          <li>Consent-based provider discovery pilots</li>
+        </ul>
+      </div>
+      <div class="milestone">
+        <div class="when">24 months</div>
+        <h4>Scale</h4>
+        <ul>
+          <li>10–25K MAU ambition</li>
+          <li>1,000+ paid subs target</li>
+          <li>Employer / clinic programmes</li>
+          <li>Therapist collaboration (opt-in)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="takeaway">Every milestone answers the same question: do people keep—and pay for—continuity?</div>
+    <p class="source-note">Operating targets—not guarantees. Contact: support@oppuna.com · oppuna.com · github.com/kaushik-i-b/oppuna</p>
   </section>
 
   <!-- Appendix divider -->
-  <section class="slide slide-appendix-title" data-slide="16" data-section="appendix" aria-label="Appendix">
+  <section class="slide slide-appendix-title" data-slide="13" data-section="appendix" aria-label="Appendix">
     <span class="slide-number"></span>
-    <p class="eyebrow" style="color:var(--primary-light);">Deeper discussion</p>
+    <p class="eyebrow" style="color:var(--primary-light);">Diligence detail</p>
     <h1>Appendix</h1>
-    <p class="tagline">Supporting detail for deeper diligence conversations.</p>
+    <p class="tagline">Architecture, safety, unit economics, and sources—kept out of the core story.</p>
   </section>
 
-  <!-- A1. Detailed CBT framework -->
-  <section class="slide slide-content" data-slide="17" data-section="appendix" aria-label="Appendix CBT framework">
+  <!-- A1 Architecture -->
+  <section class="slide slide-content" data-slide="14" data-section="appendix" aria-label="Appendix architecture">
     <span class="slide-number"></span>
     <p class="appendix-badge">Appendix</p>
-    <p class="eyebrow">Context</p>
-    <h2>Detailed CBT framework</h2>
-    <p class="body-copy"><strong>Cognitive Behavioural Therapy (CBT)</strong> is a structured form of psychotherapy that helps people recognise connections between their thoughts, emotions and behaviours, and practise healthier responses.</p>
-    <div class="cbt-cycle" role="list" aria-label="CBT reflection cycle">
-      <span class="step" role="listitem">Thoughts</span>
-      <span class="arrow" aria-hidden="true">→</span>
-      <span class="step" role="listitem">Emotions</span>
-      <span class="arrow" aria-hidden="true">→</span>
-      <span class="step" role="listitem">Behaviours</span>
-      <span class="arrow" aria-hidden="true">→</span>
-      <span class="step" role="listitem">Reflection</span>
-      <span class="arrow" aria-hidden="true">→</span>
+    <p class="eyebrow">Product architecture</p>
+    <h2>Privacy by architecture</h2>
+    <div class="arch-flow">
+      <div class="arch-box">User</div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box">Oppuna App</div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box">SQLite + On-device AI</div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box">Response</div>
+    </div>
+    <div class="arch-guard">Network Guard blocks outbound internet in production · Android INTERNET permission blocked</div>
+    <div class="grid-3" style="margin-top:20px;">
+      <div class="card"><h3>Crisis routing</h3><p>Local pattern matching pauses coaching and shows regional helplines—without uploading journals.</p></div>
+      <div class="card"><h3>On-device LLM</h3><p>Optional Qwen GGUF via llama.rn for local inference.</p></div>
+      <div class="card"><h3>Guided fallback</h3><p>Deterministic wellness engine always available if the model is unavailable.</p></div>
+    </div>
+    <p class="source-note">Stack: React Native · Expo · TypeScript · SQLite · Zustand. Not a medical device.</p>
+  </section>
+
+  <!-- A2 Product surface -->
+  <section class="slide slide-content dark" data-slide="15" data-section="appendix" aria-label="Appendix product surface">
+    <span class="slide-number"></span>
+    <p class="appendix-badge">Appendix</p>
+    <p class="eyebrow">Shipping today</p>
+    <h2>Product surface (for diligence)</h2>
+    <div class="product-layout">
+      <div>
+        <div class="grid-4">
+          <div class="card"><h3>AI companion</h3><p>Supportive chat with local safety routing</p></div>
+          <div class="card"><h3>Mood &amp; insights</h3><p>Check-ins, tags, weekly patterns</p></div>
+          <div class="card"><h3>Journal</h3><p>Daily, gratitude, thought records</p></div>
+          <div class="card"><h3>Breathing &amp; grounding</h3><p>Guided calm exercises</p></div>
+          <div class="card"><h3>Sleep wind-down</h3><p>Checklist + device TTS</p></div>
+          <div class="card"><h3>Voice notes</h3><p>Private local audio</p></div>
+          <div class="card"><h3>Export &amp; delete</h3><p>User-controlled data lifecycle</p></div>
+          <div class="card"><h3>App lock</h3><p>Biometric / device PIN option</p></div>
+        </div>
+      </div>
+      <div class="shot-row" aria-label="App screenshots">
+        <img src="https://oppuna.com/pitch-assets/03-ai-companion.png" alt="Oppuna AI companion" width="360" height="640" loading="lazy">
+        <img src="https://oppuna.com/pitch-assets/05-journal.png" alt="Oppuna journal" width="360" height="640" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- A3 CBT / founder -->
+  <section class="slide slide-content" data-slide="16" data-section="appendix" aria-label="Appendix founder and CBT">
+    <span class="slide-number"></span>
+    <p class="appendix-badge">Appendix</p>
+    <p class="eyebrow">Origin</p>
+    <h2>Founder insight and CBT context</h2>
+    <p class="body-copy">Kaushik experienced anxiety personally; CBT helped—but progress also came from recording thoughts, noticing patterns, and practising healthier responses <em>between</em> sessions. That is the 167-hour thesis.</p>
+    <div class="cbt-cycle" role="list">
+      <span class="step" role="listitem">Thoughts</span><span class="arrow">→</span>
+      <span class="step" role="listitem">Emotions</span><span class="arrow">→</span>
+      <span class="step" role="listitem">Behaviours</span><span class="arrow">→</span>
+      <span class="step" role="listitem">Reflection</span><span class="arrow">→</span>
       <span class="step" role="listitem">Healthier responses</span>
     </div>
-    <p class="body-copy">Between-session practice—thought records, pattern recognition and gradual lifestyle change—is a common component of many CBT programmes.</p>
-    <div class="boundary">Oppuna supports everyday reflection around professional care. CBT-inspired reflection concepts may inform product design, but Oppuna does not provide CBT or deliver psychotherapy. Future CBT-inspired exercises will be designed and reviewed with qualified mental-health professionals.</div>
+    <div class="boundary">CBT-inspired reflection may inform design. Oppuna does not provide CBT or psychotherapy. Future exercises will be reviewed with qualified professionals.</div>
   </section>
 
-  <!-- A2. Product roadmap -->
-  <section class="slide slide-content dark" data-slide="18" data-section="appendix" aria-label="Appendix product roadmap">
-    <span class="slide-number"></span>
-    <p class="appendix-badge">Appendix</p>
-    <p class="eyebrow">Planned</p>
-    <h2>Product roadmap</h2>
-    <p class="subtitle">Proposed direction—features below are not current shipping claims.</p>
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="phase">Next 3–6 months</div>
-        <h4>In development</h4>
-        <ul>
-          <li>Deeper lifestyle and pattern summaries</li>
-          <li>Clinician-reviewed, CBT-informed thought records</li>
-          <li>Stronger crisis-language thresholds and referrals</li>
-          <li>Smaller, faster Android delivery</li>
-          <li>Evaluate Qwen3-0.6B Q4 or another smaller on-device model</li>
-          <li>Complete and stabilise the iOS launch</li>
-        </ul>
-      </div>
-      <div class="timeline-item">
-        <div class="phase">6–12 months</div>
-        <h4>Proposed</h4>
-        <ul>
-          <li>User-controlled reports for care providers</li>
-          <li>Therapist-assigned reflection exercises</li>
-          <li>Multilingual and voice-based journaling</li>
-          <li>Consent-based clinic collaboration</li>
-          <li>Corporate wellness programmes</li>
-          <li>SDK/API integrations</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- A3. Professional-care model and unit economics -->
-  <section class="slide slide-content" data-slide="19" data-section="appendix" aria-label="Appendix professional-care model and unit economics">
-    <span class="slide-number"></span>
-    <p class="appendix-badge">Appendix</p>
-    <p class="eyebrow">Proposed</p>
-    <h2>Professional-care model and unit economics</h2>
-    <p class="subtitle">Oppuna Care and Care Plus are proposed—not currently available products.</p>
-    <div class="grid-2">
-      <div class="card">
-        <h3>Launch model</h3>
-        <p style="margin-top:8px; line-height:1.6;">Consultations purchased separately through verified providers. Oppuna may earn a transparent listing, booking or platform fee, subject to legal and professional review.</p>
-        <p style="margin-top:10px; line-height:1.6;"><strong>Oppuna Care — proposed ₹1,499/month or ₹14,999/year</strong><br>Up to six included consultation credits annually. One credit unlocks after every two paid months. Future credits stop on cancellation.</p>
-      </div>
-      <div class="card">
-        <h3>Option set</h3>
-        <p style="margin-top:8px; line-height:1.65;">
-          · Pay per consultation<br>
-          · Oppuna Care (progressive credits)<br>
-          · Oppuna Care Plus — proposed ₹2,499/month or ₹24,999/year for higher-cost sessions<br>
-          · Discounted credits, shorter check-ins or employer-funded consultations
-        </p>
-      </div>
-    </div>
-    <div class="table-wrap" style="margin-top:12px;"><table>
-      <thead>
-        <tr><th>Provider cost per session</th><th>Six-session annual cost</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>₹1,000</td><td>₹6,000</td></tr>
-        <tr><td>₹1,500</td><td>₹9,000</td></tr>
-        <tr><td>₹2,000</td><td>₹12,000</td></tr>
-        <tr><td>₹3,000</td><td>₹18,000</td></tr>
-      </tbody>
-    </table></div>
-    <p class="source-note" style="margin-top:10px;">Membership launches only when revenue covers provider payments, support, cancellations, payment processing, compliance and contribution margin. Credits unlock progressively and cannot all be consumed in month one. Providers remain responsible for clinical services. Oppuna does not diagnose or replace professional care.</p>
-  </section>
-
-  <!-- A3b. Detailed use of funds -->
-  <section class="slide slide-content dark" data-slide="20" data-section="appendix" aria-label="Appendix detailed use of funds">
+  <!-- A4 Detailed funds -->
+  <section class="slide slide-content dark" data-slide="17" data-section="appendix" aria-label="Appendix detailed funds">
     <span class="slide-number"></span>
     <p class="appendix-badge">Appendix</p>
     <p class="eyebrow">$750K</p>
     <h2>Detailed use of funds</h2>
     <div class="fund-grid">
-      <div class="card">
-        <h3>Growth and distribution — $240K</h3>
-        <p>Performance marketing, content, community and professional channels, ASO, referrals, provider onboarding, listing and booking tests, consent-based marketplace discovery and verification.</p>
-      </div>
-      <div class="card">
-        <h3>Product, AI and safety — $120K</h3>
-        <p>App-size reduction, smaller on-device models evaluated (including Qwen3-0.6B Q4), Android and iOS reliability, privacy controls, consent-based analytics and specialist contractors when required.</p>
-      </div>
-      <div class="card">
-        <h3>Clinical advisory and research — $105K</h3>
-        <p>Paid advisors, structured reviews, safety-scenario and crisis-routing review, and user research. Discovery and advisory work is not clinical validation or endorsement.</p>
-      </div>
-      <div class="card">
-        <h3>Legal, privacy and compliance — $105K</h3>
-        <p>Company documents, regulatory review, privacy assessment, provider contracts, marketplace terms, credential verification, trademarks and insurance preparation.</p>
-      </div>
-      <div class="card">
-        <h3>People and operations — $120K</h3>
-        <p>Reasonable founder salary for full-time execution, support, finance and administration, plus growth and design contractors—not a large permanent engineering team.</p>
-      </div>
-      <div class="card">
-        <h3>Reserve — $60K</h3>
-        <p>Platform-policy changes, unexpected compliance requirements, product and safety contingencies, and runway protection.</p>
-      </div>
+      <div class="card"><h3>Acquisition &amp; marketing — ~$300K</h3><p>Performance tests, content, social, ASO, community, campus programmes.</p></div>
+      <div class="card"><h3>Partnerships &amp; GTM — ~$150K</h3><p>Clinician outreach, ambassador programmes, institutional pilots, referral operations.</p></div>
+      <div class="card"><h3>Product refinement — ~$135K</h3><p>Retention UX, insights, iOS polish, onboarding, store conversion.</p></div>
+      <div class="card"><h3>Engineering — ~$75K</h3><p>Reliability, app-size reduction, on-device model options, privacy controls.</p></div>
+      <div class="card"><h3>Clinical / legal / ops — ~$90K</h3><p>Safety review, advisors, compliance, entity, insurance, runway buffer.</p></div>
     </div>
   </section>
 
-  <!-- A4. Crisis-routing methodology -->
-  <section class="slide slide-content dark" data-slide="21" data-section="appendix" aria-label="Appendix crisis routing">
+  <!-- A5 Crisis + size -->
+  <section class="slide slide-content" data-slide="18" data-section="appendix" aria-label="Appendix safety and size">
     <span class="slide-number"></span>
     <p class="appendix-badge">Appendix</p>
-    <p class="eyebrow">Safety detail</p>
-    <h2>Crisis-routing methodology and future safety testing</h2>
-    <ul class="bullets">
-      <li>Local regex / pattern matching runs before generative replies</li>
-      <li>High-risk categories pause coaching and open a crisis-resource screen with regional helplines</li>
-      <li>Routing does not require uploading journal content to a cloud model</li>
-      <li>Oppuna does not diagnose, triage clinically or manage emergencies</li>
-    </ul>
-    <div class="boundary" style="margin-top:16px;">Future work: formal professional review of escalation language, thresholds and documented safety test scenarios. No claim is made that the current system has completed that review.</div>
-  </section>
-
-  <!-- A5. App-size explanation -->
-  <section class="slide slide-content" data-slide="22" data-section="appendix" aria-label="Appendix app size">
-    <span class="slide-number"></span>
-    <p class="appendix-badge">Appendix</p>
-    <p class="eyebrow">Engineering</p>
-    <h2>App-size explanation and reduction plan</h2>
-    <p class="subtitle">Current install size is approximately 1.1 GB primarily because the optional on-device Qwen GGUF (~941 MB) is delivered with the app via Play Asset Delivery.</p>
+    <p class="eyebrow">Operations</p>
+    <h2>Crisis routing &amp; app size</h2>
     <div class="grid-2">
       <div class="card">
-        <h3>Why it is large today</h3>
-        <p style="margin-top:8px; line-height:1.65;">Bundled local model weights dominate package size. Core app code and assets are a small fraction of the total.</p>
+        <h3>Crisis routing</h3>
+        <p style="margin-top:8px; line-height:1.65;">Local regex/pattern matching before generative replies. High-risk categories open a crisis screen with Tele-MANAS (14416 / 1-800-891-4416) and Emergency 112. Not clinical triage.</p>
       </div>
       <div class="card">
-        <h3>Technical reduction plan</h3>
-        <p style="margin-top:8px; line-height:1.7;">
-          · Model download after installation<br>
-          · Smaller quantised model<br>
-          · Optional model packs<br>
-          · Remote fallback only with explicit consent<br>
-          · Asset optimisation<br>
-          · Android App Bundle delivery
-        </p>
+        <h3>App size</h3>
+        <p style="margin-top:8px; line-height:1.65;">~1.1 GB today mainly from bundled on-device Qwen GGUF via Play Asset Delivery. Plan: post-install model download, smaller quant, optional packs—target sub-200 MB core experience.</p>
       </div>
     </div>
-    <p class="source-note">A sub-200 MB Android download is a proposed target for the core experience without a bundled large model—not a guarantee while full local weights remain packaged.</p>
   </section>
 
-  <!-- A6. Illustrative revenue scenarios -->
-  <section class="slide slide-content dark" data-slide="23" data-section="appendix" aria-label="Appendix illustrative revenue">
+  <!-- A6 Marketplace + revenue -->
+  <section class="slide slide-content dark" data-slide="19" data-section="appendix" aria-label="Appendix marketplace">
     <span class="slide-number"></span>
     <p class="appendix-badge">Appendix</p>
-    <p class="eyebrow">Illustrative only</p>
-    <h2>Illustrative digital Premium revenue scenarios</h2>
-    <p class="subtitle">Example at proposed ₹2,499/year digital-only Premium—excluding professional consultation costs. Not a forecast or published price.</p>
-    <div class="card">
-      <p style="line-height:1.8; font-size:1.05rem;">
-        1,000 paying users ≈ ₹25 lakh / year<br>
-        10,000 paying users ≈ ₹2.5 crore / year<br>
-        100,000 paying users ≈ ₹25 crore / year
-      </p>
+    <p class="eyebrow">Future B2B</p>
+    <h2>Marketplace &amp; illustrative revenue</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Verified Care Marketplace (proposed)</h3>
+        <p style="margin-top:8px; line-height:1.65;">Credentialed psychiatrists, psychologists, institutions. Listing fees, booking fees, sponsored education—never targeted from journals or emotions.</p>
+      </div>
+      <div class="card">
+        <h3>Illustrative Premium math</h3>
+        <p style="margin-top:8px; line-height:1.8;">At ₹2,499/year digital Premium:<br>1,000 payers ≈ ₹25L/yr<br>10,000 payers ≈ ₹2.5Cr/yr<br>Not a forecast.</p>
+      </div>
     </div>
-    <div class="boundary" style="margin-top:16px;">Illustrative arithmetic scenarios—not TAM, forecasts or current revenue. Separate from professional consultation memberships.</div>
   </section>
 
-  <!-- A7. Detailed sources -->
-  <section class="slide slide-content" data-slide="24" data-section="appendix" aria-label="Appendix sources">
+  <!-- A7 Sources + competition evidence -->
+  <section class="slide slide-content" data-slide="20" data-section="appendix" aria-label="Appendix sources">
     <span class="slide-number"></span>
     <p class="appendix-badge">Appendix</p>
     <p class="eyebrow">Evidence</p>
-    <h2>Detailed sources</h2>
+    <h2>Sources &amp; competition diligence</h2>
     <ul class="bullets">
-      <li><a href="https://www.thelancet.com/journals/lanpsy/article/PIIS2215-0366%2819%2930475-4/fulltext" target="_blank" rel="noopener noreferrer">The Lancet Psychiatry</a> — India mental-disorder burden estimate (2017)</li>
-      <li><a href="https://indianmhs.nimhans.ac.in/phase1/Docs/Report2.pdf" target="_blank" rel="noopener noreferrer">NIMHANS National Mental Health Survey</a> — treatment-gap reporting</li>
-      <li><a href="https://telemanas.mohfw.gov.in/" target="_blank" rel="noopener noreferrer">Tele-MANAS (MoHFW)</a> — national tele-mental health service</li>
+      <li><a href="https://www.thelancet.com/journals/lanpsy/article/PIIS2215-0366%2819%2930475-4/fulltext" target="_blank" rel="noopener noreferrer">The Lancet Psychiatry</a> — India mental-disorder burden</li>
+      <li><a href="https://indianmhs.nimhans.ac.in/phase1/Docs/Report2.pdf" target="_blank" rel="noopener noreferrer">NIMHANS NMHS</a> — treatment gaps</li>
+      <li><a href="https://telemanas.mohfw.gov.in/" target="_blank" rel="noopener noreferrer">Tele-MANAS</a> — national tele-mental health</li>
+      <li>Competitor reach/pricing: public company claims and industry summaries (Business of Apps, product sites)—verify at diligence</li>
+      <li>Oppuna traction: Google Play Console downloads; founder-led psychiatrist interviews (qualitative)</li>
     </ul>
-    <p class="source-note" style="margin-top:18px;">Burden statistics describe public-health need. They are not Oppuna customer counts or commercial TAM.</p>
-  </section>
-
-
-  <!-- A9. Verified Care Marketplace -->
-  <section class="slide slide-content" data-slide="25" data-section="appendix" aria-label="Appendix Verified Care Marketplace">
-    <span class="slide-number"></span>
-    <p class="appendix-badge">Appendix</p>
-    <p class="eyebrow">Proposed B2B</p>
-    <h2>Verified Care Marketplace</h2>
-    <p class="subtitle">Help users discover appropriate professional support without compromising private reflection.</p>
-    <div class="grid-2">
-      <div class="card">
-        <h3>Eligible providers and programmes</h3>
-        <p style="margin-top:8px; line-height:1.7;">
-          Verified psychiatrists<br>
-          Qualified psychologists and counsellors<br>
-          Mental-health institutions<br>
-          Support groups and wellness workshops<br>
-          Corporate wellness programmes<br>
-          Evidence-informed courses and events
-        </p>
-      </div>
-      <div class="card">
-        <h3>Illustrative provider pricing</h3>
-        <div class="table-wrap"><table style="margin-top:8px; font-size:0.82rem;">
-          <thead><tr><th>Revenue stream</th><th>Proposed range</th></tr></thead>
-          <tbody>
-            <tr><td>Professional listing</td><td>₹999–₹2,999 / month</td></tr>
-            <tr><td>Institutional subscription</td><td>₹25,000–₹1,50,000 / year</td></tr>
-            <tr><td>Completed booking</td><td>10%–15% platform fee</td></tr>
-            <tr><td>Sponsored session</td><td>Fixed campaign fee</td></tr>
-            <tr><td>Featured placement</td><td>Additional monthly fee</td></tr>
-          </tbody>
-        </table></div>
-        <p class="source-note" style="margin-top:8px;">Illustrative pricing for future validation—not current revenue or contracted pricing.</p>
-      </div>
-    </div>
-    <div class="boundary" style="margin-top:12px;">Marketplace safeguards: credential verification; clearly labelled sponsored placement; no targeting from journals, conversations or emotional state; no sale of emotional data; no cure claims; users can disable recommendations; providers remain responsible for services; listings require legal and professional review. Excluded initially: pharmaceuticals, supplements, lending, gambling, alcohol, unverified wellness products and unsupported medical claims.</div>
-  </section>
-
-  <!-- A8. Detailed competition evidence -->
-  <section class="slide slide-content dark" data-slide="26" data-section="appendix" aria-label="Appendix competition evidence">
-    <span class="slide-number"></span>
-    <p class="appendix-badge">Appendix</p>
-    <p class="eyebrow">Diligence</p>
-    <h2>Detailed competition evidence</h2>
-    <ul class="bullets">
-      <li>Oppuna confirmed: on-device-first architecture, local journal storage by default, no account required, between-session continuity focus, export/delete controls, local crisis-language pattern routing</li>
-      <li>Meditation apps: typically content libraries and cloud accounts—between-session clinical continuity is limited</li>
-      <li>Cloud AI companions: conversation-first, usually account and server dependent</li>
-      <li>Generic journals: capture tools without continuity design or crisis-resource routing</li>
-    </ul>
-    <div class="boundary" style="margin-top:16px;">Based on public product and privacy documentation.</div>
-    <p class="center-label" style="margin-top:20px;">support@oppuna.com · oppuna.com</p>
+    <p class="center-label" style="margin-top:24px;">support@oppuna.com · oppuna.com · github.com/kaushik-i-b/oppuna</p>
   </section>
 
 </div>
@@ -1859,7 +1925,7 @@
 <nav class="nav" aria-label="Slide navigation">
   <button type="button" id="prev" disabled aria-label="Previous slide">←</button>
   <span class="section-label" id="sectionLabel">Core</span>
-  <span class="counter" id="counter" aria-live="polite">1 / 13</span>
+  <span class="counter" id="counter" aria-live="polite">1 / 12</span>
   <button type="button" id="next" aria-label="Next slide">→</button>
 </nav>
 
