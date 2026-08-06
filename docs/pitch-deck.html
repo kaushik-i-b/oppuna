@@ -1284,16 +1284,20 @@
 
     .pay-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
       margin-top: 8px;
     }
     .pay-grid .card {
       text-align: left;
-      padding: 14px;
+      padding: 16px;
     }
-    .pay-grid .card h3 { font-size: 0.92rem; }
-    .pay-grid .card p { font-size: 0.84rem; }
+    .pay-grid .card:nth-child(4),
+    .pay-grid .card:nth-child(5) {
+      /* Center the second row of two cards */
+    }
+    .pay-grid .card h3 { font-size: 0.98rem; }
+    .pay-grid .card p { font-size: 0.88rem; }
 
     .gtm-grid {
       display: grid;
@@ -1481,7 +1485,7 @@
         <p>A fraction of one extra therapy session—available every day.</p>
       </div>
     </div>
-    <div class="quote">One extra therapy session in India can cost ₹1,000–₹3,000. Oppuna Premium is proposed at ₹299/month—roughly the price of extending care across the whole month.</div>
+    <div class="pull-quote" style="margin-top:16px;">One extra therapy session in India can cost ₹1,000–₹3,000. Oppuna Premium is proposed at ₹299/month—roughly the price of extending care across the whole month.</div>
     <div class="takeaway">Customers pay for continuous emotional support that makes scarce clinical time work harder.</div>
   </section>
 
