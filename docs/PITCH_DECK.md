@@ -1,7 +1,17 @@
 # Oppuna — Investor Pitch Deck
 
 > Present from `site/pitch-deck.html` (mirrored in `docs/pitch-deck.html`).  
-> Live: [oppuna.com/pitch-deck.html](https://oppuna.com/pitch-deck.html).
+> Live: [oppuna.com/pitch-deck.html](https://oppuna.com/pitch-deck.html).  
+> **PDF:** [`docs/Oppuna-Pitch-Deck.pdf`](Oppuna-Pitch-Deck.pdf) · [oppuna.com/Oppuna-Pitch-Deck.pdf](https://oppuna.com/Oppuna-Pitch-Deck.pdf)
+
+Regenerate PDF (16:9 landscape, all slides):
+
+```bash
+google-chrome --headless=new --no-sandbox --no-pdf-header-footer \
+  --print-to-pdf=docs/Oppuna-Pitch-Deck.pdf \
+  file://$PWD/site/pitch-deck.html
+cp docs/Oppuna-Pitch-Deck.pdf site/Oppuna-Pitch-Deck.pdf
+```
 
 **Positioning (stated once on title + explained on Problem):**  
 Therapy lasts one hour. Recovery happens during the other 167.

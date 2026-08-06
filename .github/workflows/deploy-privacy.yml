@@ -56,6 +56,11 @@ jobs:
           if [ -f site/pitch-deck.html ]; then
             cp site/pitch-deck.html _site/pitch-deck.html
           fi
+          if [ -f site/Oppuna-Pitch-Deck.pdf ]; then
+            cp site/Oppuna-Pitch-Deck.pdf _site/Oppuna-Pitch-Deck.pdf
+          elif [ -f docs/Oppuna-Pitch-Deck.pdf ]; then
+            cp docs/Oppuna-Pitch-Deck.pdf _site/Oppuna-Pitch-Deck.pdf
+          fi
           if [ -d site/pitch-assets ]; then
             mkdir -p _site/pitch-assets
             cp -R site/pitch-assets/. _site/pitch-assets/

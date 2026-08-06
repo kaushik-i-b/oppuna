@@ -1107,20 +1107,38 @@
       .shot-row img { max-height: 160px; }
     }
 
+
+    @page {
+      size: 13.333in 7.5in; /* 16:9 landscape */
+      margin: 0;
+    }
+
     @media print {
-      body { overflow: visible; height: auto; background: white; }
+      body { overflow: visible; height: auto; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .nav, .progress { display: none !important; }
-      .deck { height: auto; }
+      .deck { height: auto; width: 100%; }
       .slide {
-        position: relative;
+        position: relative !important;
         display: flex !important;
-        height: auto;
-        min-height: 100vh;
+        inset: auto !important;
+        width: 13.333in;
+        height: 7.5in;
+        min-height: 7.5in;
+        max-height: 7.5in;
         page-break-after: always;
-        animation: none;
-        overflow: visible;
-        padding: 40px;
+        page-break-inside: avoid;
+        break-after: page;
+        break-inside: avoid;
+        animation: none !important;
+        overflow: hidden !important;
+        padding: 36px 48px 40px !important;
+        box-sizing: border-box;
       }
+      .slide:last-child { page-break-after: auto; break-after: auto; }
+      .slide-number { top: 18px; right: 28px; }
+      a { color: inherit !important; text-decoration: none !important; }
+    }
+
     }
 
     .arch-flow {
