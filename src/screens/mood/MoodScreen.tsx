@@ -8,7 +8,9 @@ import { moodRepository } from '@/database';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useSaveCelebration } from '@/hooks/useSaveCelebration';
 import { useTranslation } from '@/hooks/useTranslation';
+import { trackEvent } from '@/services/analyticsService';
 import { recordCareActivity } from '@/services/careRetentionService';
+import { maybeRequestReview, suppressReviewPrompt } from '@/services/reviewPromptService';
 import { useTheme } from '@/theme/ThemeProvider';
 import { CareHero, FadeInView, Icon, MoodMark, PressableScale, SectionLabel } from '@/ui';
 import { logger } from '@/utils/logger';
@@ -49,12 +51,19 @@ export function MoodScreen(): React.ReactElement {
     try {
       await moodRepository.create({ mood, intensity, note: note || null, tags });
       void recordCareActivity('mood');
+      void trackEvent('first_mood_logged', { mood_key: mood }, { once: true });
       const moodMeta = MOOD_BY_KEY[mood];
       await celebrate({
         kind: 'mood',
         message: t('mood.saved'),
         detail: `${moodMeta.label} · intensity ${intensity}/10`,
       });
+      // Never prompt for a review after a negative mood check-in.
+      if (mood !== 'awful' && mood !== 'low') {
+        void maybeRequestReview('mood_saved');
+      } else {
+        void suppressReviewPrompt(12);
+      }
       reset();
     } catch (error) {
       logger.error('Save mood failed', { error: String(error) });

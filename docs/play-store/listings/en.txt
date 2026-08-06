@@ -1,0 +1,57 @@
+# English (default) Play listing — paste into Play Console
+
+Title (<=30):
+Oppuna: AI Mood Journal
+
+Short (<=80):
+Private mood journal, emotional wellness tools and on-device AI reflection.
+
+Promotional text (<=80):
+Private mood journal + on-device AI. No account. Your thoughts stay on your phone.
+
+Long description:
+Oppuna is a private mood journal and emotional wellness app for Android. Track how you feel, write freely, and reflect with on-device AI—without creating an account or sending your thoughts to the cloud.
+
+WHY PEOPLE USE OPPUNA
+• Notice patterns with a simple mood tracker
+• Keep a private journal for everyday thoughts, gratitude, and self reflection
+• Calm stress with breathing exercises and grounding exercises
+• Build a gentler sleep routine with a wind-down checklist
+• Reflect with on-device AI that can run on your phone
+• Use Oppuna around professional care—before or between sessions—on your terms
+
+PRIVACY-FIRST BY DESIGN
+Oppuna is built for privacy-first wellness. Journals, mood notes, and chats stay on your device by default. There is no mandatory account, no cloud sync for your entries, and no ads that target your emotional content. You can export or delete your data anytime in Settings.
+
+WHAT'S INSIDE
+• Mood tracker with intensity, tags, and weekly insights
+• Private journal (daily, gratitude journal, thought records, notes)
+• On-device AI companion with guided fallbacks when needed
+• Breathing exercises and 5-4-3-2-1 grounding exercises
+• Sleep wind-down support
+• Optional app lock, multilingual UI, dark/light themes
+
+SUPPORT AROUND PROFESSIONAL CARE
+Oppuna is designed to help you stay engaged with self-reflection and arrive better prepared for conversations with qualified professionals. It is not a substitute for therapy, counselling, or medical care.
+
+IMPORTANT SAFETY NOTE
+Oppuna does not diagnose, treat, cure, or prevent any condition. It is not an AI therapist and not a crisis service. If you are in danger or need urgent help, contact local emergency services. In India, emergency services: 112. Tele-MANAS: 14416 / 1-800-891-4416.
+
+Download Oppuna for a calmer, more private space to practise emotional wellness—on your phone, under your control.
+
+Screenshot captions:
+1. Private emotional wellness, on your phone
+2. Understand how your mood changes
+3. Journal without sending thoughts to the cloud
+4. Reflect with on-device AI
+5. Calm difficult moments with grounding tools
+6. Build a healthier sleep wind-down
+7. Notice patterns over time
+8. Your data stays under your control
+
+Feature graphic:
+Headline: Private emotional wellness
+Subheadline: Mood · Journal · On-device AI
+
+Privacy policy URL:
+https://oppuna.com/privacy/

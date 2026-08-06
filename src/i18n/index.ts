@@ -1,4 +1,5 @@
 import { en, type Translation } from '@/i18n/locales/en';
+import { enIN } from '@/i18n/locales/en-IN';
 import { es } from '@/i18n/locales/es';
 import { pt } from '@/i18n/locales/pt';
 import { kn } from '@/i18n/locales/kn';
@@ -16,6 +17,7 @@ export type { Translation } from '@/i18n/locales/en';
 
 const DICTIONARIES: Record<LanguageCode, DeepPartial<Translation>> = {
   en,
+  'en-IN': enIN,
   es,
   pt,
   kn,

@@ -18,11 +18,11 @@ export function FinalCTA() {
               id="cta-heading"
               className="font-display text-3xl font-semibold tracking-tight md:text-4xl"
             >
-              Give yourself a little space to reflect.
+              Oppuna: private mood journal on Android
             </h2>
             <p className="mt-4 text-lg text-white/85">
-              Download Oppuna on Google Play when you are ready for a calmer,
-              private wellness companion.
+              Get Oppuna on Google Play for mood tracking, private journaling,
+              and on-device AI reflection—without a mandatory account.
             </p>
             <div className="mt-8">
               <GooglePlayButton variant="light" />

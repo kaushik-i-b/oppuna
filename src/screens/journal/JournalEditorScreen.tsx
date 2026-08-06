@@ -9,8 +9,10 @@ import { isJournalEntryValid } from '@/database/repositories/journalRepository';
 import { useSaveCelebration } from '@/hooks/useSaveCelebration';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSecureScreen } from '@/hooks/useSecureScreen';
+import { trackEvent } from '@/services/analyticsService';
 import { randomPrompt } from '@/services/offlineAI';
 import { recordCareActivity } from '@/services/careRetentionService';
+import { maybeRequestReview } from '@/services/reviewPromptService';
 import { useTheme } from '@/theme/ThemeProvider';
 import { FadeInView, Icon, LivingLeaf, SectionLabel } from '@/ui';
 import { logger } from '@/utils/logger';
@@ -72,6 +74,8 @@ export function JournalEditorScreen({ navigation, route }: Props): React.ReactEl
       } else {
         await journalRepository.create({ kind, title, body });
         void recordCareActivity('journal');
+        void trackEvent('first_journal_created', { kind }, { once: true });
+        void maybeRequestReview('journal_saved');
       }
       await celebrate({
         kind: 'journal',

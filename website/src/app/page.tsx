@@ -6,6 +6,7 @@ import { HowItWorks } from "@/components/sections/HowItWorks";
 import { PrivacySection } from "@/components/sections/Privacy";
 import { Purpose } from "@/components/sections/Purpose";
 import { ResponsibleUse } from "@/components/sections/ResponsibleUse";
+import { UseCases } from "@/components/sections/UseCases";
 import { WhoFor } from "@/components/sections/WhoFor";
 
 export default function HomePage() {
@@ -13,6 +14,7 @@ export default function HomePage() {
     <>
       <Hero />
       <Purpose />
+      <UseCases />
       <Features />
       <HowItWorks />
       <PrivacySection />

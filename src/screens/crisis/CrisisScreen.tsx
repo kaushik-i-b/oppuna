@@ -11,6 +11,7 @@ import {
 } from '@/constants/crisis';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { useTranslation } from '@/hooks/useTranslation';
+import { suppressReviewPrompt } from '@/services/reviewPromptService';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
@@ -27,6 +28,10 @@ export function CrisisScreen({ route }: Props): React.ReactElement {
   const crisisRegion = useSettingsStore((s) => s.crisisRegion);
   const setCrisisRegion = useSettingsStore((s) => s.setCrisisRegion);
   const region = getCrisisRegion(crisisRegion);
+
+  React.useEffect(() => {
+    void suppressReviewPrompt(24);
+  }, []);
 
   const openDialer = (phone?: string): void => {
     if (!phone) return;

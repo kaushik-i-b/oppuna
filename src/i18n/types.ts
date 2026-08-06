@@ -4,6 +4,7 @@ export type DeepPartial<T> = {
 
 export type LanguageCode =
   | 'en'
+  | 'en-IN'
   | 'es'
   | 'pt'
   | 'kn'
@@ -28,13 +29,19 @@ export interface LanguageMeta {
 
 export const LANGUAGES: LanguageMeta[] = [
   { code: 'en', label: 'English', native: 'English', aiChatAvailable: true },
+  {
+    code: 'en-IN',
+    label: 'English (India)',
+    native: 'English (India)',
+    aiChatAvailable: true,
+  },
+  { code: 'hi', label: 'Hindi', native: 'हिन्दी', aiChatAvailable: true },
+  { code: 'kn', label: 'Kannada', native: 'ಕನ್ನಡ', aiChatAvailable: false },
   { code: 'es', label: 'Spanish', native: 'Español', aiChatAvailable: true },
   { code: 'pt', label: 'Portuguese', native: 'Português', aiChatAvailable: true },
-  { code: 'kn', label: 'Kannada', native: 'ಕನ್ನಡ', aiChatAvailable: false },
   { code: 'ta', label: 'Tamil', native: 'தமிழ்', aiChatAvailable: true },
   { code: 'ml', label: 'Malayalam', native: 'മലയാളം', aiChatAvailable: true },
   { code: 'te', label: 'Telugu', native: 'తెలుగు', aiChatAvailable: true },
-  { code: 'hi', label: 'Hindi', native: 'हिन्दी', aiChatAvailable: true },
   { code: 'ar', label: 'Arabic', native: 'العربية', aiChatAvailable: true },
   { code: 'ru', label: 'Russian', native: 'Русский', aiChatAvailable: true },
 ];

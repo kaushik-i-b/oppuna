@@ -79,7 +79,7 @@ export function AboutScreen({ navigation }: Props): React.ReactElement {
       </View>
 
       <Text variant="caption" color="textFaint" center style={{ marginTop: theme.spacing.xl }}>
-        Built to work offline. No account, no cloud, no tracking.
+        Built to work offline. No account, no cloud sync, no cloud tracking.
       </Text>
     </Screen>
   );

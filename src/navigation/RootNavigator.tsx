@@ -46,8 +46,8 @@ export function RootNavigator(): React.ReactElement {
       >
         {!onboardingComplete ? (
           <Stack.Group>
-            <Stack.Screen name="WellnessOnboarding" component={WellnessOnboardingScreen} />
             <Stack.Screen name="Language" component={LanguageScreen} />
+            <Stack.Screen name="WellnessOnboarding" component={WellnessOnboardingScreen} />
             <Stack.Screen name="Privacy" component={PrivacyScreen} />
             <Stack.Screen name="Disclaimer" component={DisclaimerScreen} />
           </Stack.Group>
