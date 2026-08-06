@@ -6,7 +6,8 @@ Static pages for Oppuna. No build step, no dependencies.
 |------|---------|
 | [`home.html`](home.html) | Marketing homepage (Sage brand) |
 | [`index.html`](index.html) | Privacy policy (Play Store / store listing URL) |
-| [`pitch-deck.html`](pitch-deck.html) | Investor pitch |
+| [`pitch-deck.html`](pitch-deck.html) | Investor pitch (interactive) |
+| [`Oppuna-Pitch-Deck.pdf`](Oppuna-Pitch-Deck.pdf) | Investor pitch (16:9 PDF export) |
 | [`SQUARESPACE.md`](SQUARESPACE.md) | How to rebuild `home.html` on Squarespace |
 | [`favicon.svg`](favicon.svg) | Site icon |
 
