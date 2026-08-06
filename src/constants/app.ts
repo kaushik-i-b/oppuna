@@ -3,10 +3,12 @@ import { LOCAL_MODEL_CONFIG } from '@/config/localModel';
 export const APP = {
   name: 'Oppuna',
   tagline:
-    'A private, offline journal, mood, and reflection companion with on-device AI and guided safety fallbacks.',
-  version: '2.0.0',
+    'Private mood journal, emotional wellness tools, and on-device AI reflection.',
+  /** Play Console title (≤30 chars). Launcher label remains Oppuna. */
+  playStoreTitle: 'Oppuna: AI Mood Journal',
+  version: '2.1.0',
   /** Must match app.json expo.android.versionCode — used for prep-failure backoff identity. */
-  androidVersionCode: 5,
+  androidVersionCode: 9,
 } as const;
 
 export const MEDICAL_DISCLAIMER =
@@ -34,8 +36,9 @@ export const TERMS_OF_USE =
 
 export const PRIVACY_STATEMENT =
   'Everything you write, record, and track in Oppuna stays on this device. ' +
-  'There is no account, no cloud sync, no analytics, and no tracking. ' +
-  'Oppuna works fully in airplane mode and never sends your data anywhere. ' +
+  'There is no account, no cloud sync, and no cloud analytics or tracking. ' +
+  'Optional on-device funnel events never include your journal text, mood notes, or chat content. ' +
+  'Oppuna works fully in airplane mode and never sends your personal entries anywhere. ' +
   'You can export a copy of your data or delete all of it at any time from Settings.';
 
 /** Secure-store keys (never store sensitive content here, only flags/preferences). */

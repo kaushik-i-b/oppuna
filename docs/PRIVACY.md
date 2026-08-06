@@ -6,7 +6,7 @@ Oppuna is built around a single promise: **your private thoughts stay private, o
 
 ## What we collect
 
-**Nothing leaves your phone.** Oppuna has no account system, no servers, and no analytics. We — the developers — never receive, see, or store any of your information.
+**Nothing leaves your phone.** Oppuna has no account system and no servers that receive your journal, mood notes, or chat content. Optional on-device funnel events (for example, first open or first mood logged) stay in local storage only, never include emotional free text, and are never uploaded. We — the developers — never receive, see, or store your personal entries.
 
 ## What is stored, and where
 
@@ -24,7 +24,7 @@ This data is never uploaded, synced, backed up to a cloud, or shared with any th
 
 ## No network access
 
-Oppuna works fully in airplane mode. The app includes a built-in **network guard** that blocks any attempt to make an outbound internet request. There are no advertising SDKs, no trackers, and no telemetry.
+Oppuna works fully in airplane mode. The app includes a built-in **network guard** that blocks any attempt to make an outbound internet request. There are no advertising SDKs, no cloud analytics, and no remote telemetry.
 
 ## Microphone
 

@@ -10,15 +10,16 @@ export { absoluteUrl, assetUrl, basePath, siteUrl };
 export const siteConfig = {
   name: "Oppuna",
   shortName: "Oppuna",
-  tagline: "Private AI for your thoughts",
+  tagline: "Private mood journal & on-device AI",
   description:
-    "Oppuna is a private, offline emotional-wellness companion for Android. Journal, check in with your mood, follow a gentle daily plan, and talk with an on-device supportive companion—without an account or cloud sync.",
+    "Oppuna is a private mood journal and emotional wellness app for Android. Track your mood, journal privately, and reflect with on-device AI—no mandatory account or cloud sync for your entries.",
   longDescription:
-    "A calm Android wellness app for everyday reflection, CBT-inspired journaling, mood check-ins, breathing, and on-device supportive guidance. Built for privacy in India and beyond—not a replacement for professional care.",
+    "A privacy-first Android wellness app for mood tracking, private journaling, breathing, grounding, sleep wind-down, and on-device AI reflection. Designed for everyday self-reflection around professional care—not a medical device or AI therapist.",
 
   packageName: "com.oppuna.care",
   androidPlatform: "Android" as const,
-  version: "2.0.0",
+  version: "2.1.0",
+  playStoreTitle: "Oppuna: AI Mood Journal",
 
   /** Live Google Play listing */
   googlePlayUrl:
@@ -34,7 +35,13 @@ export const siteConfig = {
   siteUrl,
 
   /** Confirmed UI languages to mention on the marketing site. */
-  languagesMention: ["English", "Hindi", "Spanish"] as const,
+  languagesMention: [
+    "English",
+    "English (India)",
+    "Hindi",
+    "Kannada",
+    "Spanish",
+  ] as const,
 
   social: {
     twitter: null as string | null,

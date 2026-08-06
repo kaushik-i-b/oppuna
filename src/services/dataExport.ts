@@ -155,6 +155,10 @@ export async function deleteAllData(): Promise<Result<true>> {
     );
     await cleanupStaleExportFiles();
     await wipeAllTables();
+    const { clearAnalytics } = await import('@/services/analyticsService');
+    const { clearReviewPromptState } = await import('@/services/reviewPromptService');
+    await clearAnalytics();
+    await clearReviewPromptState();
     logger.info('All local data deleted');
     return ok(true);
   } catch (cause) {

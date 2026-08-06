@@ -1,125 +1,43 @@
-# App Store Listing Draft
+# App Store / Play Store Listing
 
-## App name
-Oppuna — Private Wellness, Offline
+**Canonical Google Play copy lives in [`PLAY_STORE_LISTING.md`](./PLAY_STORE_LISTING.md).**  
+**ASO audit:** [`ASO_AUDIT.md`](./ASO_AUDIT.md).
 
-## Subtitle / short tagline
-Private mental wellness support, fully offline on your phone.
+Use Play Console character limits:
 
-## Promotional text (170 chars)
-A calm, private space to journal, track moods, and breathe. Works fully offline. No account, no cloud, no ads, no tracking. Your data never leaves your phone.
+| Field | Limit |
+| --- | --- |
+| Title | ≤30 |
+| Short description | ≤80 |
+| Long description | ≤4000 |
+| Promotional text | ≤80 |
 
-## One-liner
-Oppuna — private mental wellness support, fully offline on your phone.
+## Recommended primary (paste into Play Console)
 
-## Short description (~50 words)
-Oppuna is a private, offline wellness companion for journaling, mood tracking, breathing, and reflection. Everything stays on your device — no account, no cloud, no tracking, no internet. Chat with an on-device companion, log moods, keep a private journal, and calm down with guided breathing, all in airplane mode.
+**Title:** Oppuna: AI Mood Journal  
 
-## Full description (< 4000 characters)
+**Short description:** Private mood journal, emotional wellness tools and on-device AI reflection.
 
-Oppuna — Private Wellness, Offline
+**Launcher label (in-app):** Oppuna (`app.json` / Android `label`)
 
-Your mind deserves a private space. Oppuna is a fully offline mental wellness companion that lives entirely on your device. No account. No cloud. No internet connection required — ever. Everything you write, record, and track stays with you and only you.
+**Package:** `com.oppuna.care`  
+**Privacy policy:** https://oppuna.com/privacy/
 
----
+## Claims to avoid
 
-A companion that never phones home
+Do not use unsupported claims such as cures anxiety, improves therapy outcomes, clinical treatment, AI therapist, or prevents depression.
 
-Oppuna's on-device wellness engine combines a local language model with safety checks and guided offline fallbacks. It understands mood and distress signals and responds with calm, evidence-informed prompts — all without a single byte leaving your phone. It works in airplane mode, on a remote mountain, or anywhere your signal doesn't reach.
+## Screenshot captions
 
----
+See `PLAY_STORE_LISTING.md` (eight conversion-focused captions).
 
-Features
+## Release notes template
 
-Offline AI companion
-Chat with an on-device AI companion (Qwen2.5 1.5B) with safety checks and guided offline fallbacks — processed entirely on your device.
+```
+What's new in Oppuna {version}
+• Improvements to journaling and mood check-ins
+• Performance and reliability fixes
+• Privacy and safety refinements
 
-Crisis safety
-Oppuna recognises signs of severe distress and stops normal coaching to show dedicated crisis support resources. Your safety is never routed through a server.
-
-Mood tracker
-Log your mood, rate its intensity, add notes and tags, and review your emotional patterns in a weekly insights chart.
-
-Journal
-Daily journaling, gratitude lists, thought records, trigger reflections, and private notes — all searchable, editable, and deletable. Yours alone.
-
-Breathing exercises
-4-4-6 breathing, box breathing, and a 5-minute calm session with a smooth animated breathing circle and a completion screen.
-
-Grounding
-A guided 5-4-3-2-1 senses exercise to bring you back to the present moment.
-
-Sleep support
-A wind-down checklist, gentle reminders, and a spoken wind-down narrated by your device's text-to-speech.
-
-Voice notes
-Record private voice notes. Audio files stay in the app's secure, local storage — never uploaded, never shared.
-
-Self-care plan & insights
-Build a personal self-care routine and review your wellness trends over time.
-
-App lock
-Protect the app with your device's biometrics or PIN.
-
-Multilingual
-Available in English, Spanish, and Hindi, with an architecture ready for more languages.
-
-Dark, light, and system themes
-A clean, calming design that adapts to your preferences.
-
-Export & delete
-Export all your data as a JSON file, or permanently erase everything from Settings. Your data, your control.
-
----
-
-Privacy by architecture, not policy
-
-Oppuna includes a built-in network guard that blocks every outbound internet request at the code level — in production, no path to the internet exists. There are no advertising SDKs, no analytics, no trackers, and no telemetry.
-
----
-
-Important
-Oppuna is not a doctor, therapist, crisis service, or medical device. It does not diagnose, treat, cure, prevent, or replace professional care. If you are in danger or need immediate help, contact your local emergency services right away.
-
----
-
-Peace of mind. On your terms. Offline.
-
-## Play Store phone screenshots (1080×1920)
-
-Branded marketing mockups live in `assets/play-store/screenshots/`.
-Regenerate with `python3 scripts/generate-play-store-screenshots.py`.
-
-| # | File | Tagline | Supporting line |
-| --- | --- | --- | --- |
-| 1 | `01-private-ai.png` | Private AI for your thoughts | Mental wellness support that lives only on your phone |
-| 2 | `02-fully-offline.png` | Works fully offline | Airplane mode. Full companion. Zero cloud. |
-| 3 | `03-ai-companion.png` | On-device AI companion | Chat processed locally — nothing is uploaded |
-| 4 | `04-mood-tracker.png` | Track your mood privately | Check-ins, tags, and trends — stored on device |
-| 5 | `05-journal.png` | A journal only you can read | Daily, gratitude, and thought records stay local |
-| 6 | `06-breathing.png` | Breathe your way back to calm | Guided 4-4-6, box breathing, and calm sessions |
-| 7 | `07-grounding.png` | Ground yourself in the moment | A guided 5-4-3-2-1 senses exercise |
-| 8 | `08-sleep.png` | Wind down without the noise | Gentle sleep checklist and spoken wind-down |
-| 9 | `09-daily-plan.png` | A daily plan at your pace | Personalized offline activities and progress |
-| 10 | `10-no-tracking.png` | No accounts. No tracking. | Privacy by architecture — not just a policy |
-
-Upload in this order in Play Console. See `assets/play-store/screenshots/TAGLINES.md`.
-
-## Keywords
-wellness, mental health, offline, journal, mood tracker, breathing, mindfulness, private, anxiety, calm, self-care, grounding, sleep
-
-## Categories
-Primary: Health & Fitness
-Secondary: Lifestyle
-
-## Privacy nutrition label (App Store)
-- Data used to track you: None
-- Data linked to you: None
-- Data not linked to you: None
-- (No data is collected; all data stays on device.)
-
-## Age rating guidance
-17+ is recommended because the app discusses mental health and crisis topics, even though it collects no data and contains no objectionable content.
-
-## Support / notes for reviewers
-The app is fully functional offline. Create a mood entry, journal entry, or chat message to see local persistence (SQLite). "Export my data" writes a local JSON file and opens the system share sheet. "Delete all data" clears the local database. No network connection is required or used.
+Oppuna is a wellness companion—not a medical device or crisis service.
+```

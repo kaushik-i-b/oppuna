@@ -30,6 +30,8 @@ import { DEFAULT_AGENT_ID } from '@/ai/agents';
 import { isAiChatComingSoon } from '@/i18n';
 import { chatComposerBottomPadding } from '@/navigation/layoutInsets';
 import { navigateRoot } from '@/navigation/rootNavigation';
+import { trackEvent } from '@/services/analyticsService';
+import { suppressReviewPrompt } from '@/services/reviewPromptService';
 import { useTheme } from '@/theme/ThemeProvider';
 import { logger } from '@/utils/logger';
 import { ChatComposer, FadeInView, Icon, LivingLeaf, PressableScale, StatusPill } from '@/ui';
@@ -193,6 +195,7 @@ export function ChatScreen(): React.ReactElement {
         setInput('');
         setSuggestions([]);
         void haptics.selection();
+        void suppressReviewPrompt(24);
         navigateRoot('Crisis', { category: crisis });
         void (async () => {
           try {
@@ -223,6 +226,7 @@ export function ChatScreen(): React.ReactElement {
       stickToBottomRef.current = true;
       setUserScrolledUp(false);
       void haptics.selection();
+      void trackEvent('ai_reflection_started', { source: 'chat' }, { once: true });
 
       let streamId: string | null = null;
 

@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { Button, Screen, Text } from '@/components';
 import { LANGUAGES } from '@/i18n';
 import { useTranslation } from '@/hooks/useTranslation';
+import { trackEvent } from '@/services/analyticsService';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { RootStackParamList } from '@/navigation/types';
@@ -19,6 +20,13 @@ export function LanguageScreen({ navigation, route }: Props): React.ReactElement
   const setLanguage = useSettingsStore((s) => s.setLanguage);
   const fromSettings = route.params?.fromSettings ?? false;
   const selectedMeta = LANGUAGES.find((l) => l.code === language);
+  const startedRef = useRef(false);
+
+  useEffect(() => {
+    if (fromSettings || startedRef.current) return;
+    startedRef.current = true;
+    void trackEvent('onboarding_started', { step: 'language' }, { once: true });
+  }, [fromSettings]);
 
   return (
     <Screen
@@ -87,7 +95,10 @@ export function LanguageScreen({ navigation, route }: Props): React.ReactElement
 
       {!fromSettings ? (
         <View style={{ marginTop: theme.spacing.xl }}>
-          <Button label={t('common.continue')} onPress={() => navigation.navigate('Privacy')} />
+          <Button
+            label={t('common.continue')}
+            onPress={() => navigation.navigate('WellnessOnboarding')}
+          />
         </View>
       ) : null}
     </Screen>

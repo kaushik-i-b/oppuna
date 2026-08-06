@@ -8,6 +8,7 @@ import { initializeModel } from '@/ai/modelManager';
 import { initDatabase } from '@/database';
 import { warmDeviceMemoryEstimate } from '@/services/deviceCapabilityService';
 import { cleanupStaleExportFiles } from '@/services/dataExport';
+import { recordAppOpen } from '@/services/analyticsService';
 import { syncCareReminders } from '@/services/careReminderService';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -96,6 +97,14 @@ export function AppBootstrap({ children }: { children: React.ReactNode }): React
       logger.warn('Care reminder sync failed', { error: String(error) });
     });
   }, [hydrated, careRemindersEnabled]);
+
+  // Local install-conversion analytics (never leaves the device).
+  useEffect(() => {
+    if (!hydrated || !canEnterApp) return;
+    void recordAppOpen().catch((error: unknown) => {
+      logger.warn('Analytics open failed', { error: String(error) });
+    });
+  }, [hydrated, canEnterApp]);
 
   if (status === 'error') {
     return (

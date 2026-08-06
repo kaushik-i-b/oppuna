@@ -9,6 +9,7 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { RootStackParamList } from '@/navigation/types';
 import { Icon } from '@/ui';
+import { trackEvent } from '@/services/analyticsService';
 import { generateTodayPlan } from '@/wellness/planService';
 import { logger } from '@/utils/logger';
 
@@ -35,6 +36,7 @@ export function DisclaimerScreen({ navigation, route }: Props): React.ReactEleme
         });
       }
       completeOnboarding();
+      void trackEvent('onboarding_completed', { source: 'disclaimer' }, { once: true });
       navigation.reset({
         index: 0,
         routes: [{ name: 'Main', params: { screen: 'Home' } }],

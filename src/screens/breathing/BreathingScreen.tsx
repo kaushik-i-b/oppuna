@@ -8,7 +8,9 @@ import { breathingRepository } from '@/database';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useTranslation } from '@/hooks/useTranslation';
 import type { RootStackParamList } from '@/navigation/types';
+import { trackEvent } from '@/services/analyticsService';
 import { recordCareActivity } from '@/services/careRetentionService';
+import { maybeRequestReview } from '@/services/reviewPromptService';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { BreathingPattern } from '@/types';
 import { CareHero, FadeInView, LivingLeaf, PressableScale, SectionLabel } from '@/ui';
@@ -191,6 +193,7 @@ export function BreathingScreen({ navigation }: Props): React.ReactElement {
         });
         if (completed) {
           void recordCareActivity('breathing');
+          void maybeRequestReview('breathing_completed');
         }
       } catch (error) {
         logger.warn('Save breathing session failed', { error: String(error) });
@@ -245,6 +248,7 @@ export function BreathingScreen({ navigation }: Props): React.ReactElement {
       setCompletedFully(false);
       startedAtRef.current = Date.now();
       setStage('running');
+      void trackEvent('breathing_started', { pattern: cfg.key });
     },
     [selection],
   );
