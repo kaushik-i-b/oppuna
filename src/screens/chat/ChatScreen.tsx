@@ -577,6 +577,14 @@ export function ChatScreen(): React.ReactElement {
         {!keyboardVisible ? (
           <View style={{ flexDirection: 'row', gap: theme.spacing.md, alignItems: 'center' }}>
             <PressableScale
+              onPress={() => navigateRoot('TalkToOppuna')}
+              accessibilityRole="button"
+              accessibilityLabel="Talk to Oppuna — voice reflection"
+              style={[styles.headerBtn, { backgroundColor: theme.colors.surfaceInteractive }]}
+            >
+              <Icon name="mic" size={20} color={theme.colors.primary} />
+            </PressableScale>
+            <PressableScale
               onPress={() => navigation.navigate('VoiceMode')}
               accessibilityRole="button"
               accessibilityLabel="Voice mode"

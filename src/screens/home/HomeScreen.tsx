@@ -207,6 +207,11 @@ export function HomeScreen(): React.ReactElement {
           </Text>
           <View style={{ marginTop: theme.spacing.md, gap: theme.spacing.sm }}>
             <Button
+              label="Talk to Oppuna"
+              onPress={() => navigation.navigate('TalkToOppuna')}
+              accessibilityHint="Start a voice-first reflection conversation"
+            />
+            <Button
               label={t('home.insights')}
               variant="secondary"
               onPress={() => navigation.navigate('Insights')}
