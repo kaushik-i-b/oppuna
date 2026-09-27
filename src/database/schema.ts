@@ -135,6 +135,48 @@ const MIGRATIONS: ((db: SQLiteDatabase) => Promise<void>)[] = [
         VALUES (1, '', '[]', '[]', 15, 0);
     `);
   },
+  async (db) => {
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS voice_sessions (
+        id TEXT PRIMARY KEY NOT NULL,
+        created_at INTEGER NOT NULL,
+        ended_at INTEGER,
+        transcript_json TEXT NOT NULL DEFAULT '[]',
+        status TEXT NOT NULL DEFAULT 'active'
+      );
+      CREATE INDEX IF NOT EXISTS idx_voice_sessions_created ON voice_sessions (created_at);
+
+      CREATE TABLE IF NOT EXISTS reflections (
+        id TEXT PRIMARY KEY NOT NULL,
+        session_id TEXT,
+        summary TEXT NOT NULL DEFAULT '',
+        mood TEXT NOT NULL DEFAULT '',
+        themes_json TEXT NOT NULL DEFAULT '[]',
+        concerns_json TEXT NOT NULL DEFAULT '[]',
+        positive_moments_json TEXT NOT NULL DEFAULT '[]',
+        commitments_json TEXT NOT NULL DEFAULT '[]',
+        excluded_topics_json TEXT NOT NULL DEFAULT '[]',
+        user_approved INTEGER NOT NULL DEFAULT 0,
+        is_demo INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL,
+        FOREIGN KEY (session_id) REFERENCES voice_sessions (id) ON DELETE SET NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_reflections_created ON reflections (created_at);
+      CREATE INDEX IF NOT EXISTS idx_reflections_session ON reflections (session_id);
+
+      CREATE TABLE IF NOT EXISTS reflection_memories (
+        id TEXT PRIMARY KEY NOT NULL,
+        reflection_id TEXT NOT NULL,
+        text TEXT NOT NULL DEFAULT '',
+        approved INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        FOREIGN KEY (reflection_id) REFERENCES reflections (id) ON DELETE CASCADE
+      );
+      CREATE INDEX IF NOT EXISTS idx_memories_reflection ON reflection_memories (reflection_id);
+      CREATE INDEX IF NOT EXISTS idx_memories_approved ON reflection_memories (approved, created_at);
+    `);
+  },
 ];
 
 export async function runMigrations(db: SQLiteDatabase): Promise<void> {

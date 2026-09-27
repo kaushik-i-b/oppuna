@@ -41,6 +41,9 @@ export async function wipeAllTables(): Promise<void> {
     DELETE FROM breathing_sessions;
     DELETE FROM safety_events;
     DELETE FROM voice_notes;
+    DELETE FROM reflection_memories;
+    DELETE FROM reflections;
+    DELETE FROM voice_sessions;
     DELETE FROM care_activities;
     DELETE FROM care_streak;
     DELETE FROM daily_care_progress;

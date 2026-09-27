@@ -33,6 +33,11 @@ function isAllowed(rawUrl: string): boolean {
   try {
     const host = lower.replace(/^https?:\/\//, '').split(/[/?#]/)[0]?.split(':')[0] ?? '';
     if (__DEV__ && LOCAL_HOST_PATTERNS.some((re) => re.test(host))) return true;
+    if (voiceNetworkingEnabled) {
+      if (ASSEMBLYAI_HOST_PATTERN.test(host)) return true;
+      const tokenHost = voiceTokenHost();
+      if (tokenHost && host === tokenHost) return true;
+    }
   } catch {
     return false;
   }
@@ -89,6 +94,42 @@ function installXhrGuard(): void {
 }
 
 let installed = false;
+
+/**
+ * Session-scoped, explicit opt-in exception for the "Talk to Oppuna" voice
+ * experience — the ONLY feature allowed to touch the network, and only after
+ * the user taps in and accepts the voice consent notice.
+ *
+ * When enabled, requests to `*.assemblyai.com` (realtime transcription) and
+ * the configured voice token endpoint are allowed; everything else stays
+ * blocked. The voice session disables this again on end/forget.
+ */
+let voiceNetworkingEnabled = false;
+
+const ASSEMBLYAI_HOST_PATTERN = /(^|\.)assemblyai\.com$/i;
+
+function voiceTokenHost(): string {
+  try {
+    const raw = process.env.EXPO_PUBLIC_VOICE_TOKEN_URL ?? '';
+    if (!raw) return '';
+    return new URL(raw).hostname.toLowerCase();
+  } catch {
+    return '';
+  }
+}
+
+export function setVoiceNetworkingEnabled(enabled: boolean): void {
+  voiceNetworkingEnabled = enabled;
+  logger.info(enabled ? 'Voice networking enabled (session-scoped)' : 'Voice networking disabled');
+}
+
+export function isVoiceNetworkingEnabled(): boolean {
+  return voiceNetworkingEnabled;
+}
+
+export function __resetVoiceNetworkingForTests(): void {
+  voiceNetworkingEnabled = false;
+}
 
 export function __resetNetworkGuardForTests(): void {
   installed = false;
