@@ -70,6 +70,7 @@
       ],
       "./plugins/withAiModelAssetPack.js",
       "./plugins/withAndroidPrivacy.js",
+      "./plugins/withOppunaPcmAudio.js",
       [
         "expo-splash-screen",
         {

@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 import type { VoiceAudioPort } from '@/voice/audio/types';
 import type { VoiceMemoryStore } from '@/voice/memoryStore';
 import { OPPUNA_VOICE_GREETING } from '@/voice/prompt';
@@ -62,6 +64,9 @@ function microphoneMessage(error: unknown): string {
     return 'Microphone permission is needed for Talk to Oppuna. Allow the microphone and try again.';
   }
   if (error instanceof Error && error.message === 'microphone_unavailable') {
+    if (Platform.OS === 'android') {
+      return 'This Android build does not include the live microphone stream.';
+    }
     return 'Realtime voice uses the browser microphone. Open Oppuna with npm run web, then tap Talk to Oppuna.';
   }
   return 'Could not start the microphone.';

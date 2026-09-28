@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AppState, ScrollView, StyleSheet, View } from 'react-native';
+import { AppState, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { assessSafety } from '@/ai';
-import { Button, Text } from '@/components';
+import { Button, Text, TextField } from '@/components';
 import { moodRepository, reflectionRepository, safetyRepository } from '@/database';
 import { useSecureScreen } from '@/hooks/useSecureScreen';
 import { navigateRoot } from '@/navigation/rootNavigation';
@@ -14,7 +14,7 @@ import {
   createBrowserSocketFactory,
   type VoiceRuntimeEvent,
 } from '@/voice/AssemblyAIVoiceService';
-import { createWebAudioPort } from '@/voice/audio/webAudioPort';
+import { createVoiceAudioPort } from '@/voice/audio/createVoiceAudioPort';
 import { seedDemoReflections } from '@/voice/demoSeed';
 import { moodKeyForVoice } from '@/voice/moodMap';
 import { buildSystemPrompt } from '@/voice/prompt';
@@ -22,7 +22,7 @@ import { resolveApprovedMemories, retrieveApprovedMemories } from '@/voice/refle
 import { reduceVoicePhase, type VoiceEvent } from '@/voice/stateMachine';
 import { removeTranscriptLine, upsertTranscriptLine } from '@/voice/transcript';
 import { PHASE_LABEL, type PatternReport, type ReflectionMemory, type TranscriptLine, type VoicePhase } from '@/voice/types';
-import { fetchVoiceToken } from '@/voice/voiceTokenClient';
+import { fetchVoiceToken, setVoiceTokenBaseUrl, voiceTokenBaseUrl } from '@/voice/voiceTokenClient';
 import { voiceLog } from '@/voice/voiceLog';
 import { HowVoiceWorks } from '@/screens/voice/HowVoiceWorks';
 import { ReflectionSheet, type MemoryChoice } from '@/screens/voice/ReflectionSheet';
@@ -46,6 +46,7 @@ export function TalkToOppunaScreen({ navigation }: Props): React.ReactElement {
   useSecureScreen(true);
 
   const [phase, setPhase] = useState<VoicePhase>('IDLE');
+  const [serverUrl, setServerUrl] = useState(voiceTokenBaseUrl);
   const [lines, setLines] = useState<TranscriptLine[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState<ReflectionMemory | null>(null);
@@ -185,6 +186,7 @@ export function TalkToOppunaScreen({ navigation }: Props): React.ReactElement {
   const begin = async (): Promise<void> => {
     const boot = bootRef.current + 1;
     bootRef.current = boot;
+    setVoiceTokenBaseUrl(serverUrl);
     setError(null);
     setLines([]);
     setDraft(null);
@@ -201,7 +203,7 @@ export function TalkToOppunaScreen({ navigation }: Props): React.ReactElement {
     const service = new AssemblyAIVoiceService({
       fetchToken: fetchVoiceToken,
       sockets: createBrowserSocketFactory(),
-      audio: createWebAudioPort(),
+      audio: createVoiceAudioPort(),
       store: reflectionRepository,
       localSessionId: sessionId,
       buildPrompt: async () => {
@@ -219,12 +221,17 @@ export function TalkToOppunaScreen({ navigation }: Props): React.ReactElement {
     }
   };
 
+  const beginRef = useRef(begin);
+  beginRef.current = begin;
+
   useEffect(() => {
     let active = true;
-    void (async () => {
-      if (!active) return;
-      await begin();
-    })();
+    if (Platform.OS !== 'android') {
+      void (async () => {
+        if (!active) return;
+        await beginRef.current();
+      })();
+    }
     const subscription = AppState.addEventListener('change', (next) => {
       if (next === 'background' || next === 'inactive') {
         void serviceRef.current?.pauseForBackground();
@@ -414,8 +421,22 @@ export function TalkToOppunaScreen({ navigation }: Props): React.ReactElement {
               </View>
             ) : null}
             <View style={{ marginTop: theme.spacing.xl, width: '100%', gap: theme.spacing.sm }}>
-              {phase === 'ERROR' ? (
-                <Button label="Try again" onPress={() => void begin()} />
+              {Platform.OS === 'android' && (phase === 'IDLE' || phase === 'ERROR') ? (
+                <TextField
+                  label="Voice server"
+                  value={serverUrl}
+                  onChangeText={setServerUrl}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="url"
+                  helperText="Emulator: http://10.0.2.2:8787. Phone: http://<computer LAN IP>:8787. Start the computer with VOICE_TOKEN_HOST=0.0.0.0 npm run voice:token."
+                />
+              ) : null}
+              {phase === 'ERROR' || (Platform.OS === 'android' && phase === 'IDLE') ? (
+                <Button
+                  label={phase === 'ERROR' ? 'Try again' : 'Start conversation'}
+                  onPress={() => void begin()}
+                />
               ) : null}
               <Button label="End conversation" variant="secondary" onPress={finish} />
               <Button label="Forget this conversation" variant="ghost" onPress={() => void forget()} />

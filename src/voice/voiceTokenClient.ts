@@ -1,9 +1,23 @@
 import { beginVoiceNetworkWindow, endVoiceNetworkWindow } from '@/services/networkGuard';
 
+let overrideBaseUrl: string | null = null;
+
+/** Phone builds cannot use 127.0.0.1. The screen sets the computer that runs the token server. */
+export function setVoiceTokenBaseUrl(url: string): void {
+  const trimmed = url.trim().replace(/\/$/, '');
+  overrideBaseUrl = trimmed.length > 0 ? trimmed : null;
+}
+
+export function voiceTokenBaseUrl(): string {
+  return (overrideBaseUrl ?? process.env.EXPO_PUBLIC_VOICE_TOKEN_URL ?? 'http://127.0.0.1:8787').replace(
+    /\/$/,
+    '',
+  );
+}
+
 /** Public token endpoint. The AssemblyAI API key stays on the token server. */
 export function voiceTokenEndpoint(): string {
-  const configured = process.env.EXPO_PUBLIC_VOICE_TOKEN_URL ?? 'http://127.0.0.1:8787';
-  return `${configured.replace(/\/$/, '')}/voice/token`;
+  return `${voiceTokenBaseUrl()}/voice/token`;
 }
 
 export async function fetchVoiceToken(): Promise<{ token: string }> {

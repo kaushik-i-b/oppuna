@@ -101,8 +101,9 @@ Edit `.env` and set `ASSEMBLYAI_API_KEY`. Do not commit `.env`.
 | --- | --- | --- |
 | `ASSEMBLYAI_API_KEY` | Token server only | Mints a temporary Voice Agent token |
 | `VOICE_TOKEN_PORT` | Token server | Defaults to `8787` |
-| `VOICE_TOKEN_HOST` | Token server | Defaults to `127.0.0.1` |
+| `VOICE_TOKEN_HOST` | Token server | Defaults to `127.0.0.1`. Use `0.0.0.0` when a phone must reach this computer |
 | `EXPO_PUBLIC_VOICE_TOKEN_URL` | Expo app | Public URL of the token server, default `http://127.0.0.1:8787` |
+| `OPPUNA_VOICE_APK` | Local Android prebuild | Set to `1` to build a test APK that allows network access for Talk to Oppuna |
 
 ## Running the application
 
@@ -120,7 +121,17 @@ npm run web
 
 Open the web app, finish onboarding if it is a fresh database, then tap **Talk to Oppuna**. Allow the microphone. Headphones reduce echo if the browser’s echo cancellation is not enough.
 
-`npm start` still opens the Expo dev server for iOS and Android. Realtime microphone streaming is implemented for the browser. A native shell without Web Audio shows a recoverable error instead of a fake conversation.
+`npm start` still opens the Expo dev server. The browser path uses Web Audio. The Android test APK uses a native PCM microphone and speaker.
+
+### Android test APK
+
+Production `app.json` still blocks `INTERNET`. A separate prebuild flag opens the network only for this test build:
+
+```bash
+OPPUNA_VOICE_APK=1 npx expo prebuild --platform android --no-install
+```
+
+Then assemble a debug APK from `android/`. Install that APK, start the token server with `VOICE_TOKEN_HOST=0.0.0.0`, and set **Voice server** in the app to `http://<computer-lan-ip>:8787` (emulator: `http://10.0.2.2:8787`). Allow the microphone. The API key stays on the computer that runs `npm run voice:token`.
 
 ## Demo flow
 
