@@ -1,120 +1,176 @@
-# Oppuna 🌿
+# Oppuna Voice
 
-**Private mental wellness support, offline on your phone.**
+A voice-first reflection companion that turns natural conversations into user-controlled memories and meaningful reflections.
 
-Oppuna is a fully offline, privacy-first mental wellness companion built with React Native, Expo, and TypeScript. It works completely in airplane mode — no login, no backend, no analytics, no tracking, and no external API calls. Everything you write, record, and track stays on your device.
+Oppuna Voice is the AssemblyAI hackathon experience inside Oppuna. You tap **Talk to Oppuna**, speak naturally, interrupt, correct yourself, and decide exactly what is allowed to be remembered. The rest of Oppuna — journal, mood check-ins, breathing, and the on-device companion — still runs locally and is unchanged.
 
-> **Important medical disclaimer**
-> Oppuna is not a doctor, therapist, crisis service, or medical device. It does not diagnose, treat, cure, prevent, or replace professional care. It provides supportive wellness guidance only. If you are in danger or need medical help, contact your local emergency services right away.
+Oppuna is a reflection and wellness companion. It is not a therapist, a doctor, a diagnostic system, or emergency services.
 
----
+## Problem
+
+Typing a journal entry asks people to organize a feeling before they have understood it. A text box also makes turn-taking awkward: you record a clip, stop, wait, and then read a reply. Sensitive details are easy to store by accident, and a later conversation has no careful way to recall only what you meant to keep.
+
+## Solution
+
+Talk to Oppuna is one full-screen conversation.
+
+You speak. AssemblyAI handles realtime speech recognition, turn detection, the spoken reply, and barge-in. Oppuna’s tools turn that conversation into a structured reflection. Nothing from the raw transcript becomes long-term memory until you approve individual lines. The next conversation can retrieve only those approved lines.
+
+## Why voice
+
+Voice lets someone pause, continue, and change their mind without managing a recorder. Interrupting Oppuna mid-sentence is part of the product: playback stops, the correction is kept, and the conversation continues.
+
+## Why AssemblyAI
+
+AssemblyAI’s Voice Agent API is the conversation itself, not a plugin beside it. One WebSocket carries microphone audio in and spoken audio out. The same session emits partial transcripts, final transcripts, turn boundaries, barge-in, and tool calls. Oppuna does not stitch together a separate speech-to-text vendor, language model, and text-to-speech vendor for this flow.
+
+## Architecture
+
+```mermaid
+flowchart TD
+  mic[Microphone PCM16] --> service[AssemblyAIVoiceService]
+  service --> token[Local token server]
+  token --> mint["GET /v1/token"]
+  service --> ws["wss://agents.assemblyai.com/v1/ws"]
+  ws --> agent[AssemblyAI Voice Agent]
+  agent --> service
+  service --> tools[save_reflection / get_recent_reflections / record_mood / get_reflection_patterns]
+  tools --> db[(SQLite reflection memory)]
+  db --> tools
+  service --> screen[Talk to Oppuna]
+```
+
+The API key stays on `server/voice-token-server.mjs`. The app receives a one-time token and connects with `?token=`. Session setup is an inline `session.update` with the system prompt, client-side tools, PCM input and output, and barge-in enabled.
+
+Journaling, mood history, and the on-device Llama companion do not use this socket. Android production builds still block `INTERNET`. The live voice demo runs in Expo web or Expo Go, where the process can reach the token server and AssemblyAI.
+
+Details: [docs/VOICE_ARCHITECTURE.md](docs/VOICE_ARCHITECTURE.md).
 
 ## Features
 
-- **Offline AI companion** — a safety-first chat pipeline with crisis detection, an on-device local LLM (`llama.rn` + llama.cpp + GGUF via Play Asset Delivery), streaming replies, and a deterministic rule-based fallback.
-- **Crisis safety flow** — detects suicide, self-harm, abuse, violence, medical emergencies, and severe panic, then stops normal coaching and shows a dedicated crisis support screen.
-- **Mood tracker** — mood, 1–10 intensity, notes, tags, history, and weekly insights with a local chart.
-- **Journal** — daily, gratitude, thought records, trigger reflections, and private notes with search and edit/delete.
-- **Breathing exercises** — 4-4-6, box breathing, and a 5-minute calm session with an animated breathing circle and completion screen.
-- **Grounding** — guided 5-4-3-2-1 senses exercise.
-- **Sleep support** — wind-down checklist, gentle reminders, and a spoken wind-down (device TTS).
-- **Voice mode** — device text-to-speech and offline local voice notes (on-device speech-to-text is architected for the future).
-- **Self-care plan**, **Insights dashboard**, **Settings**, **Data export**, and **Delete all data**.
-- **Dark/light/system themes**, **multilingual-ready architecture** (English, Spanish, Hindi included), accessibility support, haptics, and a reusable design system.
+- One button, **Talk to Oppuna**, from Home and Chat.
+- Realtime listening, partial transcripts, and spoken replies. No press-to-record loop.
+- Barge-in: user speech stops playback and the interrupted reply cannot overwrite the next one.
+- Tools: `save_reflection`, `get_recent_reflections`, `record_mood`, `get_reflection_patterns`.
+- Reflection preview with mood, summary, themes, realization, and an optional commitment.
+- Pattern lines only when at least two approved reflections exist in the window.
+- Optional dev control to seed labeled historical reflections. It does not fake a live AssemblyAI reply.
+- Expandable “How Oppuna Voice works” on the voice screen.
 
----
+## User-controlled memory
+
+After a reflection is drafted, Oppuna asks what it should remember. Each suggestion can be kept, edited, or left unchecked. Saving the reflection does not require saving any memory. Later conversations call `get_recent_reflections` and receive only approved lines. Rejected lines and excluded topics are not returned.
+
+## Privacy model
+
+| Kind | What it is | What happens on “Forget this conversation” |
+| --- | --- | --- |
+| Session context | Live transcript rows for this visit | Deleted |
+| Unsaved reflection | Draft, including memory candidates | Deleted |
+| Long-term memory | Lines you explicitly approved | Kept, including approvals from other conversations |
+
+The raw conversation is not copied into long-term memory. Approved memory can be removed later from the reflection screen. Delete-all-data still wipes these tables with the rest of the local database.
+
+The network guard still blocks ordinary outbound requests. A voice token request may reach the configured token host and `agents.assemblyai.com` only while that request is in flight.
+
+## Safety
+
+Existing crisis detection still runs on finalized user transcripts. A match stops the voice session and opens the current crisis screen. Safety events store a category and a time, not the message text. The voice prompt forbids diagnosis, therapeutic claims, and pretending to be a person.
 
 ## Tech stack
 
-- React Native `0.83` + Expo SDK `55` + TypeScript (strict)
-- `expo-sqlite` for local, structured storage
-- `zustand` for preferences state (persisted via AsyncStorage)
-- `@react-navigation` (native-stack + bottom-tabs)
-- `react-native-reanimated` + `react-native-svg` for animations and charts
-- `expo-speech`, `expo-audio`, `expo-haptics`, `expo-file-system`, `expo-sharing`, `expo-localization`, `expo-secure-store`
-- `llama.rn` for fully local GGUF inference on mobile builds (install-time Play Asset Delivery on Android; no Ollama)
+- React Native, Expo SDK 55, TypeScript
+- AssemblyAI Voice Agent WebSocket (`wss://agents.assemblyai.com/v1/ws`)
+- Browser microphone and Web Audio playback at 24 kHz PCM16
+- `expo-sqlite` for reflection memory
+- Existing on-device chat via `llama.rn` (unchanged)
+- Jest and `tsc` for tests and typechecking
 
-See [docs/LOCAL_LLM_ANDROID.md](docs/LOCAL_LLM_ANDROID.md) for the on-device LLM architecture, PAD setup, and release workflow.
-
----
-
-## Project structure
-
-```
-src/
-  app/          App composition root + bootstrap
-  components/   Reusable design system (ui/) and domain components (domain/)
-  constants/    App metadata, disclaimers, crisis resources, moods
-  database/     SQLite client, schema/migrations, repositories
-  hooks/        useTheme, useTranslation, useHaptics, useAppNavigation
-  i18n/         Locales (en/es/hi) + translator
-  navigation/   Root navigator, tabs, types, navigation theme
-  screens/      All 18 screens, grouped by feature
-  services/     offlineAI, networkGuard, dataExport
-  store/        Zustand settings store
-  theme/        Tokens, colors, ThemeProvider
-  types/        Domain models + Result type
-  utils/        id, date, logger
-```
-
----
-
-## Installation
+## Local setup
 
 ```bash
 npm install
+cp .env.example .env
 ```
 
-## Run
+Edit `.env` and set `ASSEMBLYAI_API_KEY`. Do not commit `.env`.
+
+## Environment variables
+
+| Name | Where | Purpose |
+| --- | --- | --- |
+| `ASSEMBLYAI_API_KEY` | Token server only | Mints a temporary Voice Agent token |
+| `VOICE_TOKEN_PORT` | Token server | Defaults to `8787` |
+| `VOICE_TOKEN_HOST` | Token server | Defaults to `127.0.0.1` |
+| `EXPO_PUBLIC_VOICE_TOKEN_URL` | Expo app | Public URL of the token server, default `http://127.0.0.1:8787` |
+
+## Running the application
+
+Terminal 1:
 
 ```bash
-npx expo start
+npm run voice:token
 ```
 
-Then press `i` (iOS simulator), `a` (Android emulator), or scan the QR code with Expo Go / a development build. The app runs fully offline once installed.
+Terminal 2:
 
-## Type-check, lint, and test
+```bash
+npm run web
+```
+
+Open the web app, finish onboarding if it is a fresh database, then tap **Talk to Oppuna**. Allow the microphone. Headphones reduce echo if the browser’s echo cancellation is not enough.
+
+`npm start` still opens the Expo dev server for iOS and Android. Realtime microphone streaming is implemented for the browser. A native shell without Web Audio shows a recoverable error instead of a fake conversation.
+
+## Demo flow
+
+1. Start the token server and the web app.
+2. Tap **Talk to Oppuna**.
+3. Say that the day was exhausting and that an argument at work is still on your mind.
+4. Let Oppuna reply. Interrupt it and correct what actually bothered you.
+5. Agree to a reflection, and say what to leave out.
+6. Review the preview. Uncheck anything Oppuna should not remember. Save.
+7. Start another conversation. Mention feeling stressed again.
+8. Oppuna should use `get_recent_reflections` and speak only from approved memory.
+9. Ask how you have been doing lately. Patterns appear only if enough approved reflections exist.
+10. Use **Forget this conversation** to drop the live transcript and any unsaved draft.
+
+In development, **Load demo history** inserts a clearly labeled past reflection so the second session can be shown without hand-editing the database. Those rows are marked `demo_seed`.
+
+## Screenshots
+
+Placeholders for captures from a live session:
+
+![Talk to Oppuna listening](docs/screenshots/listening.png)
+
+![Reflection preview and memory choices](docs/screenshots/reflection.png)
+
+![How Oppuna Voice works](docs/screenshots/how-it-works.png)
+
+## Future roadmap
+
+- Stream PCM from a native development build, not only the browser.
+- Let a stored AssemblyAI agent id replace the inline prompt when a deployment wants the prompt off the client.
+- Encrypt the local reflection tables.
+- Offer voice in more of the languages Oppuna already lists, using AssemblyAI’s multilingual voices.
+
+## Tests
 
 ```bash
 npm run typecheck
-npm run test
+npm run lint
+npm test
 ```
 
-Unit tests cover the offline AI engine, Llama mental health agent, crisis detection, and the mood/journal storage logic.
+Voice tests cover reflection drafts, excluded topics, memory approval, rejected-memory retrieval, approved-memory retrieval, interruption transitions, duplicate tool calls, and forget-conversation behavior.
 
----
+## Existing offline app
 
-## Database schema
+The sections below describe the rest of Oppuna, which this voice work does not replace.
 
-SQLite database `oppuna.db`, versioned with `PRAGMA user_version`. See `src/database/schema.ts`.
+- Offline AI companion with crisis detection, `llama.rn`, and a rule-based fallback.
+- Mood tracker, journal, breathing, grounding, sleep support, and local voice notes.
+- SQLite on device. No account.
+- Production Android builds block `android.permission.INTERNET`.
 
-| Table | Key columns |
-| --- | --- |
-| `mood_entries` | `id`, `mood`, `intensity`, `note`, `tags` (JSON), `created_at` |
-| `journal_entries` | `id`, `kind`, `title`, `body`, `created_at`, `updated_at` |
-| `chat_sessions` | `id`, `title`, `created_at`, `updated_at` |
-| `chat_messages` | `id`, `session_id` (FK → `chat_sessions`), `role`, `content`, `intent`, `mood`, `created_at` |
-| `breathing_sessions` | `id`, `pattern`, `cycles`, `duration_sec`, `completed`, `created_at` |
-| `safety_events` | `id`, `category`, `created_at` (metadata only — never the message text) |
-| `voice_notes` | `id`, `uri`, `duration_sec`, `transcript`, `created_at` |
-
-Preferences (theme, language, onboarding/disclaimer flags, app-lock flag) are stored locally via AsyncStorage through the Zustand `settingsStore`.
-
----
-
-## Security & privacy
-
-- **Network guard** (`src/services/networkGuard.ts`) wraps `fetch` and `XMLHttpRequest` and rejects any outbound request to a remote host. In production no code path can reach the internet; local dev tooling is allowed only under `__DEV__`.
-- No login, no cloud sync, no analytics, no tracking.
-- **Export** writes a local JSON file and uses the OS share sheet (user-controlled). **Delete all data** wipes every table and removes recorded voice files.
-- App-lock is included as a preference placeholder, ready for device biometrics in a future update.
-
-## Roadmap-ready
-
-The architecture is intentionally ready to grow into:
-
-- bundling and lifecycle UX for on-device GGUF models behind the existing Llama agent,
-- on-device speech-to-text for voice mode,
-- encrypted local storage (SQLCipher / secure keys).
-
-See `docs/PRIVACY.md` and `docs/APP_STORE.md` for the privacy statement and store description draft.
+See `docs/PRIVACY.md` and `docs/LOCAL_LLM_ANDROID.md` for the privacy statement and the on-device model.

@@ -46,6 +46,7 @@ yarn-error.*
 .DS_Store
 
 # env
+.env
 .env*.local
 
 # typescript

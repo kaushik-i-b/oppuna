@@ -5,4 +5,5 @@ export { chatRepository } from '@/database/repositories/chatRepository';
 export { breathingRepository } from '@/database/repositories/breathingRepository';
 export { safetyRepository } from '@/database/repositories/safetyRepository';
 export { voiceNoteRepository } from '@/database/repositories/voiceNoteRepository';
+export { reflectionRepository } from '@/database/repositories/reflectionRepository';
 export { wellnessPlanRepository } from '@/database/repositories/wellnessPlanRepository';

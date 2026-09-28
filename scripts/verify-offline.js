@@ -13,6 +13,10 @@ const SRC = path.join(ROOT, 'src');
 const ALLOWED_NETWORK_FILES = new Set([
   path.normalize('src/services/networkGuard.ts'),
   path.normalize('src/screens/crisis/CrisisScreen.tsx'),
+  // Talk to Oppuna: temporary AssemblyAI token + Voice Agent WebSocket.
+  // The API key stays on server/voice-token-server.mjs.
+  path.normalize('src/voice/voiceTokenClient.ts'),
+  path.normalize('src/voice/AssemblyAIVoiceService.ts'),
 ]);
 
 const NETWORK_IMPORT_PATTERNS = [

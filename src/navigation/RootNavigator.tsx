@@ -14,6 +14,7 @@ import { LanguageScreen } from '@/screens/onboarding/LanguageScreen';
 import { PrivacyScreen } from '@/screens/onboarding/PrivacyScreen';
 import { DisclaimerScreen } from '@/screens/onboarding/DisclaimerScreen';
 import { VoiceModeScreen } from '@/screens/chat/VoiceModeScreen';
+import { TalkToOppunaScreen } from '@/screens/voice/TalkToOppunaScreen';
 import { MoodScreen } from '@/screens/mood/MoodScreen';
 import { MoodHistoryScreen } from '@/screens/mood/MoodHistoryScreen';
 import { InsightsScreen } from '@/screens/insights/InsightsScreen';
@@ -55,6 +56,7 @@ export function RootNavigator(): React.ReactElement {
           <Stack.Group>
             <Stack.Screen name="Main" component={MainTabs} />
             <Stack.Screen name="VoiceMode" component={VoiceModeScreen} />
+            <Stack.Screen name="TalkToOppuna" component={TalkToOppunaScreen} />
             <Stack.Screen name="MoodCheckIn" component={MoodScreen} />
             <Stack.Screen name="MoodHistory" component={MoodHistoryScreen} />
             <Stack.Screen name="Insights" component={InsightsScreen} />

@@ -20,7 +20,7 @@
       "bundleIdentifier": "com.oppuna.care",
       "buildNumber": "2",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Oppuna uses the microphone only to record private voice notes that stay on your device. Nothing is ever uploaded.",
+        "NSMicrophoneUsageDescription": "Oppuna uses the microphone for on-device voice notes and, when you start Talk to Oppuna, to stream audio to AssemblyAI for a live reflection. Voice notes stay on your device.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -81,7 +81,7 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "Oppuna records private voice notes that never leave your device."
+          "microphonePermission": "Oppuna uses the microphone for on-device voice notes and, when you start Talk to Oppuna, to stream audio to AssemblyAI for a live reflection. Voice notes stay on your device."
         }
       ],
       [

@@ -44,6 +44,10 @@ export async function wipeAllTables(): Promise<void> {
     DELETE FROM care_activities;
     DELETE FROM care_streak;
     DELETE FROM daily_care_progress;
+    DELETE FROM voice_transcripts;
+    DELETE FROM reflection_moods;
+    DELETE FROM reflection_memories;
+    DELETE FROM voice_sessions;
     DELETE FROM wellness_plans;
     DELETE FROM wellness_prefs;
     INSERT OR IGNORE INTO care_streak (id, current_streak, longest_streak, updated_at)
