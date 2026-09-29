@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Inspects a built Android App Bundle for on-device LLM install-time delivery + privacy.
+ * Inspects a built Android App Bundle for on-device LLM on-demand delivery + privacy.
  *
  * Usage: npm run verify:aab -- path/to/app.aab
  *
@@ -15,7 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { loadLocalModelConfig } = require('./lib/localModelConfig');
-const { MIN_TARGET_SDK } = require('./lib/aabManifestChecks');
+const { MIN_TARGET_SDK, isConfiguredDeliveryEvidence } = require('./lib/aabManifestChecks');
 
 const ROOT = path.join(__dirname, '..');
 const APP_JSON = path.join(ROOT, 'app.json');
@@ -117,7 +117,7 @@ function extractStringsFromBinary(buf) {
   return strings;
 }
 
-function inspectDeliveryType(aabPath, packName, tmpDir) {
+function inspectDeliveryType(aabPath, packName, tmpDir, deliveryType) {
   // Prefer extracting pack metadata / build artifacts that mention delivery.
   try {
     execSync(
@@ -145,11 +145,11 @@ function inspectDeliveryType(aabPath, packName, tmpDir) {
     if (fs.statSync(file).size > 5_000_000) continue;
     const buf = fs.readFileSync(file);
     const text = buf.toString('utf8');
-    if (/install-time/i.test(text) || /INSTALL_TIME/.test(text)) {
+    if (isConfiguredDeliveryEvidence(text, deliveryType)) {
       return { ok: true, evidence: path.relative(tmpDir, file) };
     }
     const strings = extractStringsFromBinary(buf);
-    if (strings.some((s) => /install-time/i.test(s) || s === 'INSTALL_TIME')) {
+    if (strings.some((s) => isConfiguredDeliveryEvidence(s, deliveryType))) {
       return { ok: true, evidence: path.relative(tmpDir, file) };
     }
   }
@@ -164,7 +164,7 @@ function inspectDeliveryType(aabPath, packName, tmpDir) {
       const strings = extractStringsFromBinary(bundleConfig.stdout);
       if (strings.some((s) => /install.?time/i.test(s) || s.includes(packName))) {
         // Presence of pack name alone is weak; look for INSTALL_TIME specifically.
-        if (strings.some((s) => s.includes('INSTALL_TIME') || /install-time/i.test(s))) {
+        if (strings.some((s) => isConfiguredDeliveryEvidence(s, deliveryType))) {
           return { ok: true, evidence: 'BundleConfig.pb' };
         }
       }
@@ -263,19 +263,22 @@ async function main() {
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'oppuna-aab-'));
   try {
-    const delivery = inspectDeliveryType(aabPath, config.assetPackName, tmpDir);
+    const delivery = inspectDeliveryType(
+      aabPath,
+      config.assetPackName,
+      tmpDir,
+      config.deliveryType,
+    );
     if (delivery.ok) {
-      pass(`Install-time delivery evidence found (${delivery.evidence})`);
+      pass(`On-demand delivery evidence found (${delivery.evidence})`);
     } else if (commandExists('bundletool')) {
-      // Try bundletool get-size / dump — still may not expose delivery.
-      blocked('Could not confirm install-time delivery from AAB metadata');
-      blocks.push('install-time delivery');
+      blocked('Could not confirm on-demand delivery from AAB metadata');
+      blocks.push('on-demand delivery');
     } else {
-      // Source config + Gradle are install-time; AAB evidence missing.
       blocked(
-        'Install-time delivery not confirmed in AAB metadata (bundletool unavailable)',
+        'On-demand delivery not confirmed in AAB metadata (bundletool unavailable)',
       );
-      blocks.push('install-time delivery');
+      blocks.push('on-demand delivery');
     }
 
     // Manifest / package / permissions

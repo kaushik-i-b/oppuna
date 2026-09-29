@@ -117,6 +117,7 @@ describe('trusted verification / SHA skip', () => {
       LOCAL_MODEL_CONFIG.sha256,
       false,
       false,
+      LOCAL_MODEL_CONFIG.assetPackName,
     );
   });
 
@@ -235,6 +236,14 @@ describe('preparation failure backoff', () => {
     await prepareBundledModel({ forceRecopy: true });
     expect(await getPreparationFailureState()).toBeNull();
     await clearPreparationFailureState();
+  });
+
+  it('does not treat a missing download as a preparation failure', async () => {
+    const error = new Error('On-device model is not downloaded yet.');
+    (error as Error & { code?: string }).code = 'MODEL_NOT_DOWNLOADED';
+    NativeModules.OppunaModelAsset.prepareLocalModel.mockRejectedValue(error);
+    await expect(prepareBundledModel({ userInitiated: true })).resolves.toBeNull();
+    expect(await getPreparationFailureState()).toBeNull();
   });
 });
 

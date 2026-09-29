@@ -38,6 +38,7 @@ describe('verify-model modes', () => {
     expect(result.code).toBe(0);
     expect(result.out).toMatch(/SKIPPED.*model binary/i);
     expect(result.out).toMatch(/986048768/);
+    expect(result.out).toMatch(/on-demand/);
   });
 
   it('production mode does NOT skip missing model', () => {
@@ -90,7 +91,7 @@ describe('verify-model modes', () => {
     }
     const result = run({ OPPUNA_PRODUCTION_VALIDATE: '1' }, '--production');
     expect(result.code).toBe(0);
-    expect(result.out).toMatch(/Play install-time pack limit/i);
+    expect(result.out).toMatch(/on-demand pack limit/i);
     expect(result.out).toMatch(/SHA-256 verified/i);
   });
 });

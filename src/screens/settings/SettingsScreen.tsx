@@ -36,6 +36,7 @@ import { getWellnessPrefs } from '@/wellness/planService';
 import { labelForGoals, labelForMoods } from '@/wellness/prefOptions';
 import type { WellnessPrefs } from '@/wellness/types';
 import { logger } from '@/utils/logger';
+import { ModelDownloadControls } from '@/screens/settings/ModelDownloadControls';
 
 const THEME_OPTIONS: {
   mode: ThemeMode;
@@ -425,6 +426,7 @@ export function SettingsScreen(): React.ReactElement {
               {modelState.error}
             </Text>
           ) : null}
+          <ModelDownloadControls />
           {aiStatus.engineMode === 'guided-offline' ? (
             <View style={{ marginTop: theme.spacing.md }}>
               <ButtonLikeRow

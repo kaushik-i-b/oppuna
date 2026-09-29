@@ -105,6 +105,7 @@
         "modelId": "oppuna-qwen25-1_5b-instruct-q4km",
         "displayName": "Qwen2.5 1.5B Instruct (Q4_K_M)",
         "assetPack": "ai_model_asset_pack",
+        "delivery": "on-demand",
         "modelFile": "model.gguf"
       },
       "eas": {

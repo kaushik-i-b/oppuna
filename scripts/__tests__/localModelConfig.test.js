@@ -18,7 +18,10 @@ describe('local-model.json source of truth', () => {
     const config = loadLocalModelConfig();
     expect(config.modelId).toBe('oppuna-qwen25-1_5b-instruct-q4km');
     expect(config.fileName).toBe('model.gguf');
-    expect(config.deliveryType).toBe('install-time');
+    expect(config.deliveryType).toBe('on-demand');
+    expect(config.downloadUrl).toBe(
+      'https://huggingface.co/bartowski/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/Qwen2.5-1.5B-Instruct-Q4_K_M.gguf',
+    );
     expect(config.assetPackName).toBe('ai_model_asset_pack');
     expect(config.sha256).toMatch(/^[a-f0-9]{64}$/);
     expect(config.sourceRepo).toBe('bartowski/Qwen2.5-1.5B-Instruct-GGUF');

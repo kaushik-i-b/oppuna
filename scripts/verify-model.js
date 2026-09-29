@@ -21,8 +21,8 @@ const APP_JSON = path.join(ROOT, 'app.json');
 const ASSET_PACK_PLUGIN = path.join(ROOT, 'plugins', 'withAiModelAssetPack.js');
 const LICENSES = path.join(ROOT, 'assets', 'licenses');
 
-/** Google Play install-time asset pack hard limit (1 GiB). */
-const PLAY_INSTALL_TIME_PACK_MAX_BYTES = 1073741824;
+/** Individual Play asset pack limit (1.5 GiB). On-demand keeps it out of the base install. */
+const PLAY_ASSET_PACK_MAX_BYTES = 1610612736;
 
 const CI_MODE = process.env.OPPUNA_CI === '1' || process.argv.includes('--ci');
 const PRODUCTION_MODE =
@@ -84,14 +84,21 @@ async function main() {
     pass(`shared config expectedSize = ${config.expectedSize}`);
   }
 
-  if (config.expectedSize >= PLAY_INSTALL_TIME_PACK_MAX_BYTES) {
+  if (config.deliveryType !== 'on-demand') {
+    failures.push('deliveryType must be on-demand so the model is not part of the initial install');
+    fail('on-demand delivery');
+  } else {
+    pass('deliveryType = on-demand');
+  }
+
+  if (config.expectedSize >= PLAY_ASSET_PACK_MAX_BYTES) {
     failures.push(
-      `expectedSize ${config.expectedSize} exceeds Play install-time pack limit ${PLAY_INSTALL_TIME_PACK_MAX_BYTES}`,
+      `expectedSize ${config.expectedSize} exceeds Play asset pack limit ${PLAY_ASSET_PACK_MAX_BYTES}`,
     );
-    fail('Play install-time pack size limit');
+    fail('Play asset pack size limit');
   } else {
     pass(
-      `expectedSize under Play install-time pack limit (${config.expectedSize} < ${PLAY_INSTALL_TIME_PACK_MAX_BYTES})`,
+      `expectedSize under Play on-demand pack limit (${config.expectedSize} < ${PLAY_ASSET_PACK_MAX_BYTES})`,
     );
   }
 
@@ -120,13 +127,22 @@ async function main() {
   if (llm?.assetPack !== config.assetPackName) {
     failures.push('app.json assetPack does not match config/local-model.json');
   }
+  if (llm?.delivery !== 'on-demand') {
+    failures.push('app.json: extra.localLlm.delivery must be "on-demand"');
+    fail('app.json on-demand delivery');
+  } else {
+    pass('app.json on-demand delivery');
+  }
 
   const pluginSrc = read(ASSET_PACK_PLUGIN);
-  if (!pluginSrc.includes('install-time') && !pluginSrc.includes(`"${config.deliveryType}"`)) {
-    failures.push('withAiModelAssetPack.js must use install-time delivery');
-    fail('install-time asset-pack configured');
+  if (!pluginSrc.includes('DELIVERY_TYPE') || /deliveryType\s*=\s*"install-time"/.test(pluginSrc)) {
+    failures.push('withAiModelAssetPack.js must use on-demand delivery from config');
+    fail('on-demand asset-pack configured');
+  } else if (!pluginSrc.includes('asset-delivery')) {
+    failures.push('withAiModelAssetPack.js must depend on Play Asset Delivery for on-demand fetch');
+    fail('Play Asset Delivery dependency');
   } else {
-    pass('install-time asset-pack configured');
+    pass('on-demand asset-pack configured');
   }
 
   const requiredLicenses = [
@@ -191,13 +207,13 @@ async function main() {
       pass(`actual size = expected size (${stat.size})`);
     }
 
-    if (stat.size >= PLAY_INSTALL_TIME_PACK_MAX_BYTES) {
+    if (stat.size >= PLAY_ASSET_PACK_MAX_BYTES) {
       failures.push(
-        `model.gguf size ${stat.size} exceeds Play install-time pack limit ${PLAY_INSTALL_TIME_PACK_MAX_BYTES}`,
+        `model.gguf size ${stat.size} exceeds Play asset pack limit ${PLAY_ASSET_PACK_MAX_BYTES}`,
       );
       fail('model.gguf under Play pack limit');
     } else {
-      pass('model.gguf under Play pack limit');
+      pass('model.gguf under Play on-demand pack limit');
     }
 
     if (!checkGgufMagic(MODEL_PATH)) {

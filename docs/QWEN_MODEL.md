@@ -26,8 +26,8 @@ Values above are verified against the local GGUF header (`general.architecture=q
 
 `React Native` → `llama.rn` → `llama.cpp` → local GGUF on device filesystem.
 
-- No cloud LLM, Ollama, or runtime model download
-- No general `INTERNET` permission for wellness/AI
+- No cloud LLM and no Ollama. The weight file is an optional download; inference stays on device
+- No general `INTERNET` permission in `app.json`. Play can still deliver the on-demand pack
 - Safety/crisis routing runs **before** any model call
 
 ## ChatML / stops

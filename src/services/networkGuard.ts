@@ -3,8 +3,11 @@
  *
  * Any attempt to reach a remote host through `fetch` or `XMLHttpRequest` is
  * rejected. Local development traffic (Metro bundler, React DevTools, local
- * asset loading) is allowed so the app remains debuggable, but no production
- * code path is permitted to call the public internet.
+ * asset loading) is allowed so the app remains debuggable.
+ *
+ * The optional Qwen weights are not fetched here. Play on-demand delivery is
+ * preferred. A sideload build may stream one pinned model file from native
+ * code after the user taps Download. That path does not upload journal or chat.
  */
 
 import { logger } from '@/utils/logger';

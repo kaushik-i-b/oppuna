@@ -4,19 +4,19 @@ Oppuna runs a private mental-wellness companion entirely on the device using:
 
 - **llama.rn** — React Native binding
 - **llama.cpp** — native inference runtime
-- **Quantized GGUF model** — delivered by Google Play (install-time asset pack)
+- **Quantized GGUF model** — optional Google Play on-demand pack (not part of the initial install)
 - **SafetyEngine** — deterministic crisis detection *before* inference
 - **Response validator** — rejects unsafe model output
 - **Rule-based fallback** — always available if the model is missing or fails
 
-Oppuna does **not** use Ollama, Termux, localhost HTTP servers, cloud LLM APIs, or runtime Hugging Face downloads.
+Oppuna does **not** use Ollama, Termux, localhost HTTP servers, or cloud LLM APIs. Chat inference stays on the device. The Qwen file itself is an extra download so the base app stays small: Play on-demand delivery, or the pinned Hugging Face file when Play delivery is unavailable. Journal text is not part of that download.
 
 ## Architecture
 
 ```
 Google Play
   └── Oppuna Android app
-        └── Install-time Play Asset Delivery pack (ai_model_asset_pack)
+        └── On-demand Play Asset Delivery pack (ai_model_asset_pack)
               └── model.gguf
 
 User message
@@ -76,12 +76,12 @@ android/
   app/
     ...
   ai_model_asset_pack/
-    build.gradle          # install-time delivery
+    build.gradle          # on-demand delivery
     src/main/assets/
       model.gguf          # copied from assets/ai-model/ when present
 ```
 
-Delivery mode: **install-time** — Google Play installs the model with the app. No extra user step, no third-party apps.
+Delivery mode: **on-demand** — Google Play does not include the model in the initial install. Settings → Download on-device model fetches the pack. Sideload builds that cannot use Play fetch the pinned file from `downloadUrl` in `config/local-model.json` and reject it unless the size and SHA-256 match.
 
 ### Where `model.gguf` goes (developer workflow)
 
@@ -112,8 +112,9 @@ Delivery mode: **install-time** — Google Play installs the model with the app.
    }
    ```
 
-   Current production choice: **Qwen2.5 1.5B Instruct Q4_K_M** (~941 MB) so the
-   install-time Play Asset Delivery pack stays under the 1 GB limit.
+   Current production choice: **Qwen2.5 1.5B Instruct Q4_K_M** (~941 MB), delivered
+   on demand so it is not part of the base install. Individual Play asset packs
+   may be up to 1.5 GB.
 
 5. Do **not** commit the GGUF (`*.gguf` is gitignored).
 
@@ -121,8 +122,9 @@ Delivery mode: **install-time** — Google Play installs the model with the app.
 
 At runtime `modelAssetService.getInstalledModelPath()`:
 
-1. **Android production:** native `OppunaModelAsset.getInstalledModelPath(pack, file)` uses Play `AssetPackManager.getPackLocation()` and returns a real filesystem path for llama.cpp mmap.
+1. **Already downloaded:** private `filesDir/ai-model/model.gguf`, or the installed on-demand pack file.
 2. **Development / sideload:** `{documentDirectory}models/model.gguf` (or any `*.gguf` in that folder).
+3. If none of those exist, the model is unavailable until the user downloads it. Guided replies still work.
 
 The JS layer always receives a path (or `file://` URI) that llama.rn can open — never a Metro `require()` asset id.
 
@@ -166,8 +168,8 @@ Final assistant text is persisted only after generation completes (or crisis/saf
 - No cloud LLM inference
 - No API keys
 - No conversation / journal upload
-- Model delivered by Google Play at install time
-- `android.permission.INTERNET` remains blocked in `app.json`
+- Model weights are a separate download (Play on-demand, or the pinned file). Chat stays on device.
+- `android.permission.INTERNET` remains blocked in `app.json`. Play delivers the on-demand pack. A build that removes that block can also fetch the pinned file.
 
 ## Build / run commands
 
@@ -200,11 +202,11 @@ cp /path/to/quantized.gguf assets/ai-model/model.gguf
 npm run build:production
 ```
 
-EAS runs prebuild on the build servers, so the config plugin packs the GGUF into the install-time asset pack inside the AAB.
+EAS runs prebuild on the build servers, so the config plugin packs the GGUF into the on-demand asset pack inside the AAB. The base module the user installs first does not contain it.
 
 ### Local AAB testing with asset packs
 
-Use [bundletool](https://github.com/google/bundletool) with `--local-testing` so install-time packs are present on a sideloaded build.
+Use [bundletool](https://github.com/google/bundletool) with `--local-testing` so the on-demand pack can be fetched on a sideloaded build. Otherwise use Settings → Download on-device model.
 
 ## Debugging
 

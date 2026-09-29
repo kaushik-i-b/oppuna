@@ -14,10 +14,11 @@ assets/ai-model/model.gguf
 | Quant | Q4_K_M |
 | Source | `bartowski/Qwen2.5-1.5B-Instruct-GGUF` → `Qwen2.5-1.5B-Instruct-Q4_K_M.gguf` |
 | Packaged as | `model.gguf` (~941 MB) |
-| Why this size | Fits under Google Play’s **1 GB** install-time asset pack limit |
+| Why this delivery | On-demand Play Asset Delivery, so the base install stays small |
 
 During `npx expo prebuild` / EAS Build, the Oppuna config plugin copies this file
-into the install-time asset pack `ai_model_asset_pack`.
+into the on-demand asset pack `ai_model_asset_pack`. Users download it from
+Settings. It is not part of the initial install.
 
 Update `config/local-model.json` with the matching `sha256` and `expectedSize`
 before release (already set for the Qwen file above).

@@ -1,11 +1,15 @@
 /**
- * Expo config plugin: Google Play Asset Delivery (install-time) for the GGUF model.
+ * Expo config plugin: Google Play Asset Delivery (on-demand) for the GGUF model.
+ *
+ * The pack is not part of the initial install. Play downloads it when the user
+ * asks, which keeps the base app small. Delivery mode comes from
+ * config/local-model.json (`on-demand`).
  *
  * During `npx expo prebuild`, this plugin:
- * 1. Creates `android/ai_model_asset_pack/` with install-time delivery
- * 2. Wires the asset pack into Gradle
- * 3. Injects a native module (`OppunaModelAsset`) that copies install-time
- *    assets via AssetManager into app-private storage for llama.rn mmap
+ * 1. Creates `android/ai_model_asset_pack/` with on-demand delivery
+ * 2. Wires the asset pack and Play Asset Delivery into Gradle
+ * 3. Injects `OppunaModelAsset`, which fetches the pack or a pinned file and
+ *    verifies size/SHA before llama.rn mmap
  * 4. Marks `.gguf` as noCompress
  *
  * Place the real model at:
@@ -78,12 +82,15 @@ function withAssetPackGradle(config) {
       }
     }
 
-    // Play Asset Delivery — install-time pack (no runtime AssetPackManager path needed).
-    if (contents.includes('com.google.android.play:asset-delivery')) {
-      contents = contents.replace(
-        /\n\s*implementation "com\.google\.android\.play:asset-delivery:[^"]+"\n/,
-        '\n',
-      );
+    // On-demand packs are fetched at runtime via AssetPackManager.
+    const assetDelivery = 'implementation "com.google.android.play:asset-delivery:2.2.2"';
+    if (!contents.includes('com.google.android.play:asset-delivery')) {
+      if (contents.includes('dependencies {')) {
+        contents = contents.replace(
+          /dependencies\s*\{/,
+          `dependencies {\n    ${assetDelivery}\n`,
+        );
+      }
     }
 
     cfg.modResults.contents = contents;
@@ -135,7 +142,8 @@ assetPack {
         writeFileIfChanged(
           path.join(assetsDir, 'README.txt'),
           `Place ${MODEL_FILE} in ${SOURCE_MODEL_DIR}/ before building a production AAB.\n` +
-            `This install-time Play Asset Delivery pack ships the on-device LLM with Oppuna.\n` +
+            `This on-demand Play Asset Delivery pack is downloaded when the user asks.\n` +
+            `It is not part of the initial app install.\n` +
             `Do not commit the GGUF binary to git.\n`,
         );
       }

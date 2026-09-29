@@ -10,7 +10,7 @@ Bundled model (production Android):
   Format: GGUF (Q4_K_M quantization)
   Identifier: oppuna-qwen25-1_5b-instruct-q4km
   Upstream GGUF: bartowski/Qwen2.5-1.5B-Instruct-GGUF
-  Delivery: Install-time Google Play Asset Delivery pack (ai_model_asset_pack)
+  Delivery: On-demand Google Play Asset Delivery pack (ai_model_asset_pack), or the pinned model file download
 
 By using Oppuna you agree to comply with the Apache License, Version 2.0 in addition to Oppuna's Terms of Use.
 
