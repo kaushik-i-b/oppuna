@@ -99,7 +99,8 @@ Edit `.env` and set `ASSEMBLYAI_API_KEY`. Do not commit `.env`.
 
 | Name | Where | Purpose |
 | --- | --- | --- |
-| `ASSEMBLYAI_API_KEY` | Token server only | Mints a temporary Voice Agent token |
+| `ASSEMBLYAI_API_KEY` | Token server | Mints a temporary Voice Agent token. The server never sends this value to the app |
+| `EXPO_PUBLIC_ASSEMBLYAI_API_KEY` | Standalone phone build | Same key, embedded so the phone can mint tokens with no computer. Leave unset for the token-server setup |
 | `VOICE_TOKEN_PORT` | Token server | Defaults to `8787` |
 | `VOICE_TOKEN_HOST` | Token server | Defaults to `127.0.0.1`. Use `0.0.0.0` when a phone must reach this computer |
 | `EXPO_PUBLIC_VOICE_TOKEN_URL` | Expo app | Public URL of the token server, default `http://127.0.0.1:8787` |
@@ -131,7 +132,7 @@ Production `app.json` still blocks `INTERNET`. A separate prebuild flag opens th
 OPPUNA_VOICE_APK=1 npx expo prebuild --platform android --no-install
 ```
 
-Then assemble a release APK from `android/` (`./gradlew assembleRelease`). A debug APK does not contain the JavaScript bundle, so a phone with no Metro server cannot open the app. Install the release APK, start the token server with `VOICE_TOKEN_HOST=0.0.0.0`, and set **Voice server** in the app to `http://<computer-lan-ip>:8787` (emulator: `http://10.0.2.2:8787`). Allow the microphone. The API key stays on the computer that runs `npm run voice:token`.
+Then assemble a release APK from `android/` (`./gradlew assembleRelease`). A debug APK does not contain the JavaScript bundle, so a phone with no Metro server cannot open the app. If `.env` sets `EXPO_PUBLIC_ASSEMBLYAI_API_KEY`, the release app mints AssemblyAI tokens on the phone and does not need `npm run voice:token`. Otherwise install the APK, start the token server with `VOICE_TOKEN_HOST=0.0.0.0`, and set **Voice server** in the app to `http://<computer-lan-ip>:8787`. Allow the microphone.
 
 ## Demo flow
 

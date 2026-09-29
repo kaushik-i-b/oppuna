@@ -22,7 +22,12 @@ import { resolveApprovedMemories, retrieveApprovedMemories } from '@/voice/refle
 import { reduceVoicePhase, type VoiceEvent } from '@/voice/stateMachine';
 import { removeTranscriptLine, upsertTranscriptLine } from '@/voice/transcript';
 import { PHASE_LABEL, type PatternReport, type ReflectionMemory, type TranscriptLine, type VoicePhase } from '@/voice/types';
-import { fetchVoiceToken, setVoiceTokenBaseUrl, voiceTokenBaseUrl } from '@/voice/voiceTokenClient';
+import {
+  fetchVoiceToken,
+  hasEmbeddedVoiceKey,
+  setVoiceTokenBaseUrl,
+  voiceTokenBaseUrl,
+} from '@/voice/voiceTokenClient';
 import { voiceLog } from '@/voice/voiceLog';
 import { HowVoiceWorks } from '@/screens/voice/HowVoiceWorks';
 import { ReflectionSheet, type MemoryChoice } from '@/screens/voice/ReflectionSheet';
@@ -226,7 +231,7 @@ export function TalkToOppunaScreen({ navigation }: Props): React.ReactElement {
 
   useEffect(() => {
     let active = true;
-    if (Platform.OS !== 'android') {
+    if (Platform.OS !== 'android' || hasEmbeddedVoiceKey()) {
       void (async () => {
         if (!active) return;
         await beginRef.current();
@@ -421,7 +426,7 @@ export function TalkToOppunaScreen({ navigation }: Props): React.ReactElement {
               </View>
             ) : null}
             <View style={{ marginTop: theme.spacing.xl, width: '100%', gap: theme.spacing.sm }}>
-              {Platform.OS === 'android' && (phase === 'IDLE' || phase === 'ERROR') ? (
+              {Platform.OS === 'android' && !hasEmbeddedVoiceKey() && (phase === 'IDLE' || phase === 'ERROR') ? (
                 <TextField
                   label="Voice server"
                   value={serverUrl}
@@ -432,7 +437,7 @@ export function TalkToOppunaScreen({ navigation }: Props): React.ReactElement {
                   helperText="Emulator: http://10.0.2.2:8787. Phone: http://<computer LAN IP>:8787. Start the computer with VOICE_TOKEN_HOST=0.0.0.0 npm run voice:token."
                 />
               ) : null}
-              {phase === 'ERROR' || (Platform.OS === 'android' && phase === 'IDLE') ? (
+              {phase === 'ERROR' || (Platform.OS === 'android' && phase === 'IDLE' && !hasEmbeddedVoiceKey()) ? (
                 <Button
                   label={phase === 'ERROR' ? 'Try again' : 'Start conversation'}
                   onPress={() => void begin()}
