@@ -131,7 +131,7 @@ Production `app.json` still blocks `INTERNET`. A separate prebuild flag opens th
 OPPUNA_VOICE_APK=1 npx expo prebuild --platform android --no-install
 ```
 
-Then assemble a debug APK from `android/`. Install that APK, start the token server with `VOICE_TOKEN_HOST=0.0.0.0`, and set **Voice server** in the app to `http://<computer-lan-ip>:8787` (emulator: `http://10.0.2.2:8787`). Allow the microphone. The API key stays on the computer that runs `npm run voice:token`.
+Then assemble a release APK from `android/` (`./gradlew assembleRelease`). A debug APK does not contain the JavaScript bundle, so a phone with no Metro server cannot open the app. Install the release APK, start the token server with `VOICE_TOKEN_HOST=0.0.0.0`, and set **Voice server** in the app to `http://<computer-lan-ip>:8787` (emulator: `http://10.0.2.2:8787`). Allow the microphone. The API key stays on the computer that runs `npm run voice:token`.
 
 ## Demo flow
 
