@@ -8,6 +8,7 @@ import {
   journalRepository,
   moodRepository,
   safetyRepository,
+  reflectionRepository,
   voiceNoteRepository,
   wipeAllTables,
 } from '@/database';
@@ -33,6 +34,7 @@ export interface ExportBundle {
     breathing: unknown[];
     safetyEvents: unknown[];
     voiceNotes: unknown[];
+    reflections: unknown[];
   };
 }
 
@@ -55,6 +57,7 @@ async function buildBundle(): Promise<ExportBundle> {
       breathing: await breathingRepository.list(10000),
       safetyEvents: await safetyRepository.list(10000),
       voiceNotes: await voiceNoteRepository.list(10000),
+      reflections: await reflectionRepository.listReflections(),
     },
   };
 }

@@ -21,6 +21,7 @@ export type RootStackParamList = {
 
   // Pushed feature screens
   VoiceMode: undefined;
+  TalkToOppuna: undefined;
   MoodCheckIn: undefined;
   MoodHistory: undefined;
   Insights: undefined;
@@ -36,6 +37,7 @@ export type RootStackParamList = {
   Terms: undefined;
   About: undefined;
   HowOppunaHelps: undefined;
+  VoiceAudioDebug: undefined;
   LocalAIDiagnostics: undefined;
   ProductionReadiness: undefined;
 

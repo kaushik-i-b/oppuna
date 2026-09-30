@@ -3,8 +3,11 @@
  *
  * Any attempt to reach a remote host through `fetch` or `XMLHttpRequest` is
  * rejected. Local development traffic (Metro bundler, React DevTools, local
- * asset loading) is allowed so the app remains debuggable, but no production
- * code path is permitted to call the public internet.
+ * asset loading) is allowed so the app remains debuggable.
+ *
+ * The optional Qwen weights are not fetched here. Play on-demand delivery is
+ * preferred. A sideload build may stream one pinned model file from native
+ * code after the user taps Download. That path does not upload journal or chat.
  */
 
 import { logger } from '@/utils/logger';
@@ -21,6 +24,29 @@ const LOCAL_HOST_PATTERNS = [
 
 const ALLOWED_SCHEMES = ['file:', 'blob:', 'data:', 'content:', 'asset:'];
 
+/**
+ * Hosts the voice token request may reach while Talk to Oppuna is minting a
+ * session. Empty unless a voice token request is in flight. All other public
+ * hosts stay blocked.
+ */
+const voiceWindowHosts = new Set<string>();
+
+export function beginVoiceNetworkWindow(hosts: string[]): void {
+  voiceWindowHosts.clear();
+  for (const host of hosts) {
+    const normalized = host.trim().toLowerCase();
+    if (normalized) voiceWindowHosts.add(normalized);
+  }
+}
+
+export function endVoiceNetworkWindow(): void {
+  voiceWindowHosts.clear();
+}
+
+export function __voiceWindowHostsForTests(): string[] {
+  return [...voiceWindowHosts];
+}
+
 function isAllowed(rawUrl: string): boolean {
   if (!rawUrl) return true;
 
@@ -33,6 +59,7 @@ function isAllowed(rawUrl: string): boolean {
   try {
     const host = lower.replace(/^https?:\/\//, '').split(/[/?#]/)[0]?.split(':')[0] ?? '';
     if (__DEV__ && LOCAL_HOST_PATTERNS.some((re) => re.test(host))) return true;
+    if (voiceWindowHosts.has(host)) return true;
   } catch {
     return false;
   }

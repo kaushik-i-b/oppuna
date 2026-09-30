@@ -53,7 +53,8 @@ yarn-error.*
 # macOS
 .DS_Store
 
-# env
+# env — never upload the AssemblyAI key
+.env
 .env*.local
 
 # typescript

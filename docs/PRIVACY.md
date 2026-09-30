@@ -22,9 +22,13 @@ Everything you create in Oppuna is stored only in the app's local storage on you
 
 This data is never uploaded, synced, backed up to a cloud, or shared with any third party by the app.
 
-## No network access
+## Network
 
-Oppuna works fully in airplane mode. The app includes a built-in **network guard** that blocks any attempt to make an outbound internet request. There are no advertising SDKs, no cloud analytics, and no remote telemetry.
+Your journal, mood, and chat are not uploaded. There are no advertising SDKs, no cloud analytics, and no remote telemetry. A JavaScript network guard blocks ordinary `fetch` and `XMLHttpRequest` calls to the public internet.
+
+The on-device Qwen model is **not** inside the initial install. Google Play can download that pack when you ask, and a sideload build can fetch the same pinned file. That transfer is the model weights only. After the file is on the device and checked (size and SHA-256), chat runs locally and works in airplane mode. Guided replies work before the download.
+
+Talk to Oppuna is a separate, optional voice session. It is documented in `docs/VOICE_ARCHITECTURE.md`.
 
 ## Microphone
 

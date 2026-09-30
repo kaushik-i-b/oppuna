@@ -1,9 +1,10 @@
 /**
  * Resolves and prepares the on-device GGUF model for llama.rn.
  *
- * Production Android: install-time Play Asset Delivery assets are copied once
- * from AssetManager into app-private storage (filesDir/ai-model/model.gguf).
- * Development: sideloaded GGUF under documentDirectory/models/.
+ * The weights are not in the base install. Android uses an already downloaded
+ * private copy, an on-demand Play pack, or a sideloaded file under
+ * documentDirectory/models/. Missing weights return null so guided replies
+ * keep working. Download itself lives in modelDownloadService.
  */
 
 import { NativeModules, Platform } from 'react-native';
@@ -95,6 +96,7 @@ interface OppunaModelAssetNativeModule {
     expectedSha256: string,
     forceRecopy: boolean,
     skipFullSha: boolean,
+    packName: string,
   ) => Promise<PrepareLocalModelNativeResult>;
   sha256File?: (path: string) => Promise<string>;
   validateGgufHeader?: (path: string) => Promise<boolean>;
@@ -274,7 +276,8 @@ export async function hasTrustedVerificationForPath(path: string): Promise<boole
 }
 
 /**
- * Copy install-time bundled asset into private storage (Android production path).
+ * Open a model that is already on the device (private copy, Play pack, or base asset).
+ * Does not start a download. MODEL_NOT_DOWNLOADED is the normal pre-download state.
  */
 export async function prepareBundledModel(options: {
   forceRecopy?: boolean;
@@ -311,6 +314,7 @@ export async function prepareBundledModel(options: {
       LOCAL_MODEL_CONFIG.sha256,
       forceRecopy,
       skipFullSha,
+      LOCAL_MODEL_CONFIG.assetPackName,
     );
     if (!result?.path) {
       logger.warn('Bundled model preparation returned no path');
@@ -348,7 +352,11 @@ export async function prepareBundledModel(options: {
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    if (/INSUFFICIENT_STORAGE/i.test(message)) {
+    const code = nativeErrorCode(error);
+    if (code === 'MODEL_NOT_DOWNLOADED' || /MODEL_NOT_DOWNLOADED|not downloaded/i.test(message)) {
+      return null;
+    }
+    if (code === 'INSUFFICIENT_STORAGE' || /INSUFFICIENT_STORAGE|not enough storage/i.test(message)) {
       await recordPreparationFailure('insufficient_storage');
       throw new Error('Not enough storage for the on-device AI model.');
     }
@@ -356,6 +364,41 @@ export async function prepareBundledModel(options: {
     await recordPreparationFailure('prepare_error');
     return null;
   }
+}
+
+function nativeErrorCode(error: unknown): string {
+  if (error && typeof error === 'object' && 'code' in error) {
+    const code = (error as { code?: unknown }).code;
+    return typeof code === 'string' ? code : '';
+  }
+  return '';
+}
+
+/** Remember a download that native code already checked for size and SHA-256. */
+export async function recordVerifiedDownload(result: {
+  path: string;
+  size: number;
+  sha256: string | null;
+}): Promise<void> {
+  if (result.size !== LOCAL_MODEL_CONFIG.expectedSize) {
+    throw new Error('Downloaded model size does not match the pinned model.');
+  }
+  const sha = result.sha256?.toLowerCase() ?? '';
+  if (sha !== LOCAL_MODEL_CONFIG.sha256.toLowerCase()) {
+    throw new Error('Downloaded model hash does not match the pinned model.');
+  }
+  await writeStoredVerification({
+    schemaVersion: VERIFICATION_SCHEMA_VERSION,
+    modelId: LOCAL_MODEL_CONFIG.id,
+    modelVersion: LOCAL_MODEL_CONFIG.version,
+    appVersion: APP.version,
+    expectedSize: LOCAL_MODEL_CONFIG.expectedSize,
+    expectedSha256: LOCAL_MODEL_CONFIG.sha256,
+    path: toAbsolutePath(result.path),
+    size: result.size,
+    sha256: sha,
+    verifiedAt: Date.now(),
+  });
 }
 
 /**
@@ -374,7 +417,7 @@ export async function getInstalledModelPath(): Promise<string | null> {
       if (/storage/i.test(message)) throw error;
       logger.warn('Bundled model preparation failed', { error: message });
     }
-    return null;
+    return findDevModelPath();
   }
 
   return findDevModelPath();

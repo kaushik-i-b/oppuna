@@ -8,7 +8,7 @@ This folder is reserved for **local, untracked** release outputs (APK/AAB) durin
 | Field | Value |
 | --- | --- |
 | Application ID | `com.oppuna.care` |
-| On-device model | Qwen2.5 1.5B Instruct Q4_K_M (~941 MB) via install-time Play Asset Delivery |
+| On-device model | Qwen2.5 1.5B Instruct Q4_K_M (~941 MB), on-demand Play Asset Delivery |
 
 ## Building for Google Play
 

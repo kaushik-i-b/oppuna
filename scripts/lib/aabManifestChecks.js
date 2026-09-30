@@ -69,9 +69,21 @@ function isInstallTimeDeliveryEvidence(text) {
   return /install-time/i.test(text) || /INSTALL_TIME/.test(text);
 }
 
+function isOnDemandDeliveryEvidence(text) {
+  return /on-demand/i.test(text) || text.includes('ON_DEMAND');
+}
+
+function isConfiguredDeliveryEvidence(text, deliveryType) {
+  if (deliveryType === 'on-demand') return isOnDemandDeliveryEvidence(text);
+  if (deliveryType === 'install-time') return isInstallTimeDeliveryEvidence(text);
+  return false;
+}
+
 module.exports = {
   MIN_TARGET_SDK,
   parseManifestAttr,
   compareArtifactIdentity,
   isInstallTimeDeliveryEvidence,
+  isOnDemandDeliveryEvidence,
+  isConfiguredDeliveryEvidence,
 };

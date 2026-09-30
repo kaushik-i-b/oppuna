@@ -21,7 +21,7 @@ Use this checklist before promoting a build to production. **Do not invent bench
 
 ## AI / Qwen
 
-- [ ] **Fresh** production AAB includes install-time asset pack with Qwen `model.gguf` (986,048,768 bytes)
+- [ ] **Fresh** production AAB includes an **on-demand** asset pack with Qwen `model.gguf` (986,048,768 bytes), not an install-time pack
 - [ ] `npm run verify:no-stale-model` passes
 - [ ] `npm run verify:model` passes (SHA-256 + size + GGUF architecture)
 - [ ] `npm run verify:aab -- <fresh.aab>` passes (not BLOCKED; no Gemma assets)

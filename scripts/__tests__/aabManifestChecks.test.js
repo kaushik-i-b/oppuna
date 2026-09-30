@@ -2,7 +2,9 @@
 
 const {
   compareArtifactIdentity,
+  isConfiguredDeliveryEvidence,
   isInstallTimeDeliveryEvidence,
+  isOnDemandDeliveryEvidence,
   MIN_TARGET_SDK,
 } = require('../lib/aabManifestChecks');
 
@@ -108,5 +110,13 @@ describe('install-time delivery evidence', () => {
 
   it('rejects on-demand-only evidence', () => {
     expect(isInstallTimeDeliveryEvidence('deliveryType = "on-demand"')).toBe(false);
+  });
+
+  it('accepts on-demand evidence for the current delivery mode', () => {
+    expect(isOnDemandDeliveryEvidence('deliveryType = "on-demand"')).toBe(true);
+    expect(isOnDemandDeliveryEvidence('ON_DEMAND')).toBe(true);
+    expect(isOnDemandDeliveryEvidence('INSTALL_TIME')).toBe(false);
+    expect(isConfiguredDeliveryEvidence('deliveryType = "on-demand"', 'on-demand')).toBe(true);
+    expect(isConfiguredDeliveryEvidence('INSTALL_TIME', 'on-demand')).toBe(false);
   });
 });

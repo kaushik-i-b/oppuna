@@ -98,6 +98,13 @@ export function HomeScreen(): React.ReactElement {
           </Text>
         </View>
 
+        <View style={{ marginTop: theme.spacing.lg }}>
+          <Button label="Talk to Oppuna" onPress={() => navigation.navigate('TalkToOppuna')} />
+          <Text variant="caption" color="textFaint" style={{ marginTop: theme.spacing.xs }}>
+            A live voice reflection. You choose what is remembered.
+          </Text>
+        </View>
+
         <View style={[styles.scoreRow, { marginTop: theme.spacing.lg }]}>
           <Card style={styles.scoreCard}>
             <Text variant="caption" color="textMuted">

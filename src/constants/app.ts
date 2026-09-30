@@ -38,7 +38,8 @@ export const PRIVACY_STATEMENT =
   'Everything you write, record, and track in Oppuna stays on this device. ' +
   'There is no account, no cloud sync, and no cloud analytics or tracking. ' +
   'Optional on-device funnel events never include your journal text, mood notes, or chat content. ' +
-  'Oppuna works fully in airplane mode and never sends your personal entries anywhere. ' +
+  'Your journal, mood, and chat stay on this device and are never uploaded. ' +
+  'The optional on-device model is a separate download; after that, Oppuna works in airplane mode. ' +
   'You can export a copy of your data or delete all of it at any time from Settings.';
 
 /** Secure-store keys (never store sensitive content here, only flags/preferences). */
@@ -50,7 +51,7 @@ export const SECURE_KEYS = {
  * On-device LLM configuration.
  * Canonical source: `src/config/localModel.ts`.
  * Development: place a GGUF at `{documentDirectory}models/model.gguf`.
- * Production Android: install-time Play Asset Delivery pack.
+ * Production Android: on-demand Play Asset Delivery, or the pinned model download.
  */
 export const LLM_CONFIG = {
   storageDir: 'models',

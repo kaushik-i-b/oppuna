@@ -135,6 +135,61 @@ const MIGRATIONS: ((db: SQLiteDatabase) => Promise<void>)[] = [
         VALUES (1, '', '[]', '[]', 15, 0);
     `);
   },
+  async (db) => {
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS voice_sessions (
+        id TEXT PRIMARY KEY NOT NULL,
+        assembly_session_id TEXT,
+        started_at INTEGER NOT NULL,
+        ended_at INTEGER,
+        forgotten INTEGER NOT NULL DEFAULT 0
+      );
+
+      CREATE TABLE IF NOT EXISTS voice_transcripts (
+        id TEXT PRIMARY KEY NOT NULL,
+        session_id TEXT NOT NULL,
+        role TEXT NOT NULL,
+        text TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        FOREIGN KEY (session_id) REFERENCES voice_sessions (id) ON DELETE CASCADE
+      );
+      CREATE INDEX IF NOT EXISTS idx_voice_transcripts_session ON voice_transcripts (session_id, created_at);
+
+      CREATE TABLE IF NOT EXISTS reflection_memories (
+        id TEXT PRIMARY KEY NOT NULL,
+        user_id TEXT NOT NULL,
+        session_id TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        summary TEXT NOT NULL,
+        mood TEXT,
+        themes_json TEXT NOT NULL DEFAULT '[]',
+        concerns_json TEXT NOT NULL DEFAULT '[]',
+        positive_moments_json TEXT NOT NULL DEFAULT '[]',
+        commitments_json TEXT NOT NULL DEFAULT '[]',
+        memory_candidates_json TEXT NOT NULL DEFAULT '[]',
+        approved_memories_json TEXT NOT NULL DEFAULT '[]',
+        excluded_topics_json TEXT NOT NULL DEFAULT '[]',
+        realization TEXT NOT NULL DEFAULT '',
+        user_approved INTEGER NOT NULL DEFAULT 0,
+        demo_seed INTEGER NOT NULL DEFAULT 0,
+        tool_call_id TEXT,
+        FOREIGN KEY (session_id) REFERENCES voice_sessions (id) ON DELETE CASCADE
+      );
+      CREATE INDEX IF NOT EXISTS idx_reflection_session ON reflection_memories (session_id, created_at);
+      CREATE INDEX IF NOT EXISTS idx_reflection_approved ON reflection_memories (user_approved, created_at);
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_reflection_tool_call ON reflection_memories (tool_call_id);
+
+      CREATE TABLE IF NOT EXISTS reflection_moods (
+        id TEXT PRIMARY KEY NOT NULL,
+        session_id TEXT,
+        mood TEXT NOT NULL,
+        intensity INTEGER NOT NULL,
+        note TEXT,
+        created_at INTEGER NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_reflection_moods_created ON reflection_moods (created_at);
+    `);
+  },
 ];
 
 export async function runMigrations(db: SQLiteDatabase): Promise<void> {

@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ChatBubble, Chip, ConfirmDialog, Text } from '@/components';
+import { Button, ChatBubble, Chip, ConfirmDialog, Text } from '@/components';
 import { useToast } from '@/components/feedback/ToastProvider';
 import { chatRepository, safetyRepository } from '@/database';
 import { useAndroidKeyboardLift } from '@/hooks/useAndroidKeyboardLift';
@@ -579,7 +579,7 @@ export function ChatScreen(): React.ReactElement {
             <PressableScale
               onPress={() => navigation.navigate('VoiceMode')}
               accessibilityRole="button"
-              accessibilityLabel="Voice mode"
+              accessibilityLabel="Voice notes"
               style={[styles.headerBtn, { backgroundColor: theme.colors.surfaceInteractive }]}
             >
               <Icon name="mic" size={20} color={theme.colors.textMuted} />
@@ -595,6 +595,12 @@ export function ChatScreen(): React.ReactElement {
           </View>
         ) : null}
       </View>
+
+      {!keyboardVisible ? (
+        <View style={{ paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.sm }}>
+          <Button label="Talk to Oppuna" onPress={() => navigation.navigate('TalkToOppuna')} />
+        </View>
+      ) : null}
 
       {showKannadaComingSoon && !keyboardVisible ? (
         <View

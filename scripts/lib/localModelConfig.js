@@ -50,6 +50,17 @@ function loadLocalModelConfig() {
   if (raw.chatTemplate !== 'chatml') {
     throw new Error('config/local-model.json: chatTemplate must be "chatml" for Qwen2.5 Instruct');
   }
+  if (raw.deliveryType !== 'on-demand') {
+    throw new Error(
+      'config/local-model.json: deliveryType must be "on-demand" so the model is not part of the initial install',
+    );
+  }
+  const downloadUrl = pinnedModelDownloadUrl(raw.sourceRepo, raw.sourceFile);
+  if (raw.downloadUrl !== downloadUrl) {
+    throw new Error(
+      'config/local-model.json: downloadUrl must be the pinned Hugging Face resolve URL for sourceRepo/sourceFile',
+    );
+  }
 
   const stopSequences = Array.isArray(raw.stopSequences)
     ? raw.stopSequences.filter((s) => typeof s === 'string' && s.length > 0)
@@ -73,6 +84,7 @@ function loadLocalModelConfig() {
     sha256: raw.sha256.toLowerCase(),
     deliveryType: raw.deliveryType,
     assetPackName: raw.assetPackName,
+    downloadUrl,
     minPlausibleSizeBytes: raw.minPlausibleSizeBytes ?? 1_000_000,
     sourceRepo: raw.sourceRepo,
     sourceFile: raw.sourceFile,
@@ -99,9 +111,15 @@ function requiredPrivateModelStorageBytes(expectedSize, headroomBytes) {
   return expectedSize + headroomBytes;
 }
 
+/** Exact Hugging Face file used when Play on-demand delivery is unavailable. */
+function pinnedModelDownloadUrl(sourceRepo, sourceFile) {
+  return `https://huggingface.co/${sourceRepo}/resolve/main/${sourceFile}`;
+}
+
 module.exports = {
   CONFIG_PATH,
   DEFAULT_STOP_SEQUENCES,
   loadLocalModelConfig,
+  pinnedModelDownloadUrl,
   requiredPrivateModelStorageBytes,
 };

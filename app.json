@@ -20,7 +20,7 @@
       "bundleIdentifier": "com.oppuna.care",
       "buildNumber": "2",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Oppuna uses the microphone only to record private voice notes that stay on your device. Nothing is ever uploaded.",
+        "NSMicrophoneUsageDescription": "Oppuna uses the microphone for on-device voice notes and, when you start Talk to Oppuna, to stream audio to AssemblyAI for a live reflection. Voice notes stay on your device.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -70,6 +70,7 @@
       ],
       "./plugins/withAiModelAssetPack.js",
       "./plugins/withAndroidPrivacy.js",
+      "./plugins/withOppunaPcmAudio.js",
       [
         "expo-splash-screen",
         {
@@ -81,7 +82,7 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "Oppuna records private voice notes that never leave your device."
+          "microphonePermission": "Oppuna uses the microphone for on-device voice notes and, when you start Talk to Oppuna, to stream audio to AssemblyAI for a live reflection. Voice notes stay on your device."
         }
       ],
       [
@@ -104,6 +105,7 @@
         "modelId": "oppuna-qwen25-1_5b-instruct-q4km",
         "displayName": "Qwen2.5 1.5B Instruct (Q4_K_M)",
         "assetPack": "ai_model_asset_pack",
+        "delivery": "on-demand",
         "modelFile": "model.gguf"
       },
       "eas": {

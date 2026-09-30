@@ -10,7 +10,7 @@ Identity details: [`docs/QWEN_MODEL.md`](./QWEN_MODEL.md) and [`config/local-mod
 | --- | --- |
 | Config id | `oppuna-qwen25-1_5b-instruct-q4km` |
 | Display name | Qwen2.5 1.5B Instruct (Q4_K_M) |
-| File in PAD pack | `model.gguf` |
+| File in PAD pack | `model.gguf` (on-demand, not in the base install) |
 | Expected size | 986,048,768 bytes (~941 MB) |
 | SHA-256 | Configured in `config/local-model.json` (do not invent) |
 | Context default | 4096 tokens (may be lowered per device tier) |
@@ -21,20 +21,20 @@ Identity details: [`docs/QWEN_MODEL.md`](./QWEN_MODEL.md) and [`config/local-mod
 
 1. Place the GGUF at `assets/ai-model/model.gguf` (gitignored).
 2. `plugins/withAiModelAssetPack.js` copies it into `android/ai_model_asset_pack/` at prebuild.
-3. Google Play delivers the pack **at install time** (`deliveryType = install-time`).
-4. Native module `OppunaModelAsset` opens the asset via **AssetManager**, copies off the UI thread to `filesDir/ai-model/model.gguf.tmp`, verifies size/GGUF/SHA, then **atomically moves** to `model.gguf` for llama.rn mmap.
+3. Google Play delivers the pack **on demand** (`deliveryType = on-demand`). The initial install does not include the ~941 MB weights.
+4. When the user taps **Download on-device model**, `OppunaModelAsset` asks Play for the pack. If Play delivery is unavailable, it streams the pinned Hugging Face file. Size, GGUF header, and SHA-256 are checked before the file can be loaded. A private copy is finalized with an atomic move.
 
-Development / sideload: copy a GGUF to `{documentDirectory}models/model.gguf`.
+Development / sideload: copy a GGUF to `{documentDirectory}models/model.gguf`, or use the download button when the build can reach the pinned URL.
 
 ## Verification pipeline
 
 Before first load (`src/services/modelAssetService.ts`):
 
-1. Resolve path (PAD AssetManager → private copy → dev folder)
+1. Resolve path (private copy → installed on-demand pack → dev folder). A missing file is normal before download.
 2. Exists + minimum size + expected byte size
 3. SHA-256 on first install, app/model version change, or suspected corruption (trusted verification record may authorize selective skip)
 4. Store verification metadata in AsyncStorage for faster subsequent launches
-5. `npm run verify:model` also enforces Play’s **1 GB** install-time pack ceiling and GGUF architecture=`qwen2`
+5. `npm run verify:model` also enforces the Play asset-pack ceiling and GGUF architecture=`qwen2`
 
 Failure states:
 

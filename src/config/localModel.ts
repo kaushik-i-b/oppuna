@@ -5,8 +5,8 @@
  * machine-readable source of truth shared with verify-model, verify-aab,
  * and the asset-pack plugin.
  *
- * Production model: Qwen2.5 1.5B Instruct (Q4_K_M), ~941 MB — fits under
- * Google Play's 1 GB install-time asset pack limit.
+ * Production model: Qwen2.5 1.5B Instruct (Q4_K_M), ~941 MB.
+ * Play delivers it on demand so the initial install stays small.
  *
  * The GGUF binary itself must NOT be committed to git — see docs/LOCAL_LLM_ANDROID.md.
  */
@@ -28,11 +28,16 @@ export const LOCAL_MODEL_CONFIG = {
   parameterCount: localModelJson.parameterCount,
   /** Quantization tag (e.g. Q4_K_M). */
   quantization: localModelJson.quantization,
-  /** Upstream Hugging Face GGUF source (developer reference only — not fetched at runtime). */
+  /** Upstream Hugging Face GGUF. Used only for the optional weight download. */
   sourceRepo: localModelJson.sourceRepo,
   sourceFile: localModelJson.sourceFile,
   sourceUrl: localModelJson.sourceUrl,
-  /** Filename inside the install-time Play Asset Delivery pack. */
+  /**
+   * Exact file fetched when Play on-demand delivery is unavailable.
+   * Must match sourceRepo + sourceFile. Integrity still requires sha256.
+   */
+  downloadUrl: localModelJson.downloadUrl,
+  /** Filename inside the on-demand Play Asset Delivery pack. */
   fileName: localModelJson.fileName,
   /** Bump when the shipped GGUF changes so integrity re-runs. */
   version: String(localModelJson.version),
@@ -49,8 +54,8 @@ export const LOCAL_MODEL_CONFIG = {
   minPlausibleSizeBytes: localModelJson.minPlausibleSizeBytes as number,
   /** Play Asset Delivery pack name (must match the Gradle asset pack). */
   assetPackName: localModelJson.assetPackName,
-  /** Install-time delivery (must match Gradle assetPack.dynamicDelivery). */
-  deliveryType: localModelJson.deliveryType as 'install-time',
+  /** On-demand delivery (must match Gradle assetPack.dynamicDelivery). */
+  deliveryType: localModelJson.deliveryType as 'on-demand',
   /**
    * Extra free bytes beyond one private model copy for filesystem overhead
    * and normal app operation. Formula: expectedSize + storageHeadroomBytes.

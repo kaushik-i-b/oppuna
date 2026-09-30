@@ -15,6 +15,7 @@ jest.mock('@/database', () => ({
   breathingRepository: { list: jest.fn(async () => []) },
   safetyRepository: { list: jest.fn(async () => []) },
   voiceNoteRepository: { list: jest.fn(async () => []) },
+  reflectionRepository: { listReflections: jest.fn(async () => []) },
   wipeAllTables: jest.fn(async () => undefined),
 }));
 
