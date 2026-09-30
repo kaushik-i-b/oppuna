@@ -70,4 +70,95 @@ export function pcm16ToBase64(pcm: Int16Array): string {
   return bytesToBase64(bytes);
 }
 
+/** Little-endian PCM16 to floats in [-1, 1]. A trailing odd byte is ignored. */
+export function pcm16BytesToFloat(bytes: Uint8Array): Float32Array {
+  const sampleCount = Math.floor(bytes.byteLength / 2);
+  const view = new DataView(bytes.buffer, bytes.byteOffset, sampleCount * 2);
+  const floats = new Float32Array(sampleCount);
+  for (let i = 0; i < sampleCount; i += 1) {
+    floats[i] = view.getInt16(i * 2, true) / 0x8000;
+  }
+  return floats;
+}
+
+export function pcm16Base64ToFloat(value: string): Float32Array {
+  return pcm16BytesToFloat(base64ToBytes(value));
+}
+
+function concatFloats(left: Float32Array, right: Float32Array): Float32Array {
+  if (left.length === 0) return right;
+  if (right.length === 0) return left;
+  const merged = new Float32Array(left.length + right.length);
+  merged.set(left, 0);
+  merged.set(right, left.length);
+  return merged;
+}
+
+/**
+ * Streaming rate conversion. Equal rates copy through.
+ * Downsampling averages each output window so chunk edges do not drop a fractional tail.
+ * Upsampling is linear interpolation and keeps its phase across calls.
+ * This is resampling only — no gain, EQ, or noise processing.
+ */
+export function createStreamingRateConverter(inputRate: number, outputRate: number): {
+  process: (input: Float32Array) => Float32Array;
+  reset: () => void;
+} {
+  if (!(inputRate > 0) || !(outputRate > 0)) {
+    throw new Error('invalid_sample_rate');
+  }
+  let carry = new Float32Array(0);
+  let phase = 0;
+
+  function reset(): void {
+    carry = new Float32Array(0);
+    phase = 0;
+  }
+
+  function process(input: Float32Array): Float32Array {
+    if (input.length === 0) return new Float32Array(0);
+    if (inputRate === outputRate) return input;
+
+    const data = concatFloats(carry, input);
+    if (outputRate < inputRate) {
+      const ratio = inputRate / outputRate;
+      const outLen = Math.floor(data.length / ratio);
+      const output = new Float32Array(outLen);
+      let consumed = 0;
+      for (let i = 0; i < outLen; i += 1) {
+        const start = Math.floor(i * ratio);
+        const end = Math.floor((i + 1) * ratio);
+        let sum = 0;
+        for (let j = start; j < end; j += 1) sum += data[j] ?? 0;
+        const count = end - start;
+        output[i] = count > 0 ? sum / count : 0;
+        consumed = end;
+      }
+      carry = data.slice(consumed);
+      return output;
+    }
+
+    const step = inputRate / outputRate;
+    const estimated = Math.ceil((data.length - phase) / step) + 1;
+    const output = new Float32Array(estimated);
+    let written = 0;
+    let pos = phase;
+    while (pos + 1 < data.length) {
+      const index = Math.floor(pos);
+      const frac = pos - index;
+      const a = data[index] ?? 0;
+      const b = data[index + 1] ?? a;
+      output[written] = a + (b - a) * frac;
+      written += 1;
+      pos += step;
+    }
+    const consumed = Math.floor(pos);
+    carry = data.slice(Math.min(consumed, data.length));
+    phase = pos - consumed;
+    return output.subarray(0, written);
+  }
+
+  return { process, reset };
+}
+
 export const VOICE_SAMPLE_RATE = 24000;

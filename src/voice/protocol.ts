@@ -16,7 +16,7 @@ export type ParsedServerEvent =
   | { type: 'reply.started'; replyId: string }
   | { type: 'reply.audio'; data: string }
   | { type: 'transcript.agent'; text: string; replyId: string; interrupted: boolean }
-  | { type: 'reply.done'; status: 'completed' | 'interrupted' }
+  | { type: 'reply.done'; status: 'completed' | 'interrupted'; replyId: string }
   | { type: 'tool.call'; call: ParsedToolCall }
   | { type: 'unknown'; rawType: string };
 
@@ -81,6 +81,7 @@ export function parseServerEvent(raw: string): ParsedServerEvent | null {
       return {
         type: 'reply.done',
         status: event.status === 'interrupted' ? 'interrupted' : 'completed',
+        replyId: typeof event.reply_id === 'string' ? event.reply_id : '',
       };
     case 'tool.call':
       if (typeof event.call_id !== 'string' || typeof event.name !== 'string') return null;

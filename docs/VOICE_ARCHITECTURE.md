@@ -43,7 +43,7 @@ flowchart TD
 
 1. A local token server holds `ASSEMBLYAI_API_KEY` and mints a one-time Voice Agent token (`GET https://agents.assemblyai.com/v1/token`).
 2. The app opens `wss://agents.assemblyai.com/v1/ws?token=...` and sends `session.update` with an inline agent (prompt, tools, PCM input/output, barge-in).
-3. The browser streams 24 kHz PCM16 microphone audio as `input.audio` and plays `reply.audio`. Turn detection and barge-in are AssemblyAI's.
+3. The browser streams 24 kHz PCM16 microphone audio as `input.audio` and plays `reply.audio` from one ordered queue. Turn detection and barge-in are AssemblyAI's. The microphone is not played back through the speakers.
 4. Tools run on device against SQLite. Only user-approved memory is readable later.
 5. The existing network guard stays in place. A voice session may allow the token host and `agents.assemblyai.com` for the token request only. Every other public host stays blocked. Android production builds still strip `INTERNET`; the live demo path is Expo web or Expo Go, where the process is allowed to use the network.
 
@@ -56,7 +56,8 @@ Source: AssemblyAI Voice Agent API (2026).
 | Auth | Server `GET /v1/token` with the API key. Client connects with `?token=` |
 | Configure | Client `session.update` (inline `system_prompt`, `tools`, `input`, `output`) |
 | Ready | Server `session.ready` |
-| Mic | Client `input.audio` (base64 PCM16, 24 kHz) |
+| Mic | Client `input.audio` (base64 PCM16 mono, 24 kHz little-endian) |
+| Reply audio | `reply.audio` `data` is the same PCM. One queue per reply id. Interrupt flushes that reply only. |
 | Turns | `input.speech.started`, `transcript.user.delta`, `input.speech.stopped`, `transcript.user` |
 | Reply | `reply.started`, `reply.audio`, `transcript.agent`, `reply.done` (`status`: `completed` or `interrupted`) |
 | Tools | Server `tool.call`. Client `tool.result` after `reply.done` |

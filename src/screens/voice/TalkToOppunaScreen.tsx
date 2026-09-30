@@ -15,6 +15,11 @@ import {
   type VoiceRuntimeEvent,
 } from '@/voice/AssemblyAIVoiceService';
 import { createVoiceAudioPort } from '@/voice/audio/createVoiceAudioPort';
+import {
+  getAudioDebugSnapshot,
+  subscribeAudioDiagnostics,
+  type AudioDebugSnapshot,
+} from '@/voice/audio/audioDiagnostics';
 import { seedDemoReflections } from '@/voice/demoSeed';
 import { moodKeyForVoice } from '@/voice/moodMap';
 import { buildSystemPrompt } from '@/voice/prompt';
@@ -63,6 +68,7 @@ export function TalkToOppunaScreen({ navigation }: Props): React.ReactElement {
   const [saved, setSaved] = useState(false);
   const [patterns, setPatterns] = useState<PatternReport | null>(null);
   const [seedNote, setSeedNote] = useState<string | null>(null);
+  const [audioSnap, setAudioSnap] = useState<AudioDebugSnapshot | null>(null);
 
   const serviceRef = useRef<AssemblyAIVoiceService | null>(null);
   const sessionIdRef = useRef(createId());
@@ -228,6 +234,11 @@ export function TalkToOppunaScreen({ navigation }: Props): React.ReactElement {
 
   const beginRef = useRef(begin);
   beginRef.current = begin;
+
+  useEffect(() => {
+    if (!__DEV__) return undefined;
+    return subscribeAudioDiagnostics(() => setAudioSnap(getAudioDebugSnapshot()));
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -447,7 +458,17 @@ export function TalkToOppunaScreen({ navigation }: Props): React.ReactElement {
               <Button label="Forget this conversation" variant="ghost" onPress={() => void forget()} />
             </View>
             {__DEV__ ? (
-              <View style={{ marginTop: theme.spacing.lg, alignItems: 'center' }}>
+              <View style={{ marginTop: theme.spacing.lg, alignItems: 'center', gap: theme.spacing.sm }}>
+                {audioSnap ? (
+                  <Text variant="caption" color="textFaint" center>
+                    {`in ${audioSnap.inputSampleRate ?? '—'} Hz · ${audioSnap.inputChannels ?? '—'} ch · out ${audioSnap.outputSampleRate ?? '—'} Hz · ctx ${audioSnap.contextSampleRate ?? '—'} · queue ${audioSnap.queueLength}`}
+                  </Text>
+                ) : null}
+                <Button
+                  label="Audio diagnostics"
+                  variant="ghost"
+                  onPress={() => navigation.navigate('VoiceAudioDebug')}
+                />
                 <Button label="Load demo history" variant="ghost" onPress={() => void loadSeed()} />
                 {seedNote ? (
                   <Text variant="caption" color="textFaint" center>

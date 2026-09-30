@@ -1,7 +1,9 @@
 import { Platform } from 'react-native';
 
+import { recordAudioDiagnostic } from '@/voice/audio/audioDiagnostics';
 import type { VoiceAudioPort } from '@/voice/audio/types';
 import type { VoiceMemoryStore } from '@/voice/memoryStore';
+import { VOICE_SAMPLE_RATE } from '@/voice/pcm';
 import { OPPUNA_VOICE_GREETING } from '@/voice/prompt';
 import { parseServerEvent } from '@/voice/protocol';
 import { createReplyGate } from '@/voice/replyGate';
@@ -122,6 +124,7 @@ export class AssemblyAIVoiceService {
   private pendingResults: { callId: string; resultJson: string }[] = [];
   private replyGeneration = 0;
   private activeReplyId = '';
+  private interruptedReplyId = '';
   private replyOpen = false;
 
   constructor(private readonly options: AssemblyAIVoiceServiceOptions) {}
@@ -170,10 +173,13 @@ export class AssemblyAIVoiceService {
     await this.ensureCapture();
   }
 
-  private stopPlaybackNow(): void {
-    this.gate.interrupt(this.replyGeneration);
-    this.replyOpen = false;
-    this.options.audio.stopPlayback();
+  private stopPlaybackNow(replyId?: string): number {
+    const target = replyId || this.activeReplyId;
+    if (!replyId || replyId === this.activeReplyId) {
+      this.gate.interrupt(this.replyGeneration);
+      this.replyOpen = false;
+    }
+    return this.options.audio.stopPlayback(target || undefined);
   }
 
   private async openSocket(resume: boolean): Promise<void> {
@@ -304,12 +310,14 @@ export class AssemblyAIVoiceService {
         }
         return;
       case 'input.speech.started': {
-        if (this.replyOpen) {
+        const wasOpen = this.replyOpen;
+        this.interruptedReplyId = this.activeReplyId;
+        if (wasOpen) {
           voiceLog('interruption detected');
           this.options.onEvent({ type: 'reply_interrupted' });
-          this.stopPlaybackNow();
-          this.options.onEvent({ type: 'playback_cleared' });
         }
+        this.stopPlaybackNow(this.activeReplyId);
+        if (wasOpen) this.options.onEvent({ type: 'playback_cleared' });
         this.turn += 1;
         this.partial = '';
         voiceLog('turn detected');
@@ -339,12 +347,23 @@ export class AssemblyAIVoiceService {
         this.replyGeneration = this.gate.beginReply();
         this.replyOpen = true;
         this.activeReplyId = event.replyId || `reply-${this.replyGeneration}`;
+        this.options.audio.beginReply(this.activeReplyId);
         voiceLog('agent response started');
         this.options.onEvent({ type: 'reply_started', replyId: this.activeReplyId });
         return;
       case 'reply.audio':
-        if (!event.data || !this.gate.acceptAudio(this.replyGeneration)) return;
-        this.options.audio.playPcm16Base64(event.data, 24000);
+        if (!event.data || !this.gate.acceptAudio(this.replyGeneration)) {
+          if (event.data) {
+            recordAudioDiagnostic({
+              kind: 'dropped',
+              replyId: this.activeReplyId,
+              sequence: 0,
+              reason: 'stale',
+            });
+          }
+          return;
+        }
+        this.options.audio.playPcm16Base64(event.data, VOICE_SAMPLE_RATE, this.activeReplyId);
         return;
       case 'transcript.agent': {
         const replyId = event.replyId || this.activeReplyId;
@@ -359,18 +378,23 @@ export class AssemblyAIVoiceService {
       case 'tool.call':
         await this.handleTool(event.call.callId, event.call.name, event.call.arguments);
         return;
-      case 'reply.done':
-        this.replyOpen = false;
+      case 'reply.done': {
+        const finishedId = event.replyId || this.interruptedReplyId || this.activeReplyId;
+        const stillCurrent = !finishedId || finishedId === this.activeReplyId;
+        if (stillCurrent) this.replyOpen = false;
         this.flushToolResults();
         if (event.status === 'interrupted') {
-          this.stopPlaybackNow();
-          voiceLog('interruption detected');
-          this.options.onEvent({ type: 'reply_interrupted' });
-          this.options.onEvent({ type: 'playback_cleared' });
-        } else {
+          this.stopPlaybackNow(finishedId);
+          if (stillCurrent) {
+            voiceLog('interruption detected');
+            this.options.onEvent({ type: 'reply_interrupted' });
+            this.options.onEvent({ type: 'playback_cleared' });
+          }
+        } else if (stillCurrent) {
           this.options.onEvent({ type: 'reply_completed' });
         }
         return;
+      }
       case 'session.ended':
         voiceLog('session ended');
         this.options.onEvent({ type: 'ended' });

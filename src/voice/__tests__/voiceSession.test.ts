@@ -91,7 +91,7 @@ describe('AssemblyAIVoiceService', () => {
     socket: FakeSocket;
     emit: (payload: unknown) => void;
     events: VoiceRuntimeEvent[];
-    audio: { played: number; stopped: number };
+    audio: { played: number; stopped: number; stops: string[]; plays: string[] };
     store: ReturnType<typeof createMemoryStore>;
   } {
     const socket = new FakeSocket();
@@ -102,7 +102,7 @@ describe('AssemblyAIVoiceService', () => {
         return Promise.resolve(socket);
       },
     };
-    const audioState = { played: 0, stopped: 0 };
+    const audioState = { played: 0, stopped: 0, stops: [] as string[], plays: [] as string[] };
     const audio: VoiceAudioPort = {
       supportsStreaming: true,
       async startCapture() {
@@ -111,11 +111,17 @@ describe('AssemblyAIVoiceService', () => {
       async stopCapture() {
         return undefined;
       },
-      playPcm16Base64() {
-        audioState.played += 1;
+      beginReply(replyId) {
+        audioState.plays.push(`begin:${replyId}`);
       },
-      stopPlayback() {
+      playPcm16Base64(_base64, _rate, replyId) {
+        audioState.played += 1;
+        audioState.plays.push(replyId);
+      },
+      stopPlayback(replyId) {
         audioState.stopped += 1;
+        audioState.stops.push(replyId ?? '*');
+        return 0;
       },
     };
     const events: VoiceRuntimeEvent[] = [];
@@ -159,6 +165,25 @@ describe('AssemblyAIVoiceService', () => {
     await Promise.resolve();
     expect(audio.played).toBe(1);
     expect(audio.stopped).toBeGreaterThan(0);
+    expect(audio.stops).toContain('reply-1');
+  });
+
+  it('flushes a finished reply when the user speaks and does not drop the next reply', async () => {
+    const { service, emit, audio } = harness();
+    await service.start();
+    emit({ type: 'session.ready', session_id: 'remote-1' });
+    await Promise.resolve();
+    emit({ type: 'reply.started', reply_id: 'reply-1' });
+    emit({ type: 'reply.audio', data: 'AAAA' });
+    emit({ type: 'reply.done', reply_id: 'reply-1', status: 'completed' });
+    emit({ type: 'input.speech.started' });
+    emit({ type: 'reply.started', reply_id: 'reply-2' });
+    emit({ type: 'reply.audio', data: 'BBBB' });
+    emit({ type: 'reply.done', reply_id: 'reply-1', status: 'interrupted' });
+    await Promise.resolve();
+    expect(audio.plays).toEqual(['begin:reply-1', 'reply-1', 'begin:reply-2', 'reply-2']);
+    expect(audio.stops).toEqual(['reply-1', 'reply-1']);
+    expect(audio.played).toBe(2);
   });
 
   it('runs a tool call once when the same call id is delivered twice', async () => {
