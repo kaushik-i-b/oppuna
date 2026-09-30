@@ -27,4 +27,4 @@ python3 scripts/generate-play-store-screenshots.py
 
 Requires Pillow (`pip install Pillow`).
 
-Feature graphic: [`../feature-image.png`](../feature-image.png) (existing).
+Feature graphic: [`feature-graphic.png`](feature-graphic.png) (1024×500). Headline: Private emotional wellness. Subheadline: Mood · Journal · On-device AI. The same file is `assets/feature-image.png`.
