@@ -52,11 +52,15 @@ export function parseServerEvent(raw: string): ParsedServerEvent | null {
       return { type: 'input.speech.started' };
     case 'input.speech.stopped':
       return { type: 'input.speech.stopped' };
-    case 'transcript.user.delta':
+    case 'transcript.user.delta': {
+      // Live sessions send the cumulative utterance in `text`. Older fixtures use `delta`.
+      const spoken =
+        typeof event.delta === 'string' ? event.delta : typeof event.text === 'string' ? event.text : '';
       return {
         type: 'transcript.user.delta',
-        delta: typeof event.delta === 'string' ? event.delta : '',
+        delta: spoken,
       };
+    }
     case 'transcript.user':
       return { type: 'transcript.user', text: typeof event.text === 'string' ? event.text : '' };
     case 'reply.started':

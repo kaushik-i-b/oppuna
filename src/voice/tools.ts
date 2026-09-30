@@ -21,9 +21,9 @@ export const VOICE_TOOLS: VoiceToolDefinition[] = [
     type: 'function',
     name: 'save_reflection',
     description:
-      'Call only after the user agrees to turn this conversation into a reflection. Put anything they asked to leave out in excludedTopics and omit it from every other field. memoryCandidates are suggestions the user will approve on screen. Do not call twice for the same reflection.',
+      'Call in the same turn the user agrees to a reflection or asks you to save one. Do not ask another question first. Infer mood from the conversation; map frustration or exhaustion to stressed. Empty arrays are valid. Put anything they asked to leave out in excludedTopics and omit it from every other field. memoryCandidates are suggestions the user will approve on screen. Do not call twice for the same reflection.',
     execution_mode: 'interactive',
-    timeout_seconds: 8,
+    timeout_seconds: 30,
     parameters: {
       type: 'object',
       properties: {
@@ -33,8 +33,9 @@ export const VOICE_TOOLS: VoiceToolDefinition[] = [
         },
         mood: {
           type: 'string',
-          description: 'Single mood word.',
-          enum: ['great', 'good', 'calm', 'okay', 'tired', 'low', 'stressed', 'anxious', 'awful'],
+          description:
+            'One word inferred from the conversation, such as stressed, tired, low, calm, or frustrated. Do not ask the user to pick from a list.',
+          examples: ['stressed', 'tired', 'calm', 'frustrated'],
         },
         themes: { ...stringList, description: 'Short theme labels, such as work or rest.' },
         concerns: { ...stringList, description: 'What is still weighing on them, without excluded topics.' },
@@ -53,16 +54,7 @@ export const VOICE_TOOLS: VoiceToolDefinition[] = [
           description: 'One sentence for the key realization, without excluded topics. Empty if none.',
         },
       },
-      required: [
-        'summary',
-        'mood',
-        'themes',
-        'concerns',
-        'positiveMoments',
-        'commitments',
-        'excludedTopics',
-        'memoryCandidates',
-      ],
+      required: ['summary'],
     },
   },
   {

@@ -10,7 +10,9 @@ export function mergeTranscriptDelta(current: string, delta: string): string {
   if (delta.startsWith(current)) return delta;
   if (current === delta || current.endsWith(delta)) return current;
   if (current.startsWith(delta) && delta.length <= current.length) return current;
-  return `${current}${delta}`;
+  // A leading space is the next chunk of the same utterance. A new full hypothesis replaces a revision.
+  if (/^\s/.test(delta)) return `${current}${delta}`;
+  return delta.trim();
 }
 
 export function upsertTranscriptLine(

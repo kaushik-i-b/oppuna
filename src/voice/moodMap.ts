@@ -14,6 +14,10 @@ export function moodKeyForVoice(mood: string): MoodKey | null {
     case 'low':
     case 'stressed':
     case 'anxious':
+    case 'frustrated':
+    case 'frustration':
+    case 'exhausted':
+    case 'exhausting':
       return 'low';
     case 'awful':
       return 'awful';

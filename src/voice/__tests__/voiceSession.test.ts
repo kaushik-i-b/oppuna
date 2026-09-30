@@ -1,6 +1,7 @@
 import { createReplyGate } from '@/voice/replyGate';
 import { reduceVoicePhase } from '@/voice/stateMachine';
 import { createToolLedger } from '@/voice/toolLedger';
+import { parseServerEvent } from '@/voice/protocol';
 import { mergeTranscriptDelta } from '@/voice/transcript';
 import {
   AssemblyAIVoiceService,
@@ -37,12 +38,26 @@ describe('duplicate tool-call protection', () => {
   });
 });
 
+describe('live transcript events', () => {
+  it('reads the cumulative text field used by the voice agent', () => {
+    const parsed = parseServerEvent(
+      JSON.stringify({
+        type: 'transcript.user.delta',
+        item_id: 'item-1',
+        text: 'Work today was exhausting',
+      }),
+    );
+    expect(parsed).toEqual({ type: 'transcript.user.delta', delta: 'Work today was exhausting' });
+  });
+});
+
 describe('transcript merging', () => {
   it('replaces a partial with the cumulative transcript and ignores a duplicate final chunk', () => {
     expect(mergeTranscriptDelta('', 'Today')).toBe('Today');
     expect(mergeTranscriptDelta('Today', 'Today was')).toBe('Today was');
     expect(mergeTranscriptDelta('Today was', ' exhausting')).toBe('Today was exhausting');
     expect(mergeTranscriptDelta('Today was exhausting', 'Today was exhausting')).toBe('Today was exhausting');
+    expect(mergeTranscriptDelta('Where?', 'Work today was exhausting')).toBe('Work today was exhausting');
   });
 });
 
