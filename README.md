@@ -157,7 +157,7 @@ Tagline: **Talk. Reflect. Remember — on your terms.**
 
 Record the demo in the browser (`npm run web` with `npm run voice:token`). The Android voice screen blocks screenshots. The spoken reply in the second conversation is generated live from approved memory. It is not a fixed sentence.
 
-Script, shots, narration, slides, submission copy, and the recording checklist are in [docs/hackathon](docs/hackathon/VIDEO_SCRIPT.md). The seven-slide deck is [Oppuna-Voice.pptx](docs/hackathon/Oppuna-Voice.pptx). A browser recording with the live conversation audio is [oppuna-voice-demo.mp4](docs/hackathon/oppuna-voice-demo.mp4).
+Script, shots, narration, slides, submission copy, and the recording checklist are in [docs/hackathon](docs/hackathon/VIDEO_SCRIPT.md). The seven-slide deck is [Oppuna-Voice.pptx](docs/hackathon/Oppuna-Voice.pptx). A mobile-screen recording with the live conversation audio is [oppuna-voice-demo.mp4](docs/hackathon/oppuna-voice-demo.mp4).
 
 ## Screenshots
 
