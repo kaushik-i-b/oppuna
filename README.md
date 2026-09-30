@@ -149,6 +149,16 @@ Then assemble a release APK from `android/` (`./gradlew assembleRelease`). A deb
 
 In development, **Load demo history** inserts a clearly labeled past reflection so the second session can be shown without hand-editing the database. Those rows are marked `demo_seed`.
 
+## Hackathon presentation
+
+Oppuna Voice is a voice-first reflection companion. You talk. The conversation can become a reflection. You decide which lines are allowed to be remembered. A later conversation can continue only from those lines.
+
+Tagline: **Talk. Reflect. Remember — on your terms.**
+
+Record the demo in the browser (`npm run web` with `npm run voice:token`). The Android voice screen blocks screenshots. The spoken reply in the second conversation is generated live from approved memory. It is not a fixed sentence.
+
+Script, shots, narration, slides, submission copy, and the recording checklist are in [docs/hackathon](docs/hackathon/VIDEO_SCRIPT.md).
+
 ## Screenshots
 
 Placeholders for captures from a live session:
