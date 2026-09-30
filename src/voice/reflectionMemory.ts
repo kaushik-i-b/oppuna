@@ -44,6 +44,48 @@ export function asStringList(value: unknown): string[] {
     .filter((item) => item.length > 0);
 }
 
+const SAVE_REQUEST = /\b(?:please\s+)?(?:save|turn|make)\b[^.]*\breflection\b|\bturn this into\b|\btoday's reflection\b/i;
+
+function extractExclusion(text: string): string | null {
+  const leaveOut = text.match(/\bleave out(?: the)? ([^.?!]+)/i);
+  if (leaveOut?.[1]) return leaveOut[1].trim();
+  const leaveThe = text.match(/\bleave(?: the)? ([^.?!]+?) out\b/i);
+  if (leaveThe?.[1]) return leaveThe[1].trim();
+  return null;
+}
+
+/**
+ * Used when the voice agent finishes a save request without calling save_reflection.
+ * The draft is built only from what the user said.
+ */
+export function draftFromConversation(userLines: string[]): ReflectionDraftInput {
+  const excluded = extractExclusion(userLines.join(' '));
+  const topics = excluded ? [excluded] : [];
+  const sentences = userLines
+    .flatMap((line) => line.split(/(?<=[.!?])\s+/))
+    .map((sentence) => sentence.trim())
+    .filter((sentence) => sentence.length > 0 && !SAVE_REQUEST.test(sentence) && !/^wait\b/i.test(sentence));
+  const kept = sentences.filter(
+    (sentence) => !topics.some((topic) => sentence.toLowerCase().includes(topic.toLowerCase())),
+  );
+  const summary = kept.join(' ');
+  const mood = /stress|exhaust|frustrat|relax|switch off/i.test(summary) ? 'stressed' : null;
+  const short = kept.filter((sentence) => sentence.length <= 160);
+  const aboutWork = short.find((sentence) => /\bwork\b/i.test(sentence));
+  const latest = short[short.length - 1];
+  const memoryCandidates = [aboutWork, latest].filter(
+    (sentence, index, all): sentence is string => Boolean(sentence) && all.indexOf(sentence) === index,
+  );
+  return normalizeDraft({
+    summary,
+    mood,
+    themes: /\bwork\b/i.test(summary) ? ['work'] : [],
+    excludedTopics: topics,
+    memoryCandidates,
+    realization: '',
+  });
+}
+
 export function normalizeDraft(input: Partial<ReflectionDraftInput>): ReflectionDraftInput {
   return {
     summary: typeof input.summary === 'string' ? input.summary.trim() : '',

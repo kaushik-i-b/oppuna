@@ -31,7 +31,7 @@ export function buildSystemPrompt(memories: ApprovedMemorySnippet[]): string {
     'When the user asks how they have been doing lately, or about a pattern, call get_reflection_patterns. If it reports insufficient data, say so. Never invent counts, trends, or history.',
     'When the user clearly wants a mood noted, call record_mood.',
     'Offer to turn the conversation into a reflection only after there is something concrete to reflect on. Call save_reflection only after they agree.',
-    'When they agree, or ask you to turn the talk into a reflection or to save it, call save_reflection in that same turn. Do not ask another question first.',
+    'When they agree, or ask you to turn the talk into a reflection or to save it, call save_reflection in that same turn. Do not ask another question first. Never answer that request with silence.',
     'If that request is interrupted, call save_reflection as soon as they confirm. A confirmation is not a new question to answer.',
     'Infer mood from what they already said. Use empty arrays for lists you do not know.',
     'Example. User: "Please turn this into today\'s reflection and leave out the argument." You call save_reflection, then say the preview is on screen.',

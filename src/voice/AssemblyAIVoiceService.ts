@@ -4,6 +4,7 @@ import { recordAudioDiagnostic } from '@/voice/audio/audioDiagnostics';
 import type { VoiceAudioPort } from '@/voice/audio/types';
 import type { VoiceMemoryStore } from '@/voice/memoryStore';
 import { VOICE_SAMPLE_RATE } from '@/voice/pcm';
+import { draftFromConversation } from '@/voice/reflectionMemory';
 import { OPPUNA_VOICE_GREETING } from '@/voice/prompt';
 import { parseServerEvent } from '@/voice/protocol';
 import { createReplyGate } from '@/voice/replyGate';
@@ -57,6 +58,13 @@ export interface AssemblyAIVoiceServiceOptions {
   localSessionId: string;
   buildPrompt: () => Promise<string>;
   onEvent: (event: VoiceRuntimeEvent) => void;
+}
+
+/** True when the user asked for a reflection to be saved, not merely mentioned the word. */
+export function wantsSavedReflection(text: string): boolean {
+  const normalized = text.toLowerCase();
+  if (!/\breflection\b/.test(normalized) && !/\bsave\b/.test(normalized)) return false;
+  return /\b(save|turn|make|today)\b/.test(normalized);
 }
 
 function microphoneMessage(error: unknown): string {
@@ -126,6 +134,11 @@ export class AssemblyAIVoiceService {
   private activeReplyId = '';
   private interruptedReplyId = '';
   private replyOpen = false;
+  private replySawAudio = false;
+  private replySawSaveTool = false;
+  private saveNudgeSent = false;
+  private lastUserText = '';
+  private userLines: string[] = [];
 
   constructor(private readonly options: AssemblyAIVoiceServiceOptions) {}
 
@@ -339,11 +352,16 @@ export class AssemblyAIVoiceService {
       case 'transcript.user': {
         const text = event.text.trim();
         voiceLog('transcript finalized', { empty: text.length === 0 });
+        this.lastUserText = text;
+        this.saveNudgeSent = false;
+        if (text) this.userLines.push(text);
         this.partial = '';
         this.options.onEvent({ type: 'user_final', turnId: `user-${this.turn}`, text });
         return;
       }
       case 'reply.started':
+        this.replySawAudio = false;
+        this.replySawSaveTool = false;
         this.replyGeneration = this.gate.beginReply();
         this.replyOpen = true;
         this.activeReplyId = event.replyId || `reply-${this.replyGeneration}`;
@@ -352,6 +370,7 @@ export class AssemblyAIVoiceService {
         this.options.onEvent({ type: 'reply_started', replyId: this.activeReplyId });
         return;
       case 'reply.audio':
+        if (event.data) this.replySawAudio = true;
         if (!event.data || !this.gate.acceptAudio(this.replyGeneration)) {
           if (event.data) {
             recordAudioDiagnostic({
@@ -376,6 +395,7 @@ export class AssemblyAIVoiceService {
         return;
       }
       case 'tool.call':
+        if (event.call.name === 'save_reflection') this.replySawSaveTool = true;
         await this.handleTool(event.call.callId, event.call.name, event.call.arguments);
         return;
       case 'reply.done': {
@@ -391,6 +411,7 @@ export class AssemblyAIVoiceService {
             this.options.onEvent({ type: 'playback_cleared' });
           }
         } else if (stillCurrent) {
+          await this.recoverSilentSave();
           this.options.onEvent({ type: 'reply_completed' });
         }
         return;
@@ -406,6 +427,21 @@ export class AssemblyAIVoiceService {
       default:
         return;
     }
+  }
+
+  private async recoverSilentSave(): Promise<void> {
+    if (this.saveNudgeSent || this.replySawAudio || this.replySawSaveTool || !this.ready) return;
+    if (!wantsSavedReflection(this.lastUserText)) return;
+    const draft = draftFromConversation(this.userLines);
+    if (!draft.summary) return;
+    this.saveNudgeSent = true;
+    voiceLog('save recovered locally');
+    const saved = await this.options.store.putReflectionDraft({
+      ...draft,
+      sessionId: this.options.localSessionId,
+      toolCallId: `local-save-${this.turn}`,
+    });
+    this.options.onEvent({ type: 'tool_effect', effect: { type: 'reflection_draft', reflection: saved } });
   }
 
   private async handleTool(callId: string, name: string, args: unknown): Promise<void> {

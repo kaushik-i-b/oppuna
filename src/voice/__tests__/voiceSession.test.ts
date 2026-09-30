@@ -214,4 +214,46 @@ describe('AssemblyAIVoiceService', () => {
     const results = socket.sent.filter((line) => line.includes('"tool.result"'));
     expect(results).toHaveLength(1);
   });
+
+  it('builds a reflection preview when a save request ends with no speech and no tool call', async () => {
+    const { service, emit, socket, events, store } = harness();
+    await service.start();
+    emit({ type: 'session.ready', session_id: 'remote-1' });
+    emit({
+      type: 'transcript.user',
+      text: 'I could not switch off after I came home.',
+    });
+    emit({
+      type: 'transcript.user',
+      text: "Please turn this into today's reflection and leave out the argument.",
+    });
+    emit({ type: 'reply.started', reply_id: 'reply-1' });
+    emit({ type: 'reply.done', reply_id: 'reply-1', status: 'completed' });
+    await Promise.resolve();
+    expect(socket.sent.some((line) => line.includes('"reply.create"'))).toBe(false);
+    const draft = events.find((event) => event.type === 'tool_effect');
+    expect(draft && draft.type === 'tool_effect' && draft.effect.type).toBe('reflection_draft');
+    const stored = await store.listReflections();
+    expect(stored).toHaveLength(1);
+    expect(stored[0]?.summary).toContain('switch off');
+    expect(stored[0]?.summary.toLowerCase()).not.toContain('argument');
+    expect(stored[0]?.userApproved).toBe(false);
+  });
+
+  it('does not nudge after a spoken reply or an unrelated turn', async () => {
+    const { service, emit, socket } = harness();
+    await service.start();
+    emit({ type: 'session.ready', session_id: 'remote-1' });
+    emit({ type: 'transcript.user', text: 'Today was exhausting.' });
+    emit({ type: 'reply.started', reply_id: 'reply-1' });
+    emit({ type: 'reply.done', reply_id: 'reply-1', status: 'completed' });
+    emit({
+      type: 'transcript.user',
+      text: "Please turn this into today's reflection.",
+    });
+    emit({ type: 'reply.started', reply_id: 'reply-2' });
+    emit({ type: 'reply.audio', data: 'AAAA', reply_id: 'reply-2' });
+    emit({ type: 'reply.done', reply_id: 'reply-2', status: 'completed' });
+    expect(socket.sent.some((line) => line.includes('"reply.create"'))).toBe(false);
+  });
 });
