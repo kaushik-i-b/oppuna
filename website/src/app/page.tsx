@@ -1,27 +1,25 @@
-import { FAQ } from "@/components/sections/FAQ";
-import { Features } from "@/components/sections/Features";
-import { FinalCTA } from "@/components/sections/FinalCTA";
+import { Agents } from "@/components/sections/Agents";
+import { Contact } from "@/components/sections/Contact";
+import { Engineering } from "@/components/sections/Engineering";
 import { Hero } from "@/components/sections/Hero";
-import { HowItWorks } from "@/components/sections/HowItWorks";
-import { PrivacySection } from "@/components/sections/Privacy";
-import { Purpose } from "@/components/sections/Purpose";
-import { ResponsibleUse } from "@/components/sections/ResponsibleUse";
-import { UseCases } from "@/components/sections/UseCases";
-import { WhoFor } from "@/components/sections/WhoFor";
+import { HowWeWork } from "@/components/sections/HowWeWork";
+import { Products } from "@/components/sections/Products";
+import { Security } from "@/components/sections/Security";
+import { Solutions } from "@/components/sections/Solutions";
+import { WhyUs } from "@/components/sections/WhyUs";
 
 export default function HomePage() {
   return (
     <>
       <Hero />
-      <Purpose />
-      <UseCases />
-      <Features />
-      <HowItWorks />
-      <PrivacySection />
-      <WhoFor />
-      <ResponsibleUse />
-      <FAQ />
-      <FinalCTA />
+      <Solutions />
+      <Agents />
+      <HowWeWork />
+      <Engineering />
+      <Security />
+      <Products />
+      <WhyUs />
+      <Contact />
     </>
   );
 }

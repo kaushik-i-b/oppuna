@@ -22,22 +22,22 @@ export const metadata: Metadata = {
   // Trailing slash keeps relative metadata paths under the site origin.
   metadataBase: new URL(`${siteConfig.siteUrl}/`),
   title: {
-    default: `${siteConfig.playStoreTitle} — Private mood journal for Android`,
+    default: "Oppuna Labs | AI Agents, Automation & AI Product Engineering",
     template: `%s · ${siteConfig.name}`,
   },
   description: siteConfig.description,
   applicationName: siteConfig.name,
   keywords: [
-    "Oppuna AI mood journal",
-    "private mood tracker",
-    "emotional wellness app",
-    "anxiety journal",
-    "gratitude journal",
-    "breathing exercises",
-    "grounding exercises",
-    "on-device AI wellness",
-    "privacy-first wellness",
-    "Android wellness app India",
+    "Oppuna Labs",
+    "AI agents",
+    "agentic workflow automation",
+    "enterprise RAG",
+    "document intelligence",
+    "voice AI",
+    "LLM integration",
+    "AI product engineering",
+    "custom AI product development",
+    "AI evaluation and guardrails",
   ],
   authors: [{ name: siteConfig.companyName }],
   alternates: {
@@ -45,23 +45,23 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: "en_IN",
+    locale: "en_US",
     url: absoluteUrl("/"),
     siteName: siteConfig.name,
-    title: `${siteConfig.playStoreTitle} — ${siteConfig.tagline}`,
-    description: siteConfig.longDescription,
+    title: "Oppuna Labs | AI Agents, Automation & AI Product Engineering",
+    description: siteConfig.description,
     images: [
       {
         url: absoluteUrl("/brand/feature-image.png"),
         width: 1024,
         height: 500,
-        alt: "Oppuna — private mood journal and on-device AI for Android",
+        alt: "Oppuna Labs — AI systems that solve real business problems",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.playStoreTitle} — ${siteConfig.tagline}`,
+    title: "Oppuna Labs | AI Agents, Automation & AI Product Engineering",
     description: siteConfig.description,
     images: [absoluteUrl("/brand/feature-image.png")],
   },
@@ -94,7 +94,7 @@ export default function RootLayout({
       >
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-sage focus:px-4 focus:py-2 focus:text-white"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:font-semibold focus:text-black"
         >
           Skip to content
         </a>

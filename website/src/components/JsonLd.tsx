@@ -1,59 +1,64 @@
 import { absoluteUrl, siteConfig } from "@/config/site";
 
 export function JsonLd() {
+  const organization = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Oppuna Labs",
+    url: absoluteUrl("/"),
+    email: siteConfig.supportEmail,
+    description: siteConfig.description,
+    sameAs: [siteConfig.githubUrl],
+    makesOffer: [
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "AI agents, automation and AI product engineering",
+          description: siteConfig.longDescription,
+        },
+      },
+    ],
+  };
+
   const software = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: siteConfig.playStoreTitle,
-    alternateName: siteConfig.name,
+    name: "Oppuna",
     applicationCategory: "HealthApplication",
     operatingSystem: "Android",
-    description: siteConfig.description,
-    url: absoluteUrl("/"),
-    image: absoluteUrl("/brand/icon.png"),
-    downloadUrl: siteConfig.googlePlayUrl,
-    installUrl: siteConfig.googlePlayUrl,
-    softwareVersion: siteConfig.version,
+    description: siteConfig.product.description,
+    url: absoluteUrl("/#products"),
+    downloadUrl: siteConfig.product.googlePlayUrl,
+    installUrl: siteConfig.product.googlePlayUrl,
     offers: {
       "@type": "Offer",
       price: "0",
-      priceCurrency: "INR",
       availability: "https://schema.org/InStock",
-      url: siteConfig.googlePlayUrl,
+      url: siteConfig.product.googlePlayUrl,
     },
     author: {
       "@type": "Organization",
-      name: siteConfig.companyName,
+      name: "Oppuna Labs",
       email: siteConfig.supportEmail,
       url: absoluteUrl("/"),
     },
   };
 
-  const webPage = {
+  const webSite = {
     "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: `${siteConfig.playStoreTitle} — Private mood journal for Android`,
-    description: siteConfig.description,
+    "@type": "WebSite",
+    name: "Oppuna Labs",
     url: absoluteUrl("/"),
-    isPartOf: {
-      "@type": "WebSite",
-      name: siteConfig.name,
-      url: absoluteUrl("/"),
-    },
-    about: {
-      "@type": "SoftwareApplication",
-      name: siteConfig.name,
-      operatingSystem: "Android",
-      applicationCategory: "HealthApplication",
-    },
+    description: siteConfig.description,
   };
-
-  const payload = [software, webPage];
 
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(payload) }}
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify([organization, software, webSite]),
+      }}
     />
   );
 }

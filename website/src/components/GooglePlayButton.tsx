@@ -9,11 +9,10 @@ type Props = {
 };
 
 const variants: Record<NonNullable<Props["variant"]>, string> = {
-  primary:
-    "bg-sage text-white hover:bg-sage-deep shadow-sm shadow-sage/20",
+  primary: "bg-accent text-black hover:bg-white",
   secondary:
-    "bg-transparent text-sage-deep border border-sage/30 hover:border-sage hover:bg-sage-soft/50",
-  light: "bg-white text-sage-deep hover:bg-sage-soft shadow-sm",
+    "bg-transparent text-foreground border border-line hover:border-accent/60 hover:bg-accent/10",
+  light: "bg-white text-black hover:bg-accent",
 };
 
 export function GooglePlayButton({

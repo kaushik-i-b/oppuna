@@ -1,63 +1,105 @@
-import { GooglePlayButton } from "../GooglePlayButton";
-import { PhoneMockup } from "../PhoneMockup";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-const benefits = [
-  "Works offline",
-  "No account",
-  "No ads",
-  "Your information stays on your device",
+const credibility = [
+  "Agents",
+  "RAG",
+  "Automation",
+  "Voice AI",
+  "Document Intelligence",
+  "Custom AI Products",
 ];
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden" aria-labelledby="hero-heading">
-      <div
-        className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_70%_10%,rgba(61,107,90,0.14),transparent_55%),linear-gradient(180deg,#eef4f0_0%,var(--bg)_55%,var(--bg)_100%)]"
-        aria-hidden
-      />
-      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-5 py-14 md:grid-cols-[1.1fr_0.9fr] md:gap-16 md:px-8 md:py-20">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-sage">
-            Private wellness · Offline on Android
+    <section
+      className="site-backdrop relative overflow-hidden"
+      aria-labelledby="hero-heading"
+    >
+      <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 pt-16 md:px-8 md:pb-24 md:pt-24">
+        <div className="max-w-4xl">
+          <p className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+            <span
+              className="size-1.5 rounded-full bg-accent"
+              aria-hidden="true"
+            />
+            Oppuna Labs · AI product engineering
           </p>
           <h1
             id="hero-heading"
-            className="mt-4 font-display text-[clamp(2.4rem,6vw,3.75rem)] font-semibold leading-[1.05] tracking-tight text-sage-deep"
+            className="mt-6 font-display text-[clamp(2.6rem,7vw,4.75rem)] font-semibold leading-[1.02] tracking-tight"
           >
-            A private space to pause, reflect and move forward.
+            AI systems that solve real business problems.
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
-            Calm tools for everyday emotional wellness—mood check-ins,
-            journaling, a gentle daily plan, and a supportive companion that can
-            run on your phone without cloud sync.
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
+            Oppuna Labs designs and builds production-grade AI agents,
+            intelligent automation, enterprise knowledge systems and custom AI
+            products.
+          </p>
+          <p className="mt-4 max-w-2xl leading-relaxed text-muted">
+            We work from problem definition through architecture,
+            implementation, integration and production deployment.
           </p>
 
-          <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium text-sage-deep">
-            {benefits.map((item) => (
-              <li key={item} className="inline-flex items-center gap-2">
-                <span
-                  className="size-1.5 rounded-full bg-sage"
-                  aria-hidden
-                />
-                {item}
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <GooglePlayButton />
-            <a
-              href="#features"
-              className="inline-flex items-center justify-center rounded-full border border-sage/30 bg-transparent px-6 py-3 text-[0.95rem] font-semibold text-sage-deep transition-colors hover:border-sage hover:bg-sage-soft/50"
+          <div className="mt-9 flex flex-wrap items-center gap-3">
+            <Link
+              href="/#contact"
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-base font-semibold text-black transition-colors hover:bg-white"
             >
-              Explore features
-            </a>
+              Discuss a Project
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+            <Link
+              href="/#solutions"
+              className="inline-flex items-center justify-center rounded-full border border-line px-7 py-3.5 text-base font-semibold transition-colors hover:border-accent/60 hover:bg-accent/10"
+            >
+              Explore Our Capabilities
+            </Link>
           </div>
-          <p className="mt-6 max-w-md text-sm leading-relaxed text-muted">
-            Built for everyday wellness—not a replacement for professional care.
+
+          <p
+            className="mt-10 flex flex-wrap gap-x-3 gap-y-2 text-sm font-medium text-muted"
+            aria-label="Capabilities: Agents, RAG, Automation, Voice AI, Document Intelligence, Custom AI Products"
+          >
+            {credibility.map((item, i) => (
+              <span key={item} className="inline-flex items-center gap-3">
+                <span>{item}</span>
+                {i < credibility.length - 1 ? (
+                  <span className="text-accent/60" aria-hidden="true">
+                    ·
+                  </span>
+                ) : null}
+              </span>
+            ))}
           </p>
         </div>
-        <PhoneMockup />
+
+        <dl className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-3">
+          {[
+            {
+              term: "Problem first",
+              detail:
+                "We start from the workflow and the measurable outcome — not the model.",
+            },
+            {
+              term: "Systems, not demos",
+              detail:
+                "Agents wired into your tools, data and approvals, built to run in production.",
+            },
+            {
+              term: "Shipped products",
+              detail:
+                "We build and operate our own AI products, not just client prototypes.",
+            },
+          ].map((item) => (
+            <div key={item.term} className="bg-surface px-6 py-5">
+              <dt className="font-semibold">{item.term}</dt>
+              <dd className="mt-1.5 text-sm leading-relaxed text-muted">
+                {item.detail}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
   );

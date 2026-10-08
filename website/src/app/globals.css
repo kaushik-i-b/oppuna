@@ -1,34 +1,45 @@
 @import "tailwindcss";
 
 :root {
-  --sage: #3d6b5a;
-  --sage-deep: #2f5446;
-  --sage-soft: #dce8e2;
-  --bg: #f7f4ef;
-  --surface: #fffcf8;
-  --text: #1c2420;
-  --muted: #5a675f;
-  --line: rgba(28, 36, 32, 0.1);
-  --focus: #2f5446;
+  --bg: #060a0c;
+  --surface: #0c1418;
+  --surface-raised: #111c22;
+  --text: #e9f1ed;
+  --muted: #9db0a9;
+  --line: rgba(255, 255, 255, 0.09);
+  --accent: #5eead4;
+  --accent-strong: #2dd4bf;
+  --accent-soft: rgba(94, 234, 212, 0.09);
+  --accent-line: rgba(94, 234, 212, 0.28);
+  --focus: #5eead4;
   --background: var(--bg);
   --foreground: var(--text);
+
+  /* Legacy token aliases so pre-existing legal/support pages render in the
+     dark theme without edits. */
+  --sage: var(--accent);
+  --sage-deep: #f0f7f4;
+  --sage-soft: var(--accent-soft);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
   --color-sage: var(--sage);
   --color-sage-deep: var(--sage-deep);
   --color-sage-soft: var(--sage-soft);
-  --color-surface: var(--surface);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
   --font-sans: var(--font-outfit);
   --font-display: var(--font-fraunces);
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 88px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -48,19 +59,55 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-family: var(--font-outfit), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--sage-soft);
-  color: var(--sage-deep);
+  background: rgba(94, 234, 212, 0.28);
+  color: #06110e;
 }
 
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
+  border-radius: 4px;
 }
 
 .font-display {
   font-family: var(--font-fraunces), Georgia, serif;
+}
+
+/* Subtle page backdrop: faint grid + two soft radial glows. Pure CSS. */
+.site-backdrop {
+  background-image:
+    radial-gradient(
+      ellipse 60% 38% at 50% -6%,
+      rgba(94, 234, 212, 0.09),
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 44% 30% at 88% 22%,
+      rgba(56, 130, 246, 0.07),
+      transparent 60%
+    ),
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    56px 56px,
+    56px 56px;
+}
+
+/* Vertical connector for the agent architecture diagram */
+.flow-line {
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(94, 234, 212, 0.45) 18%,
+    rgba(94, 234, 212, 0.45) 82%,
+    transparent
+  );
 }
