@@ -55,7 +55,8 @@ Only advertise **Confirmed** items below.
 
 | Page | URL |
 |------|-----|
-| Homepage | https://oppuna.com/ |
+| Oppuna Labs | https://oppuna.com/ |
+| Oppuna product | https://oppuna.com/oppuna/ |
 | Privacy Policy | https://oppuna.com/privacy/ |
 | Terms of Use | https://oppuna.com/terms/ |
 | Support | https://oppuna.com/support/ |

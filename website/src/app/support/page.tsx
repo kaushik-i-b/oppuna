@@ -82,12 +82,12 @@ export default function SupportPage() {
           </a>
           . See the{" "}
           <Link
-            href="/#responsible-use"
+            href="/oppuna#responsible-use"
             className="font-semibold text-sage-deep underline"
           >
             responsible-use
           </Link>{" "}
-          section on the homepage for official sources.
+          section on the Oppuna product page for official sources.
         </p>
       </div>
 
