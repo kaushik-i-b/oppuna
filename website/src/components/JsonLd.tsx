@@ -1,16 +1,35 @@
 import { absoluteUrl, siteConfig } from "@/config/site";
 
 export function JsonLd() {
+  const organization = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: siteConfig.name,
+    url: absoluteUrl("/"),
+    email: siteConfig.supportEmail,
+    description: siteConfig.description,
+    logo: absoluteUrl("/brand/icon.png"),
+    sameAs: [siteConfig.githubUrl],
+  };
+
+  const website = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteConfig.name,
+    url: absoluteUrl("/"),
+    description: siteConfig.description,
+  };
+
   const software = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: siteConfig.playStoreTitle,
-    alternateName: siteConfig.name,
-    applicationCategory: "HealthApplication",
+    name: siteConfig.productName,
+    alternateName: siteConfig.playStoreTitle,
+    applicationCategory: "LifestyleApplication",
     operatingSystem: "Android",
-    description: siteConfig.description,
-    url: absoluteUrl("/"),
-    image: absoluteUrl("/brand/icon.png"),
+    description: siteConfig.productDescription,
+    url: absoluteUrl("/oppuna"),
+    image: absoluteUrl("/brand/feature-image.png"),
     downloadUrl: siteConfig.googlePlayUrl,
     installUrl: siteConfig.googlePlayUrl,
     softwareVersion: siteConfig.version,
@@ -25,35 +44,15 @@ export function JsonLd() {
       "@type": "Organization",
       name: siteConfig.companyName,
       email: siteConfig.supportEmail,
-      url: absoluteUrl("/"),
     },
   };
-
-  const webPage = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: `${siteConfig.playStoreTitle} — Private mood journal for Android`,
-    description: siteConfig.description,
-    url: absoluteUrl("/"),
-    isPartOf: {
-      "@type": "WebSite",
-      name: siteConfig.name,
-      url: absoluteUrl("/"),
-    },
-    about: {
-      "@type": "SoftwareApplication",
-      name: siteConfig.name,
-      operatingSystem: "Android",
-      applicationCategory: "HealthApplication",
-    },
-  };
-
-  const payload = [software, webPage];
 
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(payload) }}
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify([organization, website, software]),
+      }}
     />
   );
 }

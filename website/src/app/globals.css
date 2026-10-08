@@ -1,17 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --sage: #3d6b5a;
-  --sage-deep: #2f5446;
-  --sage-soft: #dce8e2;
-  --bg: #f7f4ef;
-  --surface: #fffcf8;
-  --text: #1c2420;
-  --muted: #5a675f;
-  --line: rgba(28, 36, 32, 0.1);
-  --focus: #2f5446;
+  --bg: #07080a;
+  --surface: #101114;
+  --text: #f3f4f2;
+  --muted: #a7aea9;
+  --sage: #9dccb6;
+  --sage-deep: #f3f4f2;
+  --sage-soft: rgba(157, 204, 182, 0.12);
+  --line: rgba(243, 244, 242, 0.1);
+  --focus: #d7efe4;
+  --ink: #101110;
   --background: var(--bg);
   --foreground: var(--text);
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -23,12 +25,15 @@
   --color-surface: var(--surface);
   --color-muted: var(--muted);
   --color-line: var(--line);
-  --font-sans: var(--font-outfit);
-  --font-display: var(--font-fraunces);
+  --color-ink: var(--ink);
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-display: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
 }
 
 html {
   scroll-behavior: smooth;
+  background: var(--bg);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -46,14 +51,21 @@ html {
 }
 
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(
+      1100px 520px at 100% -10%,
+      rgba(157, 204, 182, 0.07),
+      transparent 55%
+    ),
+    var(--bg);
   color: var(--text);
-  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--sage-soft);
-  color: var(--sage-deep);
+  background: rgba(157, 204, 182, 0.35);
+  color: #fff;
 }
 
 :focus-visible {
@@ -62,5 +74,259 @@ body {
 }
 
 .font-display {
-  font-family: var(--font-fraunces), Georgia, serif;
+  font-family: var(--font-sans);
+  letter-spacing: -0.03em;
+}
+
+@layer components {
+.hero-glow {
+  background:
+    radial-gradient(
+      ellipse 68% 48% at 78% -8%,
+      rgba(157, 204, 182, 0.16),
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 42% 36% at 0% 100%,
+      rgba(255, 255, 255, 0.045),
+      transparent 70%
+    );
+}
+
+.eyebrow {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sage);
+}
+
+.section-title {
+  font-size: clamp(2rem, 4.2vw, 3.35rem);
+  font-weight: 500;
+  letter-spacing: -0.038em;
+  line-height: 1.08;
+  color: var(--text);
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.035),
+    rgba(255, 255, 255, 0.012)
+  );
+  padding: 1.35rem;
+  transition: border-color 160ms ease;
+}
+
+.card:hover {
+  border-color: rgba(243, 244, 242, 0.2);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.8rem 1.2rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.011em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.btn-primary {
+  background: #f4f5f4;
+  color: var(--ink);
+}
+
+.btn-primary:hover {
+  background: #ffffff;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: rgba(243, 244, 242, 0.18);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(243, 244, 242, 0.34);
+}
+
+.link {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.link:hover {
+  color: #ffffff;
+}
+
+.credibility {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 2.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.credibility li {
+  display: inline-flex;
+  align-items: center;
+}
+
+.credibility li:not(:last-child)::after {
+  content: "·";
+  margin: 0 0.7rem;
+  color: rgba(243, 244, 242, 0.35);
+}
+
+.agent-flow {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agent-flow-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.75rem 1fr;
+  gap: 0.95rem;
+  padding-bottom: 1.35rem;
+}
+
+.agent-flow-step:last-child {
+  padding-bottom: 0;
+}
+
+.agent-flow-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 2.45rem;
+  bottom: 0.15rem;
+  left: 1.3125rem;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(157, 204, 182, 0.75),
+    rgba(243, 244, 242, 0.12)
+  );
+}
+
+.agent-flow-index {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 2.65rem;
+  height: 2.65rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(157, 204, 182, 0.38);
+  border-radius: 999px;
+  background: #101114;
+  color: var(--sage);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 1.15rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tech-list li {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.22);
+  padding: 0.28rem 0.65rem;
+  color: var(--text);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.field-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.control {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--text);
+  padding: 0.8rem 0.9rem;
+  font: inherit;
+  font-size: 1rem;
+}
+
+.control::placeholder {
+  color: #8e9691;
+}
+
+textarea.control {
+  min-height: 9.5rem;
+  resize: vertical;
+}
+
+select.control {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.15rem) 55%,
+    calc(100% - 0.75rem) 55%;
+  background-size:
+    6px 6px,
+    6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 2.2rem;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .form-span {
+    grid-column: 1 / -1;
+  }
+}
 }

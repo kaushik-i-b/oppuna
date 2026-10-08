@@ -3,19 +3,25 @@ import { absoluteUrl, assetUrl, basePath, siteUrl } from "@/config/paths";
 export { absoluteUrl, assetUrl, basePath, siteUrl };
 
 /**
- * Central marketing configuration.
- * Paths/URLs that depend on hosting come from NEXT_PUBLIC_* via paths.ts.
+ * Marketing configuration.
+ * Hosting URLs come from NEXT_PUBLIC_* via paths.ts.
+ * Product facts below are verified against the app and Play listing.
  */
 
 export const siteConfig = {
-  name: "Oppuna",
-  shortName: "Oppuna",
-  tagline: "Private mood journal & on-device AI",
+  name: "Oppuna Labs",
+  productName: "Oppuna",
+  shortName: "Oppuna Labs",
+  tagline: "AI systems that solve real business problems.",
   description:
-    "Oppuna is a private mood journal and emotional wellness app for Android. Track your mood, journal privately, and reflect with on-device AI—no mandatory account or cloud sync for your entries.",
+    "Oppuna Labs designs and builds production-grade AI agents, enterprise RAG systems, intelligent automation, document AI, voice AI and custom AI products.",
   longDescription:
-    "A privacy-first Android wellness app for mood tracking, private journaling, breathing, grounding, sleep wind-down, and on-device AI reflection. Designed for everyday self-reflection around professional care—not a medical device or AI therapist.",
+    "Oppuna Labs designs and builds production-grade AI agents, intelligent automation, enterprise knowledge systems and custom AI products. Work runs from problem definition through architecture, implementation, integration and production deployment.",
 
+  /** Store listing and on-device product. */
+  productTagline: "Private AI-powered mental wellness and journaling.",
+  productDescription:
+    "Oppuna combines private AI-powered journaling, guided reflection and wellness workflows in a consumer application designed with privacy and responsible AI considerations.",
   packageName: "com.oppuna.care",
   androidPlatform: "Android" as const,
   version: "2.1.0",
@@ -28,13 +34,18 @@ export const siteConfig = {
   /** Public support contact */
   supportEmail: "support@oppuna.com",
 
+  githubUrl: "https://github.com/kaushik-i-b",
+
   founderName: "Kaushik Itagi",
+  /** Legal publisher named on the Google Play listing. */
   companyName: "ADILAKSHMI INFOTECH PRIVATE LIMITED",
 
   /** Canonical site URL (from NEXT_PUBLIC_SITE_URL). */
   siteUrl,
 
-  /** Confirmed UI languages to mention on the marketing site. */
+  productPath: "/oppuna",
+
+  /** Confirmed UI languages in the Oppuna app. */
   languagesMention: [
     "English",
     "English (India)",
@@ -64,7 +75,7 @@ export const siteConfig = {
   },
 
   /**
-   * India crisis resources for the marketing site.
+   * India crisis resources for the Oppuna product page.
    * Tele-MANAS numbers confirmed via MoHFW / DGHS NMHP page (14416 and 1800-89-14416).
    * KIRAN: listed without a 24/7 claim pending separate verification.
    */
@@ -106,11 +117,20 @@ export const siteConfig = {
   ],
 
   nav: [
-    { href: "/#purpose", label: "Purpose" },
-    { href: "/#features", label: "Features" },
-    { href: "/#how-it-works", label: "How it works" },
-    { href: "/#privacy", label: "Privacy" },
-    { href: "/#faq", label: "FAQ" },
+    { href: "/#solutions", label: "Solutions" },
+    { href: "/#how-we-work", label: "How We Work" },
+    { href: "/#products", label: "Products" },
+    { href: "/#engineering", label: "Engineering" },
+    { href: "/#about", label: "About" },
+    { href: "/#contact", label: "Contact" },
+  ],
+
+  footerNav: [
+    { href: "/#solutions", label: "Solutions" },
+    { href: "/#products", label: "Products" },
+    { href: "/#engineering", label: "Engineering" },
+    { href: "/#about", label: "About" },
+    { href: "/#contact", label: "Contact" },
   ],
 } as const;
 

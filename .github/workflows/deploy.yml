@@ -1,0 +1,94 @@
+name: Deploy website to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "website/**"
+      - "site/**"
+      - "CNAME"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+# contents:read is enough to build. Pages deploy uses OIDC from the deploy job.
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install dependencies
+        working-directory: website
+        run: npm ci
+
+      - name: Build production site
+        working-directory: website
+        env:
+          # Custom domain oppuna.com is served from the site root.
+          # For a project site without the custom domain, set
+          # NEXT_PUBLIC_BASE_PATH=/oppuna and
+          # NEXT_PUBLIC_SITE_URL=https://kaushik-i-b.github.io/oppuna
+          NEXT_PUBLIC_BASE_PATH: ""
+          NEXT_PUBLIC_SITE_URL: https://oppuna.com
+        run: npm run build
+
+      - name: Add Pages files and preserved static assets
+        run: |
+          touch website/out/.nojekyll
+          if [ ! -f website/out/CNAME ]; then
+            if [ -f CNAME ]; then
+              cp CNAME website/out/CNAME
+            else
+              echo "oppuna.com" > website/out/CNAME
+            fi
+          fi
+          if [ -f site/pitch-deck.html ]; then
+            cp site/pitch-deck.html website/out/pitch-deck.html
+          fi
+          if [ -f site/Oppuna-Pitch-Deck.pdf ]; then
+            cp site/Oppuna-Pitch-Deck.pdf website/out/Oppuna-Pitch-Deck.pdf
+          elif [ -f docs/Oppuna-Pitch-Deck.pdf ]; then
+            cp docs/Oppuna-Pitch-Deck.pdf website/out/Oppuna-Pitch-Deck.pdf
+          fi
+          if [ -d site/pitch-assets ]; then
+            mkdir -p website/out/pitch-assets
+            cp -R site/pitch-assets/. website/out/pitch-assets/
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: website/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
