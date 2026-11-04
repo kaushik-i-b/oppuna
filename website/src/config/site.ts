@@ -40,6 +40,21 @@ export const siteConfig = {
   /** Legal publisher named on the Google Play listing. */
   companyName: "ADILAKSHMI INFOTECH PRIVATE LIMITED",
 
+  /**
+   * Corporate identity: Oppuna is a product of Winfin Technologies.
+   * Corporate details below must be verified against official MCA records
+   * before publication. Do not invent registered addresses, directors,
+   * certifications, or registration details beyond what is listed here.
+   */
+  winfin: {
+    name: "Winfin Technologies Private Limited",
+    cin: "U62099KA2025PTC201389",
+    location: "Davanagere, Karnataka, India",
+    relationshipLine: "Oppuna — A Product of Winfin Technologies Private Limited",
+    productStatement:
+      "Oppuna is a privacy-first AI mental wellness platform developed by Winfin Technologies Private Limited.",
+  },
+
   /** Canonical site URL (from NEXT_PUBLIC_SITE_URL). */
   siteUrl,
 
@@ -117,19 +132,23 @@ export const siteConfig = {
   ],
 
   nav: [
+    { href: "/oppuna", label: "Oppuna" },
+    { href: "/professionals", label: "Find Professionals" },
+    { href: "/about", label: "About" },
     { href: "/#solutions", label: "Solutions" },
     { href: "/#how-we-work", label: "How We Work" },
     { href: "/#products", label: "Products" },
     { href: "/#engineering", label: "Engineering" },
-    { href: "/#about", label: "About" },
     { href: "/#contact", label: "Contact" },
   ],
 
   footerNav: [
+    { href: "/oppuna", label: "Oppuna" },
+    { href: "/professionals", label: "Find Professionals" },
+    { href: "/about", label: "About" },
     { href: "/#solutions", label: "Solutions" },
     { href: "/#products", label: "Products" },
     { href: "/#engineering", label: "Engineering" },
-    { href: "/#about", label: "About" },
     { href: "/#contact", label: "Contact" },
   ],
 } as const;

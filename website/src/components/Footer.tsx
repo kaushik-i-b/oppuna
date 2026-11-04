@@ -23,6 +23,9 @@ export function Footer() {
             <p className="mt-3 text-sm leading-relaxed text-muted">
               {siteConfig.tagline}
             </p>
+            <p className="mt-3 text-sm leading-relaxed text-muted">
+              {siteConfig.winfin.relationshipLine}.
+            </p>
             <p className="mt-4 text-sm text-muted">
               <a className="link" href={`mailto:${siteConfig.supportEmail}`}>
                 {siteConfig.supportEmail}
@@ -54,25 +57,35 @@ export function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col gap-3 border-t border-line pt-6 text-xs leading-relaxed text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 Oppuna Labs. All rights reserved.</p>
+          <p>© 2026 {siteConfig.winfin.name}. All rights reserved.</p>
           <p className="flex flex-wrap gap-x-4 gap-y-1">
+            <a className="hover:text-foreground" href={assetUrl("/about/")}>
+              About
+            </a>
+            <a
+              className="hover:text-foreground"
+              href={assetUrl("/professionals/")}
+            >
+              Find Professionals
+            </a>
             <a className="hover:text-foreground" href={assetUrl("/oppuna/")}>
               Oppuna
             </a>
             <a className="hover:text-foreground" href={assetUrl("/privacy/")}>
-              Privacy
+              Privacy Policy
             </a>
             <a className="hover:text-foreground" href={assetUrl("/terms/")}>
-              Terms
+              Terms of Service
             </a>
             <a className="hover:text-foreground" href={assetUrl("/support/")}>
-              Support
+              Contact
             </a>
           </p>
         </div>
         <p className="mt-4 max-w-3xl text-xs leading-relaxed text-muted">
-          Oppuna, the wellness application, supports everyday reflection. It
-          does not provide medical advice, diagnosis, treatment, or emergency
+          Oppuna is a product of {siteConfig.winfin.name}. Oppuna, the
+          wellness application, supports everyday reflection. It does not
+          provide medical advice, diagnosis, treatment, or emergency
           assistance.
         </p>
       </div>

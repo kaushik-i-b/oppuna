@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { GooglePlayButton } from "@/components/GooglePlayButton";
+import {
+  ExploreDirectoryButton,
+  ProfessionalCategoryCards,
+} from "@/components/professionals/ProfessionalCategoryCards";
 import { absoluteUrl, assetUrl, siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
@@ -133,6 +137,13 @@ export default function OppunaProductPage() {
             is a private wellness companion for everyday reflection, and it is
             not a therapist, a diagnostic system, or emergency care.
           </p>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
+            {siteConfig.winfin.productStatement}{" "}
+            <Link className="link" href="/about">
+              Learn more about Winfin Technologies
+            </Link>
+            .
+          </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <GooglePlayButton />
             <a className="btn btn-secondary" href={assetUrl("/#contact")}>
@@ -230,6 +241,35 @@ export default function OppunaProductPage() {
             Helpline numbers can change. Prefer official government channels,
             and dial local emergency services if you are in immediate danger.
           </p>
+        </div>
+      </section>
+
+      <section
+        className="border-t border-line bg-[color-mix(in_srgb,var(--surface)_72%,transparent)]"
+        aria-labelledby="professionals-heading"
+      >
+        <div className="mx-auto w-full max-w-6xl px-5 py-16 md:px-8 md:py-24">
+          <p className="eyebrow">Professional Directory Preview</p>
+          <h2 id="professionals-heading" className="section-title mt-4">
+            Explore Professional Mental Health Support
+          </h2>
+          <p className="mt-4 max-w-2xl text-lg text-muted">
+            Oppuna is expanding its vision of accessible mental wellness
+            through a future directory of qualified mental health
+            professionals.
+          </p>
+          <div className="mt-10">
+            <ProfessionalCategoryCards />
+          </div>
+          <p className="mt-6 max-w-3xl text-sm leading-relaxed text-muted">
+            Everyday AI-powered mental wellness support, with
+            professional-care discovery planned for the future. The directory
+            preview lists fictional demonstration profiles only — it does not
+            represent available services.
+          </p>
+          <div className="mt-6">
+            <ExploreDirectoryButton />
+          </div>
         </div>
       </section>
 

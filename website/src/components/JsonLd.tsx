@@ -10,6 +10,11 @@ export function JsonLd() {
     description: siteConfig.description,
     logo: absoluteUrl("/brand/icon.png"),
     sameAs: [siteConfig.githubUrl],
+    parentOrganization: {
+      "@type": "Organization",
+      name: siteConfig.winfin.name,
+      url: absoluteUrl("/about"),
+    },
   };
 
   const website = {

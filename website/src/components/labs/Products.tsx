@@ -30,6 +30,9 @@ export function Products() {
             <Link className="btn btn-primary" href={siteConfig.productPath}>
               Explore Oppuna
             </Link>
+            <Link className="btn btn-secondary" href="/professionals">
+              Find Professionals
+            </Link>
             <a
               className="btn btn-secondary"
               href={siteConfig.googlePlayUrl}
