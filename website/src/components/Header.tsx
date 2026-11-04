@@ -59,14 +59,14 @@ export function Header() {
           </span>
         </a>
 
-        <nav className="hidden items-center gap-5 text-sm lg:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-3 text-sm lg:flex" aria-label="Primary">
           {renderLinks(
-            "rounded-lg text-muted transition-colors hover:text-foreground",
+            "inline-flex min-h-11 items-center rounded-lg text-muted transition-colors hover:text-foreground",
           )}
         </nav>
 
         <a
-          className="btn btn-primary hidden !px-4 !py-2 text-sm lg:inline-flex"
+          className="btn btn-primary hidden !px-4 !py-2 text-sm xl:inline-flex"
           href={assetUrl("/#contact")}
         >
           Discuss a Project
@@ -91,7 +91,7 @@ export function Header() {
         >
           <nav className="flex flex-col gap-1 text-base" aria-label="Mobile">
             {renderLinks(
-              "rounded-lg px-2 py-3 text-muted transition-colors hover:text-foreground",
+              "inline-flex min-h-11 items-center rounded-lg px-2 text-muted transition-colors hover:text-foreground",
             )}
           </nav>
           <a

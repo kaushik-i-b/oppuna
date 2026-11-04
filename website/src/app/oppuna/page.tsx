@@ -113,6 +113,10 @@ const faqs = [
     q: "Is Oppuna free?",
     a: "Oppuna is available on Google Play with no paid subscription or in-app purchase in the current app.",
   },
+  {
+    q: "Can Oppuna book a psychiatrist or psychologist?",
+    a: "Appointment booking, payments, and clinical care stay outside Oppuna. The Find Professionals page is an informational preview with fictional profiles only.",
+  },
 ];
 
 export default function OppunaProductPage() {
@@ -129,12 +133,17 @@ export default function OppunaProductPage() {
             {siteConfig.productDescription}
           </p>
           <p className="mt-4 max-w-2xl leading-relaxed text-muted">
-            Oppuna is the consumer product shipped by the Oppuna Labs team. It
-            is a private wellness companion for everyday reflection, and it is
-            not a therapist, a diagnostic system, or emergency care.
+            {siteConfig.winfin.homepageStatement} Everyday AI-powered mental
+            wellness support is in the app, with professional-care discovery
+            planned for the future. Oppuna is a private wellness companion for
+            everyday reflection. It is not a therapist, a diagnostic system, or
+            emergency care.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <GooglePlayButton />
+            <Link className="btn btn-secondary" href="/professionals">
+              Find Professionals
+            </Link>
             <a className="btn btn-secondary" href={assetUrl("/#contact")}>
               Discuss a Project
             </a>

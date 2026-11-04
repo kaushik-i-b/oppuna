@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Section } from "./Section";
 
 const reasons = [
@@ -35,6 +36,11 @@ export function Why() {
         </p>
       }
     >
+      <p className="mb-8 max-w-2xl text-muted">
+        <Link className="link" href="/about">
+          Read about Oppuna and Winfin Technologies
+        </Link>
+      </p>
       <ul className="grid gap-4 md:grid-cols-2">
         {reasons.map((reason) => (
           <li key={reason.title} className="card h-full">

@@ -1,5 +1,6 @@
 import { Agents } from "@/components/labs/Agents";
 import { Contact } from "@/components/labs/Contact";
+import { DirectoryPreview } from "@/components/labs/DirectoryPreview";
 import { Engineering } from "@/components/labs/Engineering";
 import { Hero } from "@/components/labs/Hero";
 import { Problems } from "@/components/labs/Problems";
@@ -18,6 +19,7 @@ export default function HomePage() {
       <Engineering />
       <Security />
       <Products />
+      <DirectoryPreview />
       <Why />
       <Contact />
     </>

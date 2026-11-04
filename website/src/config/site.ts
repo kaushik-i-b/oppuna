@@ -40,6 +40,26 @@ export const siteConfig = {
   /** Legal publisher named on the Google Play listing. */
   companyName: "ADILAKSHMI INFOTECH PRIVATE LIMITED",
 
+  /**
+   * Company behind Oppuna, as described by the product owner.
+   * Name, CIN, and Davanagere location match public company-registry
+   * aggregators. The street address and directors are intentionally omitted.
+   * This record is not described as a legal subsidiary.
+   */
+  winfin: {
+    legalName: "Winfin Technologies Private Limited",
+    cin: "U62099KA2025PTC201389",
+    location: "Davanagere, Karnataka, India",
+    website: "https://oppuna.com",
+    productLine: "Oppuna — A Product of Winfin Technologies Private Limited",
+    productStatement:
+      "Oppuna is a product of Winfin Technologies Private Limited.",
+    homepageStatement:
+      "Oppuna is a privacy-first AI mental wellness platform developed by Winfin Technologies Private Limited.",
+    copyright:
+      "© 2026 Winfin Technologies Private Limited. All rights reserved.",
+  },
+
   /** Canonical site URL (from NEXT_PUBLIC_SITE_URL). */
   siteUrl,
 
@@ -121,16 +141,21 @@ export const siteConfig = {
     { href: "/#how-we-work", label: "How We Work" },
     { href: "/#products", label: "Products" },
     { href: "/#engineering", label: "Engineering" },
-    { href: "/#about", label: "About" },
+    { href: "/about/", label: "About" },
+    { href: "/professionals/", label: "Find Professionals" },
     { href: "/#contact", label: "Contact" },
   ],
 
   footerNav: [
+    { href: "/about/", label: "About" },
+    { href: "/professionals/", label: "Find Professionals" },
+    { href: "/privacy/", label: "Privacy Policy" },
+    { href: "/terms/", label: "Terms of Service" },
+    { href: "/#contact", label: "Contact" },
     { href: "/#solutions", label: "Solutions" },
     { href: "/#products", label: "Products" },
-    { href: "/#engineering", label: "Engineering" },
-    { href: "/#about", label: "About" },
-    { href: "/#contact", label: "Contact" },
+    { href: "/oppuna/", label: "Oppuna" },
+    { href: "/support/", label: "Support" },
   ],
 } as const;
 

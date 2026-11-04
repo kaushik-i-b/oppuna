@@ -26,6 +26,9 @@ export function Products() {
           <p className="mt-5 max-w-xl text-base leading-relaxed text-muted md:text-lg">
             {siteConfig.productDescription}
           </p>
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted">
+            {siteConfig.winfin.homepageStatement}
+          </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link className="btn btn-primary" href={siteConfig.productPath}>
               Explore Oppuna

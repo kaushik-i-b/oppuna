@@ -28,13 +28,19 @@ export function Footer() {
                 {siteConfig.supportEmail}
               </a>
             </p>
+            <p className="mt-4 text-sm leading-relaxed text-muted">
+              {siteConfig.winfin.productStatement}
+            </p>
           </div>
 
           <nav aria-label="Footer">
             <ul className="grid grid-cols-2 gap-x-10 gap-y-2 text-sm sm:grid-cols-3">
               {siteConfig.footerNav.map((item) => (
                 <li key={item.href}>
-                  <a className="text-muted hover:text-foreground" href={assetUrl(item.href)}>
+                  <a
+                    className="inline-flex min-h-11 items-center text-muted hover:text-foreground"
+                    href={assetUrl(item.href)}
+                  >
                     {item.label}
                   </a>
                 </li>
@@ -53,27 +59,14 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="mt-10 flex flex-col gap-3 border-t border-line pt-6 text-xs leading-relaxed text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 Oppuna Labs. All rights reserved.</p>
-          <p className="flex flex-wrap gap-x-4 gap-y-1">
-            <a className="hover:text-foreground" href={assetUrl("/oppuna/")}>
-              Oppuna
-            </a>
-            <a className="hover:text-foreground" href={assetUrl("/privacy/")}>
-              Privacy
-            </a>
-            <a className="hover:text-foreground" href={assetUrl("/terms/")}>
-              Terms
-            </a>
-            <a className="hover:text-foreground" href={assetUrl("/support/")}>
-              Support
-            </a>
-          </p>
+        <div className="mt-10 border-t border-line pt-6 text-xs leading-relaxed text-muted">
+          <p>{siteConfig.winfin.copyright}</p>
         </div>
         <p className="mt-4 max-w-3xl text-xs leading-relaxed text-muted">
-          Oppuna, the wellness application, supports everyday reflection. It
-          does not provide medical advice, diagnosis, treatment, or emergency
-          assistance.
+          Oppuna provides AI-assisted mental wellness tools and informational
+          resources. It does not replace professional medical advice, diagnosis,
+          or treatment. If you are experiencing an emergency, contact local
+          emergency services.
         </p>
       </div>
     </footer>
