@@ -1,3 +1,4 @@
+import { assetUrl } from "@/config/paths";
 import { siteConfig } from "@/config/site";
 import { ContactForm } from "./ContactForm";
 
@@ -5,34 +6,42 @@ export function Contact() {
   return (
     <section
       id="contact"
-      className="scroll-mt-24 border-t border-line"
+      className="scroll-mt-16 bg-surface"
       aria-labelledby="contact-heading"
     >
-      <div className="mx-auto grid w-full max-w-6xl gap-12 px-5 py-20 md:px-8 md:py-28 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
-        <div>
+      <div className="wrap grid gap-12 py-20 md:py-28 lg:grid-cols-12 lg:gap-10">
+        <div className="lg:col-span-5">
           <p className="eyebrow">Contact</p>
-          <h2 id="contact-heading" className="section-title mt-3">
-            Have a business problem that AI could solve?
+          <h2 id="contact-heading" className="section-title mt-5">
+            Tell us what
+            <br />
+            you want to build.
           </h2>
-          <div className="mt-5 space-y-4 text-lg leading-relaxed text-muted">
-            <p>
-              Tell us about the workflow, bottleneck or product you want to
-              build.
-            </p>
-            <p>
-              We’ll help determine whether AI is actually the right solution —
-              and if it is, how to take it into production.
-            </p>
+          <p className="mt-6 text-muted">
+            Describe the workflow, the bottleneck or the product idea. We will
+            reply with questions, an honest view of whether AI is the right
+            tool, and a suggested first step.
+          </p>
+          <div className="mt-10 border-t border-line pt-5">
+            <p className="label-mono">Email</p>
+            <a
+              className="link mt-1 inline-block font-display text-xl font-semibold"
+              href={`mailto:${siteConfig.supportEmail}`}
+            >
+              {siteConfig.supportEmail}
+            </a>
           </div>
-          <p className="mt-8 text-sm text-muted">Email</p>
-          <a
-            className="mt-1 inline-block text-lg link"
-            href={`mailto:${siteConfig.supportEmail}`}
-          >
-            {siteConfig.supportEmail}
-          </a>
+          <p className="mt-6 text-sm text-muted">
+            Looking for help with the Oppuna app?{" "}
+            <a className="link" href={assetUrl("/support/")}>
+              Go to app support
+            </a>
+            .
+          </p>
         </div>
-        <ContactForm />
+        <div className="lg:col-span-6 lg:col-start-7">
+          <ContactForm />
+        </div>
       </div>
     </section>
   );

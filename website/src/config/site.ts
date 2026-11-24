@@ -12,11 +12,11 @@ export const siteConfig = {
   name: "Oppuna Labs",
   productName: "Oppuna",
   shortName: "Oppuna Labs",
-  tagline: "AI systems that solve real business problems.",
+  tagline: "AI products built for real work.",
   /** Homepage <title>; also the default for pages without their own. */
-  homeTitle: "Oppuna Labs | AI Agents, Automation & AI Product Engineering",
+  homeTitle: "Oppuna Labs | AI Agents, Document Workflows & Custom Software",
   description:
-    "Oppuna Labs designs and builds production-grade AI agents, enterprise RAG systems, intelligent automation, document AI, voice AI and custom AI products.",
+    "Oppuna Labs designs and builds AI agents, document workflows and custom software, from the first working version to production. Makers of Oppuna, a private wellness app.",
   longDescription:
     "Oppuna Labs designs and builds production-grade AI agents, intelligent automation, enterprise knowledge systems and custom AI products. Work runs from problem definition through architecture, implementation, integration and production deployment.",
 
@@ -139,26 +139,30 @@ export const siteConfig = {
   ],
 
   nav: [
-    { href: "/#solutions", label: "Solutions" },
+    { href: "/#services", label: "Services" },
+    { href: "/oppuna/", label: "Oppuna App" },
     { href: "/#how-we-work", label: "How We Work" },
-    { href: "/#products", label: "Products" },
-    { href: "/#engineering", label: "Engineering" },
-    { href: "/about/", label: "About" },
-    { href: "/professionals/", label: "Find Professionals" },
+    { href: "/#about", label: "About" },
     { href: "/#contact", label: "Contact" },
   ],
 
-  footerNav: [
-    { href: "/about/", label: "About" },
-    { href: "/professionals/", label: "Find Professionals" },
-    { href: "/privacy/", label: "Privacy Policy" },
-    { href: "/terms/", label: "Terms of Service" },
-    { href: "/#contact", label: "Contact" },
-    { href: "/#solutions", label: "Solutions" },
-    { href: "/#products", label: "Products" },
-    { href: "/oppuna/", label: "Oppuna" },
-    { href: "/support/", label: "Support" },
-  ],
+  footerNav: {
+    labs: [
+      { href: "/#services", label: "Services" },
+      { href: "/#how-we-work", label: "How we work" },
+      { href: "/#contact", label: "Discuss a project" },
+    ],
+    app: [
+      { href: "/oppuna/", label: "Oppuna overview" },
+      { href: "/privacy/", label: "Privacy policy" },
+      { href: "/terms/", label: "Terms of use" },
+      { href: "/support/", label: "App support" },
+    ],
+    company: [
+      { href: "/about/", label: "About Oppuna & Winfin" },
+      { href: "/professionals/", label: "Directory preview (demo)" },
+    ],
+  },
 } as const;
 
 export type SiteConfig = typeof siteConfig;

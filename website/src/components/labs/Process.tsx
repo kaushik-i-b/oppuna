@@ -1,92 +1,57 @@
-import { Section } from "./Section";
-
 const stages = [
   {
-    title: "Understand",
-    body: "We start with the workflow, users, systems and measurable business problem.",
+    title: "Scope",
+    body: "A conversation and a written scope: the workflow, the people who use it, the systems involved and how success will be judged.",
   },
   {
-    title: "Design",
-    body: "Architecture, model selection, data strategy, security, integrations and evaluation criteria.",
+    title: "First working version",
+    body: "A narrow version running on your real documents or data, so decisions are based on something you can try.",
   },
   {
-    title: "Build",
-    body: "Rapid implementation of the working system using production-quality engineering.",
+    title: "Test with real cases",
+    body: "We measure results against examples from your workflow, fix the failures and agree where a person must approve.",
   },
   {
-    title: "Validate",
-    body: "Real-world evaluation, human review, failure testing, guardrails and performance measurement.",
-  },
-  {
-    title: "Deploy & Improve",
-    body: "Production deployment, monitoring, iteration and handover.",
-  },
-];
-
-const models = [
-  {
-    title: "Fixed-scope project",
-    body: "A defined problem, outcome, and delivery boundary.",
-  },
-  {
-    title: "AI proof of value",
-    body: "A narrow workflow used to learn whether AI should go further.",
-  },
-  {
-    title: "Production implementation",
-    body: "The system, integrations, evaluation, and deployment.",
-  },
-  {
-    title: "Engineering retainer",
-    body: "Continued iteration after the first production release.",
-  },
-  {
-    title: "Architecture + delivery engagement",
-    body: "Design and implementation carried by the same team.",
+    title: "Production and handover",
+    body: "Deployment in your environment with monitoring and documentation, then a handover or continued support.",
   },
 ];
 
 export function Process() {
   return (
-    <Section
+    <section
       id="how-we-work"
-      tone="band"
-      eyebrow="How we work"
-      headingId="process-heading"
-      title="From business problem to production system."
+      aria-labelledby="process-heading"
+      className="scroll-mt-16 border-b border-line bg-surface"
     >
-      <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {stages.map((stage, index) => (
-          <li key={stage.title} className="card h-full">
-            <p className="font-mono text-sm text-sage">
-              {String(index + 1).padStart(2, "0")}
-            </p>
-            <h3 className="mt-4 text-lg font-medium tracking-[-0.03em]">
-              {stage.title}
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted">{stage.body}</p>
-          </li>
-        ))}
-      </ol>
+      <div className="wrap py-20 md:py-28">
+        <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
+          <div className="lg:col-span-6">
+            <p className="eyebrow">How we work</p>
+            <h2 id="process-heading" className="section-title mt-5">
+              From a scoped problem
+              <br />
+              to a system in use.
+            </h2>
+          </div>
+          <p className="text-muted lg:col-span-5 lg:col-start-8">
+            Engagements can be a fixed-scope project, a production build, or
+            continued engineering after launch.
+          </p>
+        </div>
 
-      <div className="mt-14">
-        <h3 className="text-2xl font-medium tracking-[-0.03em]">
-          Typical engagement models
-        </h3>
-        <ul className="mt-6 divide-y divide-line border-y border-line">
-          {models.map((model) => (
-            <li
-              key={model.title}
-              className="grid gap-1 py-4 md:grid-cols-[18rem_1fr] md:items-baseline md:gap-8"
-            >
-              <h4 className="font-medium">{model.title}</h4>
-              <p className="text-sm leading-relaxed text-muted md:text-base">
-                {model.body}
+        <ol className="mt-14 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          {stages.map((stage, index) => (
+            <li key={stage.title} className="border-t-2 border-foreground pt-5">
+              <p className="font-mono text-sm text-accent-text">
+                Step {index + 1}
               </p>
+              <h3 className="mt-3 text-lg">{stage.title}</h3>
+              <p className="mt-2 text-muted">{stage.body}</p>
             </li>
           ))}
-        </ul>
+        </ol>
       </div>
-    </Section>
+    </section>
   );
 }

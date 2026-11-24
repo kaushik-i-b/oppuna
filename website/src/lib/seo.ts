@@ -12,7 +12,7 @@ const defaultImage: PageImage = {
   path: "/og.png",
   width: 1200,
   height: 630,
-  alt: "Oppuna Labs — AI systems that solve real business problems.",
+  alt: "Oppuna Labs: AI products built for real work.",
 };
 
 type PageMetadataInput = {

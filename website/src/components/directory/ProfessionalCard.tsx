@@ -13,7 +13,7 @@ export function ProfessionalCard({ profile }: Props) {
       <div className="flex items-start gap-4">
         <ProfessionalAvatar id={profile.avatar} className="size-16 shrink-0" />
         <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-[0.14em] text-sage">
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-accent-text">
             {directoryCopy.demoBadge}
           </p>
           <h3 className="mt-1 break-words text-xl font-medium tracking-[-0.03em]">
@@ -32,7 +32,7 @@ export function ProfessionalCard({ profile }: Props) {
         {profile.focusAreas.map((area) => (
           <li
             key={area.id}
-            className="max-w-full break-words rounded-full border border-line px-2.5 py-1 text-xs leading-snug text-foreground"
+            className="max-w-full break-words border border-line px-2.5 py-1 text-xs leading-snug text-foreground"
           >
             {area.label}
           </li>

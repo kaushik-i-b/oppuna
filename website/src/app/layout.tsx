@@ -1,19 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo, Source_Sans_3 } from "next/font/google";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { JsonLd } from "@/components/JsonLd";
 import { absoluteUrl, siteConfig } from "@/config/site";
 import "./globals.css";
 
-const geist = Geist({
-  variable: "--font-geist",
+// next/font downloads these at build time and serves them from this site,
+// so no request goes to Google Fonts at runtime.
+const archivo = Archivo({
+  variable: "--font-heading",
   subsets: ["latin"],
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const sourceSans = Source_Sans_3({
+  variable: "--font-body",
   subsets: ["latin"],
   display: "swap",
 });
@@ -21,8 +23,8 @@ const geistMono = Geist_Mono({
 const pageTitle = siteConfig.homeTitle;
 
 export const viewport: Viewport = {
-  themeColor: "#07080a",
-  colorScheme: "dark",
+  themeColor: "#fafafc",
+  colorScheme: "light",
 };
 
 export const metadata: Metadata = {
@@ -62,7 +64,7 @@ export const metadata: Metadata = {
         url: absoluteUrl("/og.png"),
         width: 1200,
         height: 630,
-        alt: "Oppuna Labs — AI systems that solve real business problems.",
+        alt: "Oppuna Labs: AI products built for real work.",
       },
     ],
   },
@@ -74,14 +76,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: absoluteUrl("/favicon.svg"), type: "image/svg+xml" },
+      { url: absoluteUrl("/labs-mark.svg"), type: "image/svg+xml" },
       {
-        url: absoluteUrl("/brand/favicon.png"),
+        url: absoluteUrl("/labs-mark-32.png"),
         sizes: "32x32",
         type: "image/png",
       },
     ],
-    apple: [{ url: absoluteUrl("/brand/icon.png") }],
+    apple: [{ url: absoluteUrl("/labs-mark-180.png"), sizes: "180x180" }],
   },
 };
 
@@ -91,11 +93,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${archivo.variable} ${sourceSans.variable}`}>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-ink"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-foreground focus:px-4 focus:py-3 focus:text-background"
         >
           Skip to content
         </a>
