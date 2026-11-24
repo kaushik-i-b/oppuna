@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { LegalDocument } from "@/components/LegalDocument";
-import { absoluteUrl, siteConfig } from "@/config/site";
+import { siteConfig } from "@/config/site";
 
-export const metadata: Metadata = {
-  title: "Terms of Use",
+export const metadata: Metadata = pageMetadata({
+  title: "Terms of Use | Oppuna",
   description:
     "Terms of use for Oppuna, a private offline wellness companion for Android.",
-  alternates: { canonical: absoluteUrl("/terms") },
-};
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (

@@ -1,26 +1,20 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { GooglePlayButton } from "@/components/GooglePlayButton";
-import { absoluteUrl, assetUrl, siteConfig } from "@/config/site";
+import { assetUrl, siteConfig } from "@/config/site";
 
-export const metadata: Metadata = {
-  title: "Oppuna — private AI wellness",
+export const metadata: Metadata = pageMetadata({
+  title: "Oppuna — Private AI Mood Journal & Wellness App for Android",
   description: siteConfig.productDescription,
-  alternates: { canonical: absoluteUrl("/oppuna") },
-  openGraph: {
-    title: "Oppuna — private AI wellness",
-    description: siteConfig.productDescription,
-    url: absoluteUrl("/oppuna"),
-    images: [
-      {
-        url: absoluteUrl("/brand/feature-image.png"),
-        width: 1024,
-        height: 500,
-        alt: "Oppuna — private mental wellness support",
-      },
-    ],
+  path: "/oppuna",
+  image: {
+    path: "/brand/feature-image.png",
+    width: 1024,
+    height: 500,
+    alt: "Oppuna — private mental wellness support",
   },
-};
+});
 
 const capabilities = [
   {

@@ -18,8 +18,7 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const pageTitle =
-  "Oppuna Labs | AI Agents, Automation & AI Product Engineering";
+const pageTitle = siteConfig.homeTitle;
 
 export const viewport: Viewport = {
   themeColor: "#07080a",
@@ -46,13 +45,15 @@ export const metadata: Metadata = {
     "custom AI products",
   ],
   authors: [{ name: siteConfig.name }],
-  alternates: {
-    canonical: absoluteUrl("/"),
-  },
+  creator: siteConfig.winfin.legalName,
+  publisher: siteConfig.winfin.legalName,
+  formatDetection: { email: false, address: false, telephone: false },
+  // Site-wide defaults only. Canonical URLs, og:url and robots are set per
+  // page (see src/lib/seo.ts) so pages such as the 404 do not inherit the
+  // homepage's canonical URL or an "index" directive.
   openGraph: {
     type: "website",
-    locale: "en",
-    url: absoluteUrl("/"),
+    locale: "en_IN",
     siteName: siteConfig.name,
     title: pageTitle,
     description: siteConfig.description,
@@ -81,10 +82,6 @@ export const metadata: Metadata = {
       },
     ],
     apple: [{ url: absoluteUrl("/brand/icon.png") }],
-  },
-  robots: {
-    index: true,
-    follow: true,
   },
 };
 

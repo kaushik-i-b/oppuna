@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { LegalDocument } from "@/components/LegalDocument";
-import { absoluteUrl, siteConfig } from "@/config/site";
+import { siteConfig } from "@/config/site";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
+export const metadata: Metadata = pageMetadata({
+  title: "Privacy Policy | Oppuna",
   description:
     "Oppuna privacy policy: no account, no cloud sync, local storage, and offline-first design.",
-  alternates: { canonical: absoluteUrl("/privacy") },
-};
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

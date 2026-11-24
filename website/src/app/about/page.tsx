@@ -1,38 +1,26 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { CorporateInformation } from "@/components/corporate/CorporateInformation";
 import { aboutCopy } from "@/content/about";
 import { directoryCopy } from "@/content/directory";
-import { absoluteUrl, siteConfig } from "@/config/site";
+import { siteConfig } from "@/config/site";
 
 const title = "About Oppuna";
 const description =
   "Oppuna is a privacy-first AI mental wellness companion developed by Winfin Technologies Private Limited.";
 
-export const metadata: Metadata = {
-  title,
+export const metadata: Metadata = pageMetadata({
+  title: `${title} | ${siteConfig.name}`,
   description,
-  alternates: { canonical: absoluteUrl("/about") },
-  openGraph: {
-    title,
-    description,
-    url: absoluteUrl("/about"),
-    images: [
-      {
-        url: absoluteUrl("/og.png"),
-        width: 1200,
-        height: 630,
-        alt: "Oppuna, a product of Winfin Technologies Private Limited",
-      },
-    ],
+  path: "/about",
+  image: {
+    path: "/og.png",
+    width: 1200,
+    height: 630,
+    alt: "Oppuna, a product of Winfin Technologies Private Limited",
   },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-    images: [absoluteUrl("/og.png")],
-  },
-};
+});
 
 export default function AboutPage() {
   return (

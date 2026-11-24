@@ -13,6 +13,8 @@ export const siteConfig = {
   productName: "Oppuna",
   shortName: "Oppuna Labs",
   tagline: "AI systems that solve real business problems.",
+  /** Homepage <title>; also the default for pages without their own. */
+  homeTitle: "Oppuna Labs | AI Agents, Automation & AI Product Engineering",
   description:
     "Oppuna Labs designs and builds production-grade AI agents, enterprise RAG systems, intelligent automation, document AI, voice AI and custom AI products.",
   longDescription:

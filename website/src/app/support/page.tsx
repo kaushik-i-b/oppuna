@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { Mail, Smartphone } from "lucide-react";
 import { GooglePlayButton } from "@/components/GooglePlayButton";
-import { absoluteUrl, siteConfig } from "@/config/site";
+import { siteConfig } from "@/config/site";
 
-export const metadata: Metadata = {
-  title: "Support",
-  description: `Contact Oppuna support at ${siteConfig.supportEmail}.`,
-  alternates: { canonical: absoluteUrl("/support") },
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Support | Oppuna",
+  description: `Get help with the Oppuna app: installation, features, data export and deletion, and privacy questions. Email ${siteConfig.supportEmail}.`,
+  path: "/support",
+});
 
 export default function SupportPage() {
   return (

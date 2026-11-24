@@ -1,39 +1,25 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { ProfessionalCategoryCard } from "@/components/directory/ProfessionalCategoryCard";
 import { ProfessionalDirectory } from "@/components/directory/ProfessionalDirectory";
 import { directoryCopy } from "@/content/directory";
-import { absoluteUrl, siteConfig } from "@/config/site";
+import { siteConfig } from "@/config/site";
 
 const title = "Find Mental Health Professionals | Oppuna";
 const description =
   "Explore Oppuna's upcoming mental health professional directory, including psychiatrists, clinical psychologists, and counselling psychologists.";
 
-export const metadata: Metadata = {
-  title: { absolute: title },
+export const metadata: Metadata = pageMetadata({
+  title,
   description,
-  alternates: { canonical: absoluteUrl("/professionals") },
-  openGraph: {
-    title,
-    description,
-    url: absoluteUrl("/professionals"),
-    siteName: siteConfig.name,
-    images: [
-      {
-        url: absoluteUrl("/og.png"),
-        width: 1200,
-        height: 630,
-        alt: "Oppuna professional directory preview",
-      },
-    ],
+  path: "/professionals",
+  image: {
+    path: "/og.png",
+    width: 1200,
+    height: 630,
+    alt: "Oppuna professional directory preview",
   },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-    images: [absoluteUrl("/og.png")],
-  },
-  robots: { index: true, follow: true },
-};
+});
 
 const categoryCards = [
   directoryCopy.categories.psychiatrist,
