@@ -1,26 +1,27 @@
-import { Agents } from "@/components/labs/Agents";
+import type { Metadata } from "next";
+import { siteConfig } from "@/config/site";
+import { pageMetadata } from "@/lib/seo";
+import { About } from "@/components/labs/About";
 import { Contact } from "@/components/labs/Contact";
-import { DirectoryPreview } from "@/components/labs/DirectoryPreview";
-import { Engineering } from "@/components/labs/Engineering";
 import { Hero } from "@/components/labs/Hero";
-import { Problems } from "@/components/labs/Problems";
 import { Process } from "@/components/labs/Process";
-import { Products } from "@/components/labs/Products";
-import { Security } from "@/components/labs/Security";
-import { Why } from "@/components/labs/Why";
+import { ProductShowcase } from "@/components/labs/ProductShowcase";
+import { Services } from "@/components/labs/Services";
+
+export const metadata: Metadata = pageMetadata({
+  title: siteConfig.homeTitle,
+  description: siteConfig.description,
+  path: "/",
+});
 
 export default function HomePage() {
   return (
     <>
       <Hero />
-      <Problems />
-      <Agents />
+      <ProductShowcase />
+      <Services />
       <Process />
-      <Engineering />
-      <Security />
-      <Products />
-      <DirectoryPreview />
-      <Why />
+      <About />
       <Contact />
     </>
   );

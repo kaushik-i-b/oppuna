@@ -1,50 +1,38 @@
 import { assetUrl } from "@/config/paths";
-
-const capabilities = [
-  "Agents",
-  "RAG",
-  "Automation",
-  "Voice AI",
-  "Document Intelligence",
-  "Custom AI Products",
-];
+import { WorkflowIllustration } from "./WorkflowIllustration";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden" aria-labelledby="hero-heading">
-      <div className="hero-glow pointer-events-none absolute inset-0" aria-hidden />
-      <div className="relative mx-auto w-full max-w-6xl px-5 pb-20 pt-16 md:px-8 md:pb-28 md:pt-24">
-        <p className="eyebrow">AI product engineering</p>
-        <h1
-          id="hero-heading"
-          className="mt-5 max-w-5xl text-[clamp(2.7rem,7.2vw,5.35rem)] font-medium leading-[1.02] tracking-[-0.045em] text-balance"
-        >
-          AI systems that solve real business problems.
-        </h1>
-        <div className="mt-7 max-w-2xl space-y-4 text-lg leading-relaxed text-muted">
-          <p>
-            Oppuna Labs designs and builds production-grade AI agents,
-            intelligent automation, enterprise knowledge systems and custom AI
-            products.
+    <section aria-labelledby="hero-heading" className="border-b border-line">
+      <div className="wrap grid items-center gap-12 py-14 md:py-16 lg:grid-cols-12 lg:gap-10 lg:py-16">
+        <div className="lg:col-span-6 xl:col-span-6">
+          <p className="eyebrow">Oppuna Labs · Engineering studio</p>
+          <h1
+            id="hero-heading"
+            className="mt-6 text-[clamp(2.25rem,4.6vw,3.5rem)] leading-[1.06] tracking-[-0.02em]"
+          >
+            AI products built
+            <br />
+            for real work.
+          </h1>
+          <p className="lede mt-6">
+            We design and build AI agents, document workflows, and custom{" "}
+            <span className="whitespace-nowrap">software—from</span> the first
+            working version to production.
           </p>
-          <p>
-            We work from problem definition through architecture,
-            implementation, integration and production deployment.
-          </p>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <a className="btn btn-primary" href={assetUrl("/#contact")}>
+              Discuss a Project
+            </a>
+            <a className="btn btn-secondary" href={assetUrl("/oppuna/")}>
+              Explore Oppuna
+            </a>
+          </div>
         </div>
-        <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <a className="btn btn-primary" href={assetUrl("/#contact")}>
-            Discuss a Project
-          </a>
-          <a className="btn btn-secondary" href={assetUrl("/#solutions")}>
-            Explore Our Capabilities
-          </a>
+
+        <div className="lg:col-span-6 xl:col-span-5 xl:col-start-8">
+          <WorkflowIllustration />
         </div>
-        <ul className="credibility" aria-label="Capabilities">
-          {capabilities.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
       </div>
     </section>
   );

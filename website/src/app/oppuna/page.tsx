@@ -1,26 +1,41 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { GooglePlayButton } from "@/components/GooglePlayButton";
-import { absoluteUrl, assetUrl, siteConfig } from "@/config/site";
+import { PhonePreview } from "@/components/PhonePreview";
+import { ProductJsonLd } from "@/components/JsonLd";
+import { siteConfig } from "@/config/site";
 
-export const metadata: Metadata = {
-  title: "Oppuna — private AI wellness",
+export const metadata: Metadata = pageMetadata({
+  title: "Oppuna — Private AI Mood Journal & Wellness App for Android",
   description: siteConfig.productDescription,
-  alternates: { canonical: absoluteUrl("/oppuna") },
-  openGraph: {
-    title: "Oppuna — private AI wellness",
-    description: siteConfig.productDescription,
-    url: absoluteUrl("/oppuna"),
-    images: [
-      {
-        url: absoluteUrl("/brand/feature-image.png"),
-        width: 1024,
-        height: 500,
-        alt: "Oppuna — private mental wellness support",
-      },
-    ],
+  path: "/oppuna",
+  image: {
+    path: "/brand/feature-image.png",
+    width: 1024,
+    height: 500,
+    alt: "Oppuna — private mental wellness support",
   },
-};
+});
+
+const privacyPoints = [
+  {
+    title: "No account",
+    body: "There is nothing to sign up for. You can start using the app straight away.",
+  },
+  {
+    title: "Stored on your device",
+    body: "Journals, mood check-ins, chats and preferences are kept in the app's local storage.",
+  },
+  {
+    title: "No internet in release builds",
+    body: "Production Android builds block the INTERNET permission, and a network guard is built in.",
+  },
+  {
+    title: "AI that runs on the phone",
+    body: "The companion uses a language model on the device. Chats are not sent to a cloud AI service.",
+  },
+];
 
 const capabilities = [
   {
@@ -122,52 +137,56 @@ const faqs = [
 export default function OppunaProductPage() {
   return (
     <article>
-      <header className="relative overflow-hidden">
-        <div className="hero-glow pointer-events-none absolute inset-0" aria-hidden />
-        <div className="relative mx-auto w-full max-w-6xl px-5 py-16 md:px-8 md:py-24">
-          <p className="eyebrow">Product · Android</p>
-          <h1 className="mt-4 max-w-4xl text-[clamp(2.4rem,6vw,4.4rem)] font-medium leading-[1.05] tracking-[-0.045em]">
-            {siteConfig.productTagline}
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-            {siteConfig.productDescription}
-          </p>
-          <p className="mt-4 max-w-2xl leading-relaxed text-muted">
-            {siteConfig.winfin.homepageStatement} Everyday AI-powered mental
-            wellness support is in the app, with professional-care discovery
-            planned for the future. Oppuna is a private wellness companion for
-            everyday reflection. It is not a therapist, a diagnostic system, or
-            emergency care.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <GooglePlayButton />
-            <Link className="btn btn-secondary" href="/professionals">
-              Find Professionals
-            </Link>
-            <a className="btn btn-secondary" href={assetUrl("/#contact")}>
-              Discuss a Project
-            </a>
+      <ProductJsonLd />
+      <header className="border-b border-line">
+        <div className="wrap grid items-center gap-12 py-14 md:py-20 lg:grid-cols-12 lg:gap-10">
+          <div className="lg:col-span-7">
+            <p className="eyebrow">Oppuna · Android app</p>
+            <h1 className="mt-6 text-[clamp(2.25rem,4.4vw,3.375rem)] leading-[1.06] tracking-[-0.02em]">
+              Oppuna. A private
+              <br />
+              space to reflect.
+            </h1>
+            <p className="lede mt-6">
+              A wellness app for journaling, mood check-ins and a calm daily
+              routine. It works without an account, and what you write stays
+              on your phone.
+            </p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <GooglePlayButton />
+              <a className="btn btn-secondary" href="#privacy">
+                How privacy works
+              </a>
+            </div>
+            <p className="mt-8 text-sm text-muted">
+              Free on Google Play as “{siteConfig.playStoreTitle}” · version{" "}
+              {siteConfig.version} · {siteConfig.winfin.productStatement}
+            </p>
           </div>
-          <p className="mt-6 text-sm text-muted">
-            Google Play listing: {siteConfig.playStoreTitle} ·{" "}
-            {siteConfig.packageName} · version {siteConfig.version}
-          </p>
+          <div className="lg:col-span-4 lg:col-start-9">
+            <PhonePreview />
+          </div>
         </div>
       </header>
 
-      <section className="border-t border-line" aria-labelledby="includes-heading">
-        <div className="mx-auto w-full max-w-6xl px-5 py-16 md:px-8 md:py-24">
-          <h2 id="includes-heading" className="section-title">
-            What the app includes
-          </h2>
-          <p className="mt-4 max-w-2xl text-lg text-muted">
-            These are capabilities present in the current application.
-          </p>
-          <ul className="mt-10 grid gap-4 md:grid-cols-2">
+      <section aria-labelledby="includes-heading" className="border-b border-line">
+        <div className="wrap py-16 md:py-24">
+          <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
+            <h2 id="includes-heading" className="section-title lg:col-span-6">
+              What the app includes
+            </h2>
+            <p className="text-muted lg:col-span-5 lg:col-start-8">
+              These features are in the current version of the app.
+            </p>
+          </div>
+          <ul className="mt-10 grid border-t border-foreground md:grid-cols-2 md:gap-x-12">
             {capabilities.map((item) => (
-              <li key={item.title} className="card h-full">
-                <h3 className="font-medium tracking-[-0.02em]">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{item.body}</p>
+              <li
+                key={item.title}
+                className="grid gap-1 border-b border-line py-5 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-6"
+              >
+                <h3 className="text-base">{item.title}</h3>
+                <p className="text-muted">{item.body}</p>
               </li>
             ))}
           </ul>
@@ -175,21 +194,53 @@ export default function OppunaProductPage() {
       </section>
 
       <section
-        className="border-t border-line bg-[color-mix(in_srgb,var(--surface)_72%,transparent)]"
-        aria-labelledby="product-flow-heading"
+        id="privacy"
+        aria-labelledby="privacy-heading"
+        className="section-dark scroll-mt-16"
       >
-        <div className="mx-auto w-full max-w-6xl px-5 py-16 md:px-8 md:py-24">
+        <div className="wrap py-16 md:py-24">
+          <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-6">
+              <p className="eyebrow">Privacy</p>
+              <h2 id="privacy-heading" className="section-title mt-5">
+                Built to work
+                <br />
+                without the internet.
+              </h2>
+            </div>
+            <p className="text-muted lg:col-span-5 lg:col-start-8">
+              Your operating system may still offer device-level backups
+              outside Oppuna’s control. The{" "}
+              <Link className="link" href="/privacy">
+                privacy policy
+              </Link>{" "}
+              has the full details.
+            </p>
+          </div>
+          <ul className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+            {privacyPoints.map((point) => (
+              <li key={point.title} className="border-t-2 border-foreground pt-5">
+                <h3 className="text-lg">{point.title}</h3>
+                <p className="mt-2 text-muted">{point.body}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section aria-labelledby="product-flow-heading" className="border-b border-line">
+        <div className="wrap py-16 md:py-24">
           <h2 id="product-flow-heading" className="section-title">
             How someone uses it
           </h2>
-          <ol className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <ol className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map((step, index) => (
-              <li key={step.title} className="card h-full">
-                <p className="font-mono text-sm text-sage">
-                  {String(index + 1).padStart(2, "0")}
+              <li key={step.title} className="border-t-2 border-foreground pt-5">
+                <p className="font-mono text-sm text-accent-text">
+                  Step {index + 1}
                 </p>
-                <h3 className="mt-3 font-medium">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{step.body}</p>
+                <h3 className="mt-3 text-lg">{step.title}</h3>
+                <p className="mt-2 text-muted">{step.body}</p>
               </li>
             ))}
           </ol>
@@ -198,96 +249,101 @@ export default function OppunaProductPage() {
 
       <section
         id="responsible-use"
-        className="scroll-mt-24 border-t border-line"
+        className="scroll-mt-16 border-b border-line bg-surface"
         aria-labelledby="responsible-heading"
       >
-        <div className="mx-auto w-full max-w-6xl px-5 py-16 md:px-8 md:py-24">
-          <h2 id="responsible-heading" className="section-title">
-            Responsible use
-          </h2>
-          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-muted">
-            Oppuna supports everyday emotional wellness and self-reflection. It
-            does not provide medical advice, diagnosis, treatment, or emergency
-            assistance. If you may harm yourself or someone else, contact local
-            emergency services or a verified crisis-support service immediately.
-          </p>
-          <h3 className="mt-10 text-sm font-medium uppercase tracking-[0.14em] text-sage">
-            India support resources
-          </h3>
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-            {siteConfig.crisisIndia.map((line) => (
-              <li key={line.phone} className="card">
-                <p className="font-medium">{line.label}</p>
-                <a className="mt-1 inline-block text-lg link" href={`tel:${line.phone}`}>
-                  {line.display}
-                </a>
-                <p className="mt-1 text-sm text-muted">{line.detail}</p>
-                <p className="mt-2 text-xs">
+        <div className="wrap grid gap-12 py-16 md:py-24 lg:grid-cols-12 lg:gap-10">
+          <div className="lg:col-span-5">
+            <h2 id="responsible-heading" className="section-title">
+              Responsible use
+            </h2>
+            <p className="mt-5 text-muted">
+              Oppuna supports everyday emotional wellness and self-reflection.
+              It does not provide medical advice, diagnosis, treatment, or
+              emergency assistance. If you may harm yourself or someone else,
+              contact local emergency services or a verified crisis-support
+              service immediately.
+            </p>
+          </div>
+          <div className="lg:col-span-6 lg:col-start-7">
+            <h3 className="label-mono">India support resources</h3>
+            <ul className="mt-4 border-t border-foreground">
+              {siteConfig.crisisIndia.map((line) => (
+                <li
+                  key={line.phone}
+                  className="grid gap-1 border-b border-line py-4 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-6"
+                >
                   <a
-                    className="link"
-                    href={line.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    className="link font-display text-lg font-semibold"
+                    href={`tel:${line.phone}`}
                   >
-                    {line.sourceLabel}
+                    {line.display}
                   </a>
-                </p>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-xs leading-relaxed text-muted">
-            Helpline numbers can change. Prefer official government channels,
-            and dial local emergency services if you are in immediate danger.
-          </p>
+                  <div>
+                    <p className="font-semibold">{line.label}</p>
+                    <p className="text-muted">
+                      {line.detail} · Source:{" "}
+                      <a
+                        className="link"
+                        href={line.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {line.sourceLabel}
+                      </a>
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 text-sm text-muted">
+              Helpline numbers can change. Prefer official government channels,
+              and dial local emergency services if you are in immediate danger.
+            </p>
+          </div>
         </div>
       </section>
 
-      <section className="border-t border-line" aria-labelledby="faq-heading">
-        <div className="mx-auto w-full max-w-3xl px-5 py-16 md:px-8 md:py-24">
-          <h2 id="faq-heading" className="section-title">
+      <section className="border-b border-line" aria-labelledby="faq-heading">
+        <div className="wrap grid gap-10 py-16 md:py-24 lg:grid-cols-12 lg:gap-10">
+          <h2 id="faq-heading" className="section-title lg:col-span-4">
             Questions
           </h2>
-          <div className="mt-8 divide-y divide-line border-y border-line">
+          <div className="border-t border-foreground lg:col-span-8">
             {faqs.map((item) => (
-              <details key={item.q} className="group py-4">
-                <summary className="cursor-pointer list-none font-medium tracking-[-0.02em] [&::-webkit-details-marker]:hidden">
-                  <span className="flex items-start justify-between gap-4">
+              <details key={item.q} className="service-row">
+                <summary className="!grid-cols-[minmax(0,1fr)_2rem] !gap-4 !py-5">
+                  <h3 className="service-title text-base leading-snug transition-colors md:text-lg">
                     {item.q}
-                    <span aria-hidden className="text-muted group-open:hidden">
-                      +
-                    </span>
-                    <span aria-hidden className="hidden text-muted group-open:inline">
-                      –
-                    </span>
-                  </span>
+                  </h3>
+                  <span className="service-toggle" aria-hidden />
                 </summary>
-                <p className="mt-3 text-sm leading-relaxed text-muted">{item.a}</p>
+                <p className="max-w-2xl pb-6 text-muted">{item.a}</p>
               </details>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-t border-line" aria-labelledby="get-heading">
-        <div className="mx-auto w-full max-w-6xl px-5 py-16 md:px-8 md:py-20">
-          <h2 id="get-heading" className="text-3xl font-medium tracking-[-0.03em]">
-            Get Oppuna
-          </h2>
-          <p className="mt-3 max-w-2xl text-muted">
-            Published on Google Play by {siteConfig.companyName}. Questions
-            about the app go to{" "}
-            <a className="link" href={`mailto:${siteConfig.supportEmail}`}>
-              {siteConfig.supportEmail}
-            </a>
-            .
-          </p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+      <section aria-labelledby="get-heading">
+        <div className="wrap grid gap-8 py-16 md:py-20 lg:grid-cols-12 lg:items-center">
+          <div className="lg:col-span-7">
+            <h2 id="get-heading" className="section-title">
+              Get Oppuna
+            </h2>
+            <p className="mt-4 max-w-2xl text-muted">
+              The Google Play listing is published by {siteConfig.companyName}.
+              Questions about the app go to{" "}
+              <a className="link" href={`mailto:${siteConfig.supportEmail}`}>
+                {siteConfig.supportEmail}
+              </a>
+              .
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row lg:col-span-5 lg:justify-end">
             <GooglePlayButton />
-            <Link className="btn btn-secondary" href="/privacy">
-              Privacy Policy
-            </Link>
             <Link className="btn btn-secondary" href="/support">
-              Support
+              App support
             </Link>
           </div>
         </div>

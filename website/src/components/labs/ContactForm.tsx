@@ -39,7 +39,7 @@ export function ContactForm() {
   }
 
   return (
-    <form className="card md:p-8" onSubmit={onSubmit} aria-describedby="form-note">
+    <form className="border border-line bg-background p-5 md:p-8" onSubmit={onSubmit} aria-describedby="form-note">
       <div className="form-grid">
         <div className="field">
           <label className="field-label" htmlFor="name">
@@ -108,18 +108,19 @@ export function ContactForm() {
       </div>
 
       <p id="form-note" className="mt-5 text-sm leading-relaxed text-muted">
-        This form does not submit to a server. It opens an email to{" "}
+        This form does not send anything by itself. It opens a pre-filled
+        email to{" "}
         <a className="link" href={`mailto:${siteConfig.supportEmail}`}>
           {siteConfig.supportEmail}
         </a>{" "}
-        with the details you entered.
+        in your email app, and nothing is sent until you send it.
       </p>
 
       <button className="btn btn-primary mt-5" type="submit">
-        Discuss Your Project
+        Open as an email
       </button>
 
-      <p className="mt-4 min-h-6 text-sm leading-relaxed text-sage" role="status" aria-live="polite">
+      <p className="mt-4 min-h-6 text-sm leading-relaxed text-foreground" role="status" aria-live="polite">
         {status}
       </p>
     </form>

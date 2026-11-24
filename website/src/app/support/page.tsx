@@ -1,107 +1,111 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { Mail, Smartphone } from "lucide-react";
 import { GooglePlayButton } from "@/components/GooglePlayButton";
-import { absoluteUrl, siteConfig } from "@/config/site";
+import { siteConfig } from "@/config/site";
 
-export const metadata: Metadata = {
-  title: "Support",
-  description: `Contact Oppuna support at ${siteConfig.supportEmail}.`,
-  alternates: { canonical: absoluteUrl("/support") },
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Support | Oppuna",
+  description: `Get help with the Oppuna app: installation, features, data export and deletion, and privacy questions. Email ${siteConfig.supportEmail}.`,
+  path: "/support",
+});
 
 export default function SupportPage() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-5 py-14 md:px-8 md:py-20">
-      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-sage">
-        Support
-      </p>
-      <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-sage-deep">
-        We’re here for product questions
-      </h1>
-      <p className="mt-4 text-lg leading-relaxed text-muted">
-        For help with Oppuna—install, features, export/delete, or privacy
-        questions—email support. This channel is not a crisis or clinical
-        service.
-      </p>
+    <div className="wrap py-14 md:py-20">
+      <div className="grid gap-12 lg:grid-cols-12">
+        <header className="lg:col-span-5">
+          <p className="eyebrow">Oppuna app · Support</p>
+          <h1 className="mt-5 text-[clamp(2rem,3.4vw,2.75rem)] leading-[1.1]">
+            Help with the
+            <br />
+            Oppuna app
+          </h1>
+          <p className="mt-5 text-muted">
+            For help with installing Oppuna, its features, exporting or
+            deleting your data, or privacy questions, email support. This
+            channel is not a crisis or clinical service.
+          </p>
+        </header>
 
-      <div className="mt-10 space-y-4">
-        <a
-          href={`mailto:${siteConfig.supportEmail}`}
-          className="flex items-start gap-4 rounded-3xl border border-line bg-surface p-6 transition hover:border-sage/40"
-        >
-          <span className="inline-flex size-11 items-center justify-center rounded-2xl bg-sage-soft text-sage-deep">
-            <Mail className="size-5" aria-hidden />
-          </span>
-          <span>
-            <span className="block font-semibold text-sage-deep">Email</span>
-            <span className="mt-1 block text-muted">
-              {siteConfig.supportEmail}
-            </span>
-          </span>
-        </a>
-
-        <div className="rounded-3xl border border-line bg-surface p-6">
-          <div className="flex items-start gap-4">
-            <span className="inline-flex size-11 items-center justify-center rounded-2xl bg-sage-soft text-sage-deep">
-              <Smartphone className="size-5" aria-hidden />
-            </span>
-            <div>
-              <p className="font-semibold text-sage-deep">Get the app</p>
-              <p className="mt-1 font-mono text-sm text-muted">
-                {siteConfig.packageName}
-              </p>
-              <div className="mt-4">
-                <GooglePlayButton />
-              </div>
+        <div className="lg:col-span-6 lg:col-start-7">
+          <dl className="border-t border-foreground">
+            <div className="grid gap-2 border-b border-line py-6 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6">
+              <dt className="flex items-center gap-2 text-sm text-muted">
+                <Mail className="size-4" aria-hidden />
+                Email
+              </dt>
+              <dd>
+                <a
+                  className="link font-display text-lg font-semibold"
+                  href={`mailto:${siteConfig.supportEmail}`}
+                >
+                  {siteConfig.supportEmail}
+                </a>
+              </dd>
             </div>
-          </div>
+            <div className="grid gap-2 border-b border-line py-6 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6">
+              <dt className="flex items-center gap-2 text-sm text-muted">
+                <Smartphone className="size-4" aria-hidden />
+                Get the app
+              </dt>
+              <dd>
+                <p className="font-mono text-sm text-muted">
+                  {siteConfig.packageName}
+                </p>
+                <div className="mt-4">
+                  <GooglePlayButton />
+                </div>
+              </dd>
+            </div>
+          </dl>
+
+          <section
+            aria-labelledby="urgent-heading"
+            className="mt-10 border-l-2 border-accent bg-surface p-6"
+          >
+            <h2 id="urgent-heading" className="text-xl">
+              Need urgent help?
+            </h2>
+            <p className="mt-2 text-muted">
+              Do not wait on email. In India you can dial{" "}
+              <a href="tel:112" className="link font-semibold">
+                112
+              </a>
+              , Tele-MANAS{" "}
+              <a href="tel:14416" className="link font-semibold">
+                14416
+              </a>{" "}
+              or{" "}
+              <a href="tel:18008914416" className="link font-semibold">
+                1800-89-14416
+              </a>
+              , or KIRAN{" "}
+              <a href="tel:18005990019" className="link font-semibold">
+                1800-599-0019
+              </a>
+              . The{" "}
+              <Link href="/oppuna#responsible-use" className="link">
+                responsible-use section
+              </Link>{" "}
+              of the Oppuna page lists official sources.
+            </p>
+          </section>
+
+          <p className="mt-10 text-muted">
+            Also see the{" "}
+            <Link href="/privacy" className="link">
+              privacy policy
+            </Link>{" "}
+            and{" "}
+            <Link href="/terms" className="link">
+              terms of use
+            </Link>
+            .
+          </p>
         </div>
       </div>
-
-      <div className="mt-10 rounded-3xl border border-line bg-sage-soft/35 p-6">
-        <h2 className="font-display text-xl font-semibold text-sage-deep">
-          Need urgent help?
-        </h2>
-        <p className="mt-2 text-sm leading-relaxed text-muted">
-          Do not wait on email. In India you can dial{" "}
-          <a href="tel:112" className="font-semibold text-sage-deep">
-            112
-          </a>
-          , Tele-MANAS{" "}
-          <a href="tel:14416" className="font-semibold text-sage-deep">
-            14416
-          </a>{" "}
-          or{" "}
-          <a href="tel:18008914416" className="font-semibold text-sage-deep">
-            1800-89-14416
-          </a>
-          , or KIRAN{" "}
-          <a href="tel:18005990019" className="font-semibold text-sage-deep">
-            1800-599-0019
-          </a>
-          . See the{" "}
-          <Link
-            href="/oppuna#responsible-use"
-            className="font-semibold text-sage-deep underline"
-          >
-            responsible-use
-          </Link>{" "}
-          section on the Oppuna product page for official sources.
-        </p>
-      </div>
-
-      <p className="mt-10 text-sm text-muted">
-        Also see{" "}
-        <Link href="/privacy" className="font-semibold text-sage-deep underline">
-          Privacy
-        </Link>{" "}
-        and{" "}
-        <Link href="/terms" className="font-semibold text-sage-deep underline">
-          Terms
-        </Link>
-        .
-      </p>
     </div>
   );
 }

@@ -108,9 +108,9 @@ function FilterButton({
       type="button"
       aria-pressed={pressed}
       onClick={onClick}
-      className={`min-h-11 rounded-full border px-3.5 py-2 text-left text-sm leading-tight transition-colors ${
+      className={`min-h-11 border px-3.5 py-2 text-left text-sm leading-tight transition-colors ${
         pressed
-          ? "border-sage bg-sage-soft text-foreground"
+          ? "border-accent bg-accent-soft text-foreground"
           : "border-line bg-transparent text-muted hover:text-foreground"
       }`}
     >

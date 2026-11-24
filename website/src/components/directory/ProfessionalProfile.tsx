@@ -31,10 +31,10 @@ export function ProfessionalProfile({ profile }: Props) {
       <header className="mt-8 flex items-start gap-4">
         <ProfessionalAvatar id={profile.avatar} className="size-20 shrink-0" />
         <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-[0.14em] text-sage">
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-accent-text">
             {directoryCopy.demoBadge}
           </p>
-          <h1 className="mt-2 break-words text-[clamp(2rem,5vw,3.25rem)] font-medium leading-[1.08] tracking-[-0.04em]">
+          <h1 className="mt-2 break-words text-[clamp(2rem,5vw,3.25rem)] font-medium leading-[1.08] ">
             {profile.name}
           </h1>
           <p className="mt-2 text-lg text-muted">{categoryLabels[profile.category]}</p>
@@ -57,7 +57,7 @@ export function ProfessionalProfile({ profile }: Props) {
               {profile.focusAreas.map((area) => (
                 <li
                   key={area.id}
-                  className="max-w-full break-words rounded-full border border-line px-3 py-1.5 text-sm"
+                  className="max-w-full break-words border border-line px-3 py-1.5 text-sm"
                 >
                   {area.label}
                 </li>
@@ -68,7 +68,7 @@ export function ProfessionalProfile({ profile }: Props) {
       </dl>
 
       <section className="mt-10" aria-labelledby="biography-heading">
-        <h2 id="biography-heading" className="text-2xl font-medium tracking-[-0.03em]">
+        <h2 id="biography-heading" className="text-2xl font-medium ">
           {directoryCopy.biographyLabel}
         </h2>
         <p className="mt-3 leading-relaxed text-muted">{profile.biography}</p>
@@ -76,14 +76,14 @@ export function ProfessionalProfile({ profile }: Props) {
       </section>
 
       <section className="mt-10" aria-labelledby="approach-heading">
-        <h2 id="approach-heading" className="text-2xl font-medium tracking-[-0.03em]">
+        <h2 id="approach-heading" className="text-2xl font-medium ">
           {directoryCopy.approachLabel}
         </h2>
         <p className="mt-3 leading-relaxed text-muted">{profile.approach}</p>
       </section>
 
       <section className="mt-10" aria-labelledby="status-heading">
-        <h2 id="status-heading" className="text-2xl font-medium tracking-[-0.03em]">
+        <h2 id="status-heading" className="text-2xl font-medium ">
           {directoryCopy.statusLabel}
         </h2>
         <p className="mt-3 leading-relaxed text-muted">{directoryCopy.statusBody}</p>

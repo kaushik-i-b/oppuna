@@ -11,16 +11,16 @@ export function CorporateInformation({
   const { winfin } = siteConfig;
 
   return (
-    <section aria-labelledby={headingId} className="space-y-6">
-      <div className="max-w-3xl">
-        <h2 id={headingId} className="text-2xl font-medium tracking-[-0.03em]">
-          Corporate Information
-        </h2>
-        <p className="mt-4 text-lg leading-relaxed text-muted">{winfin.productLine}</p>
-      </div>
+    <section aria-labelledby={headingId}>
+      <h2 id={headingId} className="label-mono">
+        Corporate information
+      </h2>
+      <p className="mt-3 font-display text-lg font-semibold">
+        {winfin.productLine}
+      </p>
 
-      <div className="grid items-center gap-6 md:grid-cols-[minmax(0,16rem)_1fr]">
-        <div className="rounded-2xl bg-white p-4">
+      <div className="mt-6 grid gap-6 border-t border-foreground pt-6 sm:grid-cols-[10rem_minmax(0,1fr)]">
+        <div className="self-start border border-line bg-white p-3">
           <BrandImage
             path="/brand/winfin-logo.jpg"
             alt="Winfin"
@@ -29,10 +29,10 @@ export function CorporateInformation({
             className="h-auto w-full"
           />
         </div>
-        <dl className="grid gap-4 sm:grid-cols-2">
+        <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
           <div>
             <dt className="text-sm text-muted">Company</dt>
-            <dd className="mt-1 font-medium">{winfin.legalName}</dd>
+            <dd className="mt-1 font-semibold">{winfin.legalName}</dd>
           </div>
           <div>
             <dt className="text-sm text-muted">CIN</dt>
@@ -40,7 +40,7 @@ export function CorporateInformation({
           </div>
           <div>
             <dt className="text-sm text-muted">Location</dt>
-            <dd className="mt-1 font-medium">{winfin.location}</dd>
+            <dd className="mt-1 font-semibold">{winfin.location}</dd>
           </div>
           <div>
             <dt className="text-sm text-muted">Website</dt>

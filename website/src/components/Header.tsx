@@ -1,14 +1,14 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { assetUrl } from "@/config/paths";
 import { siteConfig } from "@/config/site";
-import { BrandImage } from "./BrandImage";
+import { LabsWordmark } from "./LabsWordmark";
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const panelId = useId();
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -20,89 +20,106 @@ export function Header() {
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        setOpen(false);
+        buttonRef.current?.focus();
+      }
+    };
+    const onResize = () => {
+      if (window.matchMedia("(min-width: 1024px)").matches) setOpen(false);
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", onResize);
+    };
   }, [open]);
 
-  const renderLinks = (className: string) =>
-    siteConfig.nav.map((item) => (
-      <a
-        key={item.href}
-        href={assetUrl(item.href)}
-        className={className}
-        onClick={() => setOpen(false)}
-      >
-        {item.label}
-      </a>
-    ));
+  const close = () => setOpen(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-[color-mix(in_srgb,var(--bg)_84%,transparent)] backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-3 md:px-8">
+    <header className="sticky top-0 z-50 border-b border-line bg-background">
+      <div className="wrap flex h-16 items-center justify-between gap-6">
         <a
           href={assetUrl("/")}
-          className="flex items-center gap-2.5 rounded-lg"
-          onClick={() => setOpen(false)}
+          className="-m-1 p-1"
+          onClick={close}
+          aria-label="Oppuna Labs home"
         >
-          <BrandImage
-            path="/brand/icon.png"
-            alt=""
-            width={32}
-            height={32}
-            className="size-8 rounded-lg"
-            priority
-          />
-          <span className="whitespace-nowrap text-[1.05rem] font-medium tracking-[-0.03em]">
-            Oppuna Labs
-          </span>
+          <LabsWordmark />
         </a>
 
-        <nav className="hidden items-center gap-3 text-sm lg:flex" aria-label="Primary">
-          {renderLinks(
-            "inline-flex min-h-11 items-center rounded-lg text-muted transition-colors hover:text-foreground",
-          )}
+        <nav className="hidden lg:block" aria-label="Primary">
+          <ul className="flex items-center gap-1">
+            {siteConfig.nav.map((item) => (
+              <li key={item.href}>
+                <a
+                  href={assetUrl(item.href)}
+                  className="inline-flex min-h-11 items-center px-3 font-display text-[0.9375rem] font-medium text-muted transition-colors hover:text-foreground"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
         </nav>
 
         <a
-          className="btn btn-primary hidden !px-4 !py-2 text-sm xl:inline-flex"
+          className="btn btn-primary hidden !min-h-10 !px-4 !py-2 lg:inline-flex"
           href={assetUrl("/#contact")}
         >
           Discuss a Project
         </a>
 
         <button
+          ref={buttonRef}
           type="button"
-          className="inline-flex size-11 items-center justify-center rounded-full border border-line text-foreground lg:hidden"
+          className="inline-flex min-h-11 items-center gap-2 border border-line-strong px-3 font-display text-sm font-semibold lg:hidden"
           aria-expanded={open}
           aria-controls={panelId}
           onClick={() => setOpen((value) => !value)}
         >
-          <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
-          {open ? <X className="size-5" aria-hidden /> : <Menu className="size-5" aria-hidden />}
+          <span aria-hidden className="relative block h-3 w-4">
+            <span
+              className={`absolute left-0 h-[1.5px] w-4 bg-foreground transition-transform duration-150 ${open ? "top-1/2 rotate-45" : "top-0"}`}
+            />
+            <span
+              className={`absolute bottom-0 left-0 h-[1.5px] w-4 bg-foreground transition-transform duration-150 ${open ? "bottom-auto top-1/2 -rotate-45" : ""}`}
+            />
+          </span>
+          {open ? "Close" : "Menu"}
         </button>
       </div>
 
-      {open ? (
-        <div
-          id={panelId}
-          className="max-h-[calc(100dvh-4.25rem)] overflow-auto border-t border-line bg-background px-5 py-4 lg:hidden"
-        >
-          <nav className="flex flex-col gap-1 text-base" aria-label="Mobile">
-            {renderLinks(
-              "inline-flex min-h-11 items-center rounded-lg px-2 text-muted transition-colors hover:text-foreground",
-            )}
-          </nav>
+      <div
+        id={panelId}
+        hidden={!open}
+        className="h-[calc(100dvh-4rem)] overflow-auto border-t border-line bg-background lg:hidden"
+      >
+        <nav className="wrap py-4" aria-label="Mobile">
+          <ul className="divide-y divide-line border-b border-line">
+            {siteConfig.nav.map((item) => (
+              <li key={item.href}>
+                <a
+                  href={assetUrl(item.href)}
+                  className="flex min-h-14 items-center font-display text-lg font-medium"
+                  onClick={close}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
           <a
-            className="btn btn-primary mt-4 w-full"
+            className="btn btn-primary mt-6 w-full"
             href={assetUrl("/#contact")}
-            onClick={() => setOpen(false)}
+            onClick={close}
           >
             Discuss a Project
           </a>
-        </div>
-      ) : null}
+        </nav>
+      </div>
     </header>
   );
 }

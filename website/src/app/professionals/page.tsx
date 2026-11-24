@@ -1,39 +1,19 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { ProfessionalCategoryCard } from "@/components/directory/ProfessionalCategoryCard";
 import { ProfessionalDirectory } from "@/components/directory/ProfessionalDirectory";
 import { directoryCopy } from "@/content/directory";
-import { absoluteUrl, siteConfig } from "@/config/site";
+import { siteConfig } from "@/config/site";
 
 const title = "Find Mental Health Professionals | Oppuna";
 const description =
   "Explore Oppuna's upcoming mental health professional directory, including psychiatrists, clinical psychologists, and counselling psychologists.";
 
-export const metadata: Metadata = {
-  title: { absolute: title },
+export const metadata: Metadata = pageMetadata({
+  title,
   description,
-  alternates: { canonical: absoluteUrl("/professionals") },
-  openGraph: {
-    title,
-    description,
-    url: absoluteUrl("/professionals"),
-    siteName: siteConfig.name,
-    images: [
-      {
-        url: absoluteUrl("/og.png"),
-        width: 1200,
-        height: 630,
-        alt: "Oppuna professional directory preview",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-    images: [absoluteUrl("/og.png")],
-  },
-  robots: { index: true, follow: true },
-};
+  path: "/professionals",
+});
 
 const categoryCards = [
   directoryCopy.categories.psychiatrist,
@@ -44,14 +24,13 @@ const categoryCards = [
 export default function ProfessionalsPage() {
   return (
     <article>
-      <header className="relative overflow-hidden">
-        <div className="hero-glow pointer-events-none absolute inset-0" aria-hidden />
-        <div className="relative mx-auto w-full max-w-6xl px-5 py-16 md:px-8 md:py-24">
+      <header className="border-b border-line">
+        <div className="wrap py-16 md:py-24">
           <p className="eyebrow">{directoryCopy.previewLabel}</p>
-          <h1 className="mt-4 max-w-4xl text-[clamp(2.3rem,6vw,4.2rem)] font-medium leading-[1.05] tracking-[-0.045em]">
+          <h1 className="mt-4 max-w-4xl text-[clamp(2.25rem,4.4vw,3.375rem)] leading-[1.08] tracking-[-0.02em]">
             {directoryCopy.pageHeading}
           </h1>
-          <p className="mt-5 text-xl font-medium tracking-[-0.03em] text-foreground">
+          <p className="mt-5 text-xl font-medium  text-foreground">
             {directoryCopy.heroTitle}
           </p>
           <div className="mt-5 max-w-2xl space-y-4 text-lg leading-relaxed text-muted">
@@ -67,7 +46,7 @@ export default function ProfessionalsPage() {
         className="border-t border-line"
         aria-labelledby="professional-categories-heading"
       >
-        <div className="mx-auto w-full max-w-6xl px-5 py-16 md:px-8 md:py-20">
+        <div className="wrap py-16 md:py-20">
           <h2 id="professional-categories-heading" className="section-title">
             {directoryCopy.categoriesHeading}
           </h2>
@@ -88,10 +67,10 @@ export default function ProfessionalsPage() {
       </section>
 
       <section
-        className="border-t border-line bg-[color-mix(in_srgb,var(--surface)_72%,transparent)]"
+        className="border-t border-line bg-surface"
         aria-labelledby="directory-results-heading"
       >
-        <div className="mx-auto w-full max-w-6xl px-5 py-16 md:px-8 md:py-20">
+        <div className="wrap py-16 md:py-20">
           <h2 id="directory-results-heading" className="sr-only">
             Demonstration profiles
           </h2>

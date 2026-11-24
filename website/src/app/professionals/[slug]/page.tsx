@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { ProfessionalProfile } from "@/components/directory/ProfessionalProfile";
-import { absoluteUrl } from "@/config/site";
+
 import {
   getProfessionalBySlug,
   professionals,
@@ -30,26 +31,12 @@ export async function generateMetadata({
   const title = `${profile.name} · Demonstration profile | Oppuna`;
   const description = `Fictional demonstration profile for a preview of the Oppuna directory. ${profile.name} is not a real or available practitioner.`;
 
-  return {
-    title: { absolute: title },
+  return pageMetadata({
+    title,
     description,
-    alternates: { canonical: absoluteUrl(`/professionals/${profile.slug}`) },
-    robots: {
-      index: false,
-      follow: false,
-      googleBot: { index: false, follow: false },
-    },
-    openGraph: {
-      title,
-      description,
-      url: absoluteUrl(`/professionals/${profile.slug}`),
-    },
-    twitter: {
-      card: "summary",
-      title,
-      description,
-    },
-  };
+    path: `/professionals/${profile.slug}`,
+    noindex: true,
+  });
 }
 
 export default async function ProfessionalProfilePage({
