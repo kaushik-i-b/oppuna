@@ -76,14 +76,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: absoluteUrl("/labs-mark.svg"), type: "image/svg+xml" },
+      { url: absoluteUrl("/favicon.svg"), type: "image/svg+xml" },
       {
-        url: absoluteUrl("/labs-mark-32.png"),
+        url: absoluteUrl("/brand/favicon.png"),
         sizes: "32x32",
         type: "image/png",
       },
     ],
-    apple: [{ url: absoluteUrl("/labs-mark-180.png"), sizes: "180x180" }],
+    apple: [{ url: absoluteUrl("/brand/icon.png") }],
   },
 };
 
