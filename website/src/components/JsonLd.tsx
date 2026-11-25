@@ -26,7 +26,7 @@ export function JsonLd() {
         url: absoluteUrl("/"),
         email: siteConfig.supportEmail,
         description: siteConfig.description,
-        logo: absoluteUrl("/labs-mark-512.png"),
+        logo: absoluteUrl("/brand/icon.png"),
         sameAs: [siteConfig.githubUrl],
         parentOrganization: { "@id": parentId },
       },

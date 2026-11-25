@@ -11,15 +11,16 @@
   --surface: #ffffff;
   --text: #17191f;
   --muted: #555b68;
-  --accent: #3155e7;
-  --accent-hover: #2443c4;
+  /* Accent = the teal of the Oppuna leaf logo (public/brand/icon.png). */
+  --accent: #0e7c66;
+  --accent-hover: #0a6352;
   /* Accent used as text; lighter variant inside dark sections. */
-  --accent-text: #3155e7;
-  --accent-soft: #eef1fd;
+  --accent-text: #0e7c66;
+  --accent-soft: #e6f2ef;
   --line: #e0e3eb;
   --line-strong: #c4c9d6;
   --dark: #141720;
-  --focus: #3155e7;
+  --focus: #0e7c66;
   --background: var(--bg);
   --foreground: var(--text);
   color-scheme: light;
@@ -30,11 +31,11 @@
   --surface: #1b1f2a;
   --text: #f3f4f8;
   --muted: #a9afbd;
-  --accent-text: #9db0ff;
-  --accent-soft: rgba(157, 176, 255, 0.12);
+  --accent-text: #5ccaae;
+  --accent-soft: rgba(92, 202, 174, 0.12);
   --line: rgba(243, 244, 248, 0.14);
   --line-strong: rgba(243, 244, 248, 0.32);
-  --focus: #9db0ff;
+  --focus: #5ccaae;
   background: var(--bg);
   color: var(--text);
   color-scheme: dark;
@@ -105,7 +106,7 @@ body {
 }
 
 ::selection {
-  background: #d6defc;
+  background: #cbe6df;
   color: #17191f;
 }
 

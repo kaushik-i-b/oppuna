@@ -17,7 +17,7 @@ export function ProfessionalAvatar({ id, className }: Props) {
       className={className}
       fill="none"
     >
-      <rect width="72" height="72" fill="#eef1fd" />
+      <rect width="72" height="72" fill="#e6f2ef" />
       {id === "orbit" ? <Orbit /> : null}
       {id === "grove" ? <Grove /> : null}
       {id === "tide" ? <Tide /> : null}
@@ -28,9 +28,9 @@ export function ProfessionalAvatar({ id, className }: Props) {
 
 function Orbit() {
   return (
-    <g stroke="#3155e7" strokeWidth="1.7">
+    <g stroke="#0e7c66" strokeWidth="1.7">
       <circle cx="36" cy="36" r="16" />
-      <circle cx="36" cy="36" r="6" fill="#3155e7" stroke="none" />
+      <circle cx="36" cy="36" r="6" fill="#0e7c66" stroke="none" />
       <path d="M36 12v8M36 52v8M12 36h8M52 36h8" strokeLinecap="round" />
     </g>
   );
@@ -48,7 +48,7 @@ function Grove() {
 
 function Tide() {
   return (
-    <g stroke="#3155e7" strokeWidth="1.7" strokeLinecap="round" fill="none">
+    <g stroke="#0e7c66" strokeWidth="1.7" strokeLinecap="round" fill="none">
       <path d="M14 30c6 0 6-6 12-6s6 6 12 6 6-6 12-6 6 6 8 6" />
       <path d="M14 42c6 0 6-6 12-6s6 6 12 6 6-6 12-6 6 6 8 6" />
       <path d="M18 54h36" />
@@ -61,7 +61,7 @@ function Lattice() {
     <g stroke="#555b68" strokeWidth="1.6">
       <rect x="20" y="20" width="32" height="32" rx="8" />
       <path d="M36 20v32M20 36h32" />
-      <circle cx="36" cy="36" r="3" fill="#3155e7" stroke="none" />
+      <circle cx="36" cy="36" r="3" fill="#0e7c66" stroke="none" />
     </g>
   );
 }
